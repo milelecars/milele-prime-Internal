@@ -1289,6 +1289,19 @@ function ibSetClients() {
 }
 
 function renderIB() {
+  // Capture focus before the innerHTML rebuild wipes the active input,
+  // so the user can keep typing multi-digit values and see the Net Margin
+  // per Lot table update live.
+  const __active = document.activeElement;
+  let __focusKey = null;
+  if(__active && __active.tagName === 'INPUT' && __active.dataset.pid) {
+    __focusKey = __active.dataset.field
+      ? 'field|' + __active.dataset.pid + '|' + __active.dataset.field
+      : __active.dataset.aclass
+      ? 'aclass|' + __active.dataset.pid + '|' + __active.dataset.aclass
+      : 'name|' + __active.dataset.pid;
+  }
+
   ibSetClients();
   const total = getIBClients();
   const setEl = (id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
@@ -1327,6 +1340,21 @@ function renderIB() {
   setEl('ibt-revshare',    fmtM(allRS));
   setEl('ibt-rebate',      fmtM(allRB));
   setEl('ibt-total',       fmtM(totalPayout));
+
+  if(__focusKey) {
+    const [k, pid, key] = __focusKey.split('|');
+    const sel = k === 'field'  ? 'input[data-pid="'+pid+'"][data-field="'+key+'"]'
+              : k === 'aclass' ? 'input[data-pid="'+pid+'"][data-aclass="'+key+'"]'
+              : 'input[data-pid="'+pid+'"]:not([data-field]):not([data-aclass])';
+    const el = document.querySelector(sel);
+    if(el) {
+      el.focus();
+      try {
+        const len = el.value.length;
+        el.setSelectionRange(len, len);
+      } catch(_) { /* type=number rejects setSelectionRange in some browsers */ }
+    }
+  }
 }
 
 function ibSet(id, tier, field, val) {
