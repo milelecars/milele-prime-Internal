@@ -11,84 +11,105 @@
   --pu:#BF6FFF;--pu-dim:rgba(191,111,255,0.12);--pu-mid:rgba(191,111,255,0.25);
   --bg:#0D0A14;--bg2:#130E1F;--bg3:#1A1229;
   --border:rgba(191,111,255,0.3);--border-dim:rgba(255,255,255,0.08);
-  --green:#3DDBA0;--green-bg:rgba(61,219,160,0.1);
-  --red:#FF6B6B;--red-bg:rgba(255,107,107,0.1);
+  --green:#3DDBA0;--green-bg:rgba(61,219,160,0.08);
+  --red:#FF6B6B;--red-bg:rgba(255,107,107,0.08);
+  --amber:#F5A623;--amber-bg:rgba(245,166,35,0.08);
   --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
 }
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:#fff;font-family:var(--font);font-size:14px;line-height:1.6;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(191,111,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(191,111,255,0.04) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0}
-.container{max-width:1140px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(191,111,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(191,111,255,0.03) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0}
+.container{max-width:1200px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
 
-/* HEADER */
 header{background:var(--pu);padding:1.25rem 0}
 .header-inner{display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
 .logo{font-weight:700;font-size:22px;letter-spacing:-0.02em;color:#fff}
 .header-right{font-size:11px;color:#fff;text-align:right}
 .header-right strong{color:#fff;font-weight:600;display:block;font-size:12px;margin-bottom:1px}
 
-/* PAGE TABS */
 .page-tabs{background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.page-tabs-inner{display:flex;gap:0}
-.page-tab{padding:1rem 2rem;font-size:13px;font-weight:600;letter-spacing:.04em;background:transparent;border:none;border-bottom:3px solid transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-family:var(--font);transition:all .2s}
+.page-tabs-inner{display:flex}
+.page-tab{padding:1rem 2rem;font-size:13px;font-weight:600;background:transparent;border:none;border-bottom:3px solid transparent;color:rgba(255,255,255,0.45);cursor:pointer;font-family:var(--font);transition:all .2s}
 .page-tab.active{color:#fff;border-bottom-color:var(--pu)}
 .page-tab:hover:not(.active){color:#fff;background:rgba(191,111,255,0.06)}
 
-/* TAB PANELS */
-.tab-panel{display:none}
-.tab-panel.active{display:block}
+.tab-panel{position:absolute;left:-9999px;pointer-events:none;opacity:0;width:100%}
+.tab-panel.active{position:static;pointer-events:auto;opacity:1;display:block}
 
-/* HERO */
-.hero{padding:2.5rem 0 1.5rem;border-bottom:1px solid var(--border-dim)}
-.hero-title{font-weight:700;font-size:clamp(26px,3vw,38px);letter-spacing:-0.02em;color:#fff}
+.hero{padding:2rem 0 1.25rem;border-bottom:1px solid var(--border-dim)}
+.hero-title{font-weight:700;font-size:clamp(24px,3vw,36px);letter-spacing:-0.02em}
+.hero-sub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px}
 
-/* SECTION DIVIDER */
 .divider{display:flex;align-items:center;gap:1rem;margin:2rem 0 1rem}
-.divider-label{font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;white-space:nowrap}
+.divider-label{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#fff;white-space:nowrap}
 .divider-line{flex:1;height:1px;background:var(--border-dim)}
 
+/* FORMULA ANNOTATION */
+.formula-note{font-size:11px;color:rgba(255,255,255,0.4);font-style:italic;margin-top:3px;line-height:1.5}
+.formula-note strong{color:rgba(191,111,255,0.8);font-style:normal}
+
 /* SLIDERS */
-.sliders-panel{background:var(--bg2);border:1px solid var(--border);padding:1.75rem 2rem;display:grid;grid-template-columns:1fr 1fr;gap:1.25rem 3rem}
-.slider-row{display:flex;flex-direction:column;gap:6px}
+.sliders-panel{background:var(--bg2);border:1px solid var(--border);padding:1.75rem 2rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 3rem}
+.slider-row{display:flex;flex-direction:column;gap:5px}
 .slider-label{display:flex;justify-content:space-between;align-items:baseline}
-.slider-name{font-size:12px;color:#fff}
+.slider-name{font-size:12px;color:#fff;font-weight:500}
 .slider-value{font-size:13px;font-weight:700;color:#fff}
 input[type=range]{-webkit-appearance:none;width:100%;height:2px;background:var(--border-dim);outline:none;cursor:pointer}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--pu);border-radius:50%;cursor:pointer;transition:transform .15s}
-input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.25)}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3)}
 input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);border-radius:50%;border:none}
 
 /* METRIC CARDS */
 .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border-dim);border:1px solid var(--border)}
 .mc{background:var(--bg2);padding:1.5rem}
-.mc.green{background:var(--green-bg)}.mc.red{background:var(--red-bg)}.mc.purple{background:var(--pu-dim)}
-.mc-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-bottom:.5rem}
-.mc-value{font-size:30px;font-weight:300;line-height:1;color:#fff;margin-bottom:4px}
-.mc.green .mc-value{color:var(--green)}.mc.red .mc-value{color:var(--red)}.mc.purple .mc-value{color:var(--pu)}
-.mc-sub{font-size:11px;color:#fff}
+.mc.green{background:var(--green-bg)}.mc.red{background:var(--red-bg)}.mc.amber{background:var(--amber-bg)}.mc.purple{background:var(--pu-dim)}
+.mc-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:.4rem}
+.mc-value{font-size:30px;font-weight:300;line-height:1;color:#fff;margin-bottom:3px}
+.mc.green .mc-value{color:var(--green)}.mc.red .mc-value{color:var(--red)}.mc.amber .mc-value{color:var(--amber)}.mc.purple .mc-value{color:var(--pu)}
+.mc-sub{font-size:10px;color:rgba(255,255,255,0.4)}
+.mc-formula{font-size:10px;color:rgba(191,111,255,0.6);margin-top:5px;border-top:1px solid rgba(255,255,255,0.06);padding-top:5px}
+
+/* P&L WATERFALL */
+.waterfall{background:var(--bg2);border:1px solid var(--border);overflow:hidden}
+.wf-row{display:grid;grid-template-columns:280px 1fr 130px 130px;align-items:center;border-bottom:1px solid var(--border-dim);padding:.6rem 1.25rem;font-size:13px}
+.wf-row:last-child{border-bottom:none}
+.wf-row.header{background:var(--pu);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;padding:.6rem 1.25rem}
+.wf-row.subtotal{background:rgba(255,255,255,0.04);font-weight:600}
+.wf-row.total{background:var(--pu-dim);font-weight:700;font-size:14px}
+.wf-row.section-sep{background:var(--bg3);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.5);padding:.4rem 1.25rem}
+.wf-label{color:#fff}
+.wf-formula{font-size:10px;color:rgba(191,111,255,0.6);margin-top:2px}
+.wf-note{font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px}
+.wf-value{text-align:right;font-weight:500}
+.wf-value.pos{color:var(--green)}.wf-value.neg{color:var(--red)}.wf-value.pu{color:var(--pu)}
+.wf-bar-wrap{padding:0 1rem}
+.wf-bar{height:6px;border-radius:2px;background:var(--pu-dim)}
+.wf-bar-fill{height:100%;border-radius:2px;background:var(--pu);transition:width .4s}
 
 /* YEAR SUMMARY */
-.year-band{background:var(--bg2);border:1px solid var(--border);padding:2rem;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem}
-.ys-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-bottom:6px}
-.ys-value{font-size:28px;font-weight:300;line-height:1;color:#fff}
+.year-band{background:var(--bg2);border:1px solid var(--border);padding:1.75rem;display:grid;grid-template-columns:repeat(5,1fr);gap:1.5rem}
+.ys-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:4px}
+.ys-value{font-size:26px;font-weight:300;line-height:1;color:#fff}
 .ys-value.pos{color:var(--green)}.ys-value.neg{color:var(--red)}.ys-value.pu{color:var(--pu)}
+.ys-formula{font-size:10px;color:rgba(191,111,255,0.5);margin-top:4px}
 
 /* QUARTERLY TABLE */
 .q-table{width:100%;border-collapse:collapse;border:1px solid var(--border)}
 .q-table th{background:var(--pu);padding:.75rem 1.25rem;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff}
 .q-table th:not(:first-child){text-align:right}
-.q-table td{padding:.875rem 1.25rem;font-size:13px;color:#fff;border-bottom:1px solid var(--border-dim);background:var(--bg2)}
+.q-table td{padding:.8rem 1.25rem;font-size:13px;color:#fff;border-bottom:1px solid var(--border-dim);background:var(--bg2)}
 .q-table td:not(:first-child){text-align:right;font-weight:500}
+.q-table .th-formula{font-size:9px;color:rgba(255,255,255,0.55);font-weight:400;letter-spacing:0;text-transform:none;display:block;margin-top:2px}
 .q-table tr.total-row td{background:var(--pu-dim);color:var(--pu);font-weight:700;border-bottom:none}
 .q-table .pos{color:var(--green) !important}.q-table .neg{color:var(--red) !important}
 
 /* CHART */
 .chart-section{background:var(--bg2);border:1px solid var(--border);padding:2rem}
 .chart-tabs{display:flex;margin-bottom:1.5rem;border:1px solid var(--border);width:fit-content}
-.chart-tab{padding:7px 18px;font-size:11px;font-weight:600;background:transparent;border:none;border-right:1px solid var(--border);color:#fff;cursor:pointer;font-family:var(--font);transition:all .15s}
+.chart-tab{padding:7px 18px;font-size:11px;font-weight:600;background:transparent;border:none;border-right:1px solid var(--border);color:rgba(255,255,255,0.5);cursor:pointer;font-family:var(--font);transition:all .15s}
 .chart-tab:last-child{border-right:none}
 .chart-tab.active{background:var(--pu);color:#fff}
-.chart-tab:hover:not(.active){background:var(--pu-dim)}
+.chart-tab:hover:not(.active){background:var(--pu-dim);color:#fff}
 .chart-legend{display:flex;gap:1.5rem;margin-bottom:1rem;flex-wrap:wrap}
 .li{display:flex;align-items:center;gap:8px;font-size:12px;color:#fff}
 .ld{width:20px;height:2px;border-radius:1px}
@@ -97,15 +118,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 /* EDITABLE COSTS */
 .costs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-dim);border:1px solid var(--border)}
 .ci{background:var(--bg2);padding:1.25rem}
-.ci-label{font-size:11px;color:#fff;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.ci-label{font-size:11px;color:#fff;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.ci-note{font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:8px}
 .ci-input-wrap{display:flex;align-items:center;gap:4px}
-.ci-prefix{font-size:13px;color:#fff}
+.ci-prefix{font-size:13px;color:rgba(255,255,255,0.5)}
 .ci-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:#fff;font-size:18px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0;transition:border-color .15s}
 .ci-input:focus{border-bottom-color:var(--pu)}
 .ci-input::-webkit-inner-spin-button,.ci-input::-webkit-outer-spin-button{-webkit-appearance:none}
 .ci.total{background:var(--pu)}
-.ci.total .ci-label{color:rgba(255,255,255,0.8)}
+.ci.total .ci-label,.ci.total .ci-note{color:rgba(255,255,255,0.8)}
 .ci-total-value{font-size:22px;font-weight:700;color:#fff}
+
+/* PSP PANEL */
+.psp-panel{background:var(--bg2);border:1px solid var(--border);padding:1.75rem 2rem}
+.psp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 3rem}
+.psp-outputs{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,0.07);border:1px solid rgba(191,111,255,0.2);margin-top:.5rem}
+.psp-out{background:var(--bg2);padding:1rem 1.25rem}
+.psp-out-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:3px}
+.psp-out-formula{font-size:9px;color:rgba(191,111,255,0.5);margin-bottom:4px}
+.psp-out-value{font-size:18px;font-weight:300;color:#fff}
 
 /* VENDOR COMPARISON */
 .vc-wrap{background:var(--bg2);border:1px solid var(--border)}
@@ -116,18 +147,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .vc-name-row{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem}
 .vc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .vc-dot.a{background:var(--pu)}.vc-dot.b{background:var(--green)}
-.vc-name-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:#fff;font-size:15px;font-weight:700;font-family:var(--font);width:100%;outline:none;padding:2px 0;transition:border-color .15s}
-.vc-name-input:focus{border-bottom-color:var(--pu)}
+.vc-name-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:#fff;font-size:15px;font-weight:700;font-family:var(--font);width:100%;outline:none;padding:2px 0}
 .vc-q-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1rem}
 .vc-q-cell{display:flex;flex-direction:column;gap:4px}
-.vc-q-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff}
-.vc-q-prefix{font-size:11px;color:#fff;margin-bottom:1px}
-.vc-q-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:#fff;font-size:17px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0;transition:border-color .15s}
-.vc-q-input:focus{border-bottom-color:var(--pu)}
+.vc-q-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.6)}
+.vc-q-prefix{font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:1px}
+.vc-q-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:#fff;font-size:17px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0}
 .vc-q-input::-webkit-inner-spin-button,.vc-q-input::-webkit-outer-spin-button{-webkit-appearance:none}
-.vc-annual{font-size:12px;color:#fff}
+.vc-annual{font-size:12px;color:rgba(255,255,255,0.5)}
 .vc-annual strong{font-size:15px;font-weight:700;color:#fff;margin-left:4px}
-
+.vc-note{padding:1rem 1.5rem;background:var(--pu-dim);border-left:3px solid var(--pu);margin-bottom:1.5rem;font-size:12px;color:#fff;line-height:1.7}
 .vc-results-table{width:100%;border-collapse:collapse}
 .vc-results-table th{padding:.7rem 1.25rem;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--bg3);text-align:left}
 .vc-results-table th:not(:first-child){text-align:right}
@@ -137,7 +166,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .vc-results-table td:not(:first-child){text-align:right;font-weight:600}
 .vc-results-table td.col-a{color:var(--pu)}
 .vc-results-table td.col-b{color:var(--green)}
-.vc-results-table tr.section-head td{background:var(--bg3);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;padding:.5rem 1.25rem}
+.vc-results-table tr.section-head td{background:var(--bg3);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);padding:.4rem 1.25rem}
 .vc-results-table tr:last-child td{border-bottom:none}
 .badge{display:inline-block;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700}
 .badge.better{background:rgba(61,219,160,0.15);color:var(--green)}
@@ -146,79 +175,69 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .vc-chart-panel{padding:1.5rem 2rem;border-top:1px solid var(--border-dim)}
 .vc-chart-canvas-wrap{position:relative;height:240px}
 
-/* NOTE BOX */
-.vc-note{padding:1rem 1.5rem;background:var(--pu-dim);border-left:3px solid var(--pu);margin-bottom:1.5rem;font-size:12px;color:#fff;line-height:1.7}
-
-footer{border-top:1px solid var(--border-dim);padding:1.5rem 0;margin-top:4rem}
-footer .inner{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#fff}
-
-
-/* ── IB NETWORK TAB ── */
+/* IB NETWORK */
 .ib-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-dim);border:1px solid var(--border)}
 .ib-sum-card{background:var(--bg2);padding:1.25rem 1.5rem}
-.ib-sum-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-bottom:6px}
+.ib-sum-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:4px}
+.ib-sum-formula{font-size:9px;color:rgba(191,111,255,0.5);margin-bottom:4px}
 .ib-sum-value{font-size:26px;font-weight:300;color:#fff;line-height:1}
 .ib-sum-value.pu{color:var(--pu)}.ib-sum-value.green{color:var(--green)}.ib-sum-value.red{color:var(--red)}
-.ib-sum-sub{font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px}
-.tier-block{border:1px solid var(--border);margin-bottom:1.5rem;overflow:hidden}
+.tier-block{border:1px solid var(--border);margin-bottom:1.25rem;overflow:hidden}
 .tier-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;cursor:pointer;user-select:none;transition:background .15s}
 .tier-header:hover{background:rgba(191,111,255,0.06)}
 .tier-header-left{display:flex;align-items:center;gap:14px}
 .tier-badge{padding:4px 12px;border-radius:2px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 .tier-badge.t1{background:var(--pu);color:#fff}
-.tier-badge.t2{background:rgba(61,219,160,0.2);color:var(--green);border:1px solid rgba(61,219,160,0.4)}
+.tier-badge.t2{background:rgba(61,219,160,0.15);color:var(--green);border:1px solid rgba(61,219,160,0.4)}
 .tier-badge.t3{background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15)}
 .tier-title{font-size:15px;font-weight:700;color:#fff}
-.tier-meta{font-size:11px;color:rgba(255,255,255,0.5);margin-top:1px}
+.tier-meta{font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px}
 .tier-header-right{display:flex;align-items:center;gap:1.5rem}
 .tier-stat{text-align:right}
 .tier-stat-val{font-size:16px;font-weight:600;color:#fff}
-.tier-stat-label{font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.06em;text-transform:uppercase}
+.tier-stat-label{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:.06em;text-transform:uppercase}
 .tier-chevron{font-size:12px;color:rgba(255,255,255,0.4);transition:transform .2s;margin-left:.5rem}
 .tier-block.open .tier-chevron{transform:rotate(180deg)}
 .tier-body{display:none;background:var(--bg2)}
 .tier-block.open .tier-body{display:block}
-.profiles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1px;background:var(--border-dim)}
+.profiles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1px;background:var(--border-dim)}
 .ib-profile{background:var(--bg2);padding:1.5rem}
-.ib-profile-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
-.ib-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.ib-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
 .ib-avatar.t1{background:var(--pu);color:#fff}
-.ib-avatar.t2{background:rgba(61,219,160,0.2);color:var(--green);border:1px solid rgba(61,219,160,0.4)}
+.ib-avatar.t2{background:rgba(61,219,160,0.15);color:var(--green);border:1px solid rgba(61,219,160,0.4)}
 .ib-avatar.t3{background:rgba(255,255,255,0.1);color:#fff}
-.ib-name-block{margin-left:10px;flex:1}
-.ib-name{font-size:14px;font-weight:700;color:#fff}
-.ib-role{font-size:11px;color:rgba(255,255,255,0.5)}
-.ib-clients-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:2px;background:var(--pu-dim);color:var(--pu);white-space:nowrap}
 .ib-commission-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-bottom:1rem}
-.ib-field{display:flex;flex-direction:column;gap:4px}
-.ib-field-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5)}
-.ib-field-wrap{display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border-dim);padding-bottom:3px;transition:border-color .15s}
-.ib-field-wrap:focus-within{border-bottom-color:var(--pu)}
-.ib-field-sym{font-size:12px;color:rgba(255,255,255,0.5)}
+.ib-field{display:flex;flex-direction:column;gap:3px}
+.ib-field-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.45)}
+.ib-field-formula{font-size:9px;color:rgba(191,111,255,0.5)}
+.ib-field-wrap{display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border-dim);padding-bottom:3px}
+.ib-field-sym{font-size:12px;color:rgba(255,255,255,0.4)}
 .ib-field-input{background:transparent;border:none;color:#fff;font-size:16px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0}
 .ib-field-input::-webkit-inner-spin-button,.ib-field-input::-webkit-outer-spin-button{-webkit-appearance:none}
-.ib-output{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border-dim)}
-.ib-out-item{background:var(--bg3);padding:.5rem .75rem;border-radius:2px}
-.ib-out-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:2px}
+.ib-output{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border-dim)}
+.ib-out-item{background:var(--bg3);padding:.5rem .6rem;border-radius:2px}
+.ib-out-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:1px}
 .ib-out-value{font-size:13px;font-weight:600;color:#fff}
-.add-ib-btn{display:flex;align-items:center;gap:8px;padding:1rem 1.5rem;border:none;background:transparent;border-top:1px solid var(--border-dim);color:rgba(255,255,255,0.4);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--font);width:100%;transition:all .15s}
+.add-ib-btn{display:flex;align-items:center;gap:8px;padding:1rem 1.5rem;border:none;background:transparent;border-top:1px solid var(--border-dim);color:rgba(255,255,255,0.35);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:var(--font);width:100%;transition:all .15s}
 .add-ib-btn:hover{background:var(--pu-dim);color:#fff}
-.add-ib-btn-icon{width:20px;height:20px;border:1px solid currentColor;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1}
-.ib-total-bar{background:var(--pu);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.ib-total-bar{background:var(--pu);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-top:1.5rem}
 .ib-total-bar-item{text-align:center}
 .ib-total-bar-val{font-size:20px;font-weight:700;color:#fff}
 .ib-total-bar-label{font-size:10px;color:rgba(255,255,255,0.7);letter-spacing:.08em;text-transform:uppercase}
+
+footer{border-top:1px solid var(--border-dim);padding:1.5rem 0;margin-top:4rem}
+footer .inner{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:rgba(255,255,255,0.4)}
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fu{animation:fadeUp .4s ease forwards;opacity:0}
 .fu1{animation-delay:.05s}.fu2{animation-delay:.1s}.fu3{animation-delay:.17s}.fu4{animation-delay:.24s}.fu5{animation-delay:.31s}
 
 @media(max-width:768px){
-  .sliders-panel,.vc-vendors{grid-template-columns:1fr}
-  .metrics-grid{grid-template-columns:1fr 1fr}
-  .costs-grid{grid-template-columns:1fr 1fr}
-  .year-band{grid-template-columns:1fr 1fr}
-  .vc-q-grid{grid-template-columns:repeat(2,1fr)}
-  .page-tab{padding:.75rem 1.25rem;font-size:12px}
+  .sliders-panel,.psp-grid,.vc-vendors{grid-template-columns:1fr}
+  .metrics-grid,.year-band{grid-template-columns:1fr 1fr}
+  .costs-grid,.psp-outputs{grid-template-columns:1fr 1fr}
+  .vc-q-grid{grid-template-columns:1fr 1fr}
+  .page-tab{padding:.75rem 1rem;font-size:12px}
 }
 </style>
 </head>
@@ -230,13 +249,12 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
       <div class="logo">MilelePrime</div>
       <div class="header-right">
         <strong id="live-date"></strong>
-        Year 1 Model · Internal
+        CFO Model v2.0 · Internal
       </div>
     </div>
   </div>
 </header>
 
-<!-- PAGE TABS -->
 <div class="page-tabs">
   <div class="container">
     <div class="page-tabs-inner">
@@ -248,307 +266,403 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 </div>
 
 <main>
-  <div class="container">
+<div class="container">
 
-    <!-- ═══════════════ TAB 1: FINANCIAL MODEL ═══════════════ -->
-    <div class="tab-panel active" id="tab1">
+<!-- ══════════════════════════════════════════
+     TAB 1 — FINANCIAL MODEL
+══════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab1">
 
-      <div class="hero fu fu1">
-        <div class="hero-title">Year 1 Financial Model</div>
-      </div>
-
-      <div class="divider fu fu2"><div class="divider-label">Assumptions</div><div class="divider-line"></div></div>
-      <div class="sliders-panel fu fu2">
-        <div class="slider-row">
-          <div class="slider-label"><span class="slider-name">New funded clients / month</span><span class="slider-value" id="sv-clients">20</span></div>
-          <input type="range" min="5" max="80" step="1" id="sl-clients" value="20">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label"><span class="slider-name">Average client deposit</span><span class="slider-value" id="sv-deposit">$2,500</span></div>
-          <input type="range" min="500" max="10000" step="500" id="sl-deposit" value="2500">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label"><span class="slider-name">Avg lots / client / month</span><span class="slider-value" id="sv-lots">20</span></div>
-          <input type="range" min="5" max="60" step="1" id="sl-lots" value="20">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label"><span class="slider-name">Spread markup (pips per lot)</span><span class="slider-value" id="sv-spread">7 pips</span></div>
-          <input type="range" min="3" max="15" step="0.5" id="sl-spread" value="7">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label"><span class="slider-name">Monthly marketing + IB budget</span><span class="slider-value" id="sv-mkt">$20,000</span></div>
-          <input type="range" min="5000" max="30000" step="1000" id="sl-mkt" value="20000">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label"><span class="slider-name">IB commission share of spread</span><span class="slider-value" id="sv-ib">30%</span></div>
-          <input type="range" min="10" max="45" step="1" id="sl-ib" value="30">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label"><span class="slider-name">Monthly client churn rate</span><span class="slider-value" id="sv-churn">15%</span></div>
-          <input type="range" min="5" max="40" step="1" id="sl-churn" value="15">
-        </div>
-      </div>
-
-      <div class="divider fu fu2"><div class="divider-label">PSP Costs</div><div class="divider-line"></div></div>
-      <div style="background:var(--bg2);border:1px solid var(--border);padding:1.75rem 2rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 3rem;" class="fu fu2">
-
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;justify-content:space-between;align-items:baseline">
-            <span style="font-size:12px;color:#fff">Inward PSP fee (client deposits)</span>
-            <span style="font-size:13px;font-weight:700;color:#fff" id="sv-psp-in">3.0%</span>
-          </div>
-          <input type="range" min="0.5" max="6" step="0.1" id="sl-psp-in" value="3.0">
-          <div style="font-size:11px;color:rgba(255,255,255,0.45)">Charged on every deposit inflow — e.g. $2,500 deposit costs $<span id="sv-psp-in-ex">75</span></div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;justify-content:space-between;align-items:baseline">
-            <span style="font-size:12px;color:#fff">Outward PSP fee (client withdrawals)</span>
-            <span style="font-size:13px;font-weight:700;color:#fff" id="sv-psp-out">2.0%</span>
-          </div>
-          <input type="range" min="0.5" max="5" step="0.1" id="sl-psp-out" value="2.0">
-          <div style="font-size:11px;color:rgba(255,255,255,0.45)">Split: winners withdraw avg deposit × <input type="number" id="psp-winner-pct" value="30" min="0" max="100" step="5" style="background:transparent;border:none;border-bottom:1px solid rgba(191,111,255,0.4);color:var(--pu);font-size:11px;font-weight:700;font-family:var(--font);outline:none;width:32px;text-align:center">% win rate · losers withdraw <input type="number" id="psp-loser-pct" value="40" min="0" max="100" step="5" style="background:transparent;border:none;border-bottom:1px solid rgba(191,111,255,0.4);color:var(--pu);font-size:11px;font-weight:700;font-family:var(--font);outline:none;width:32px;text-align:center">% of deposit</div>
-        </div>
-
-        <div style="grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,0.07);border:1px solid rgba(191,111,255,0.2);margin-top:.5rem">
-          <div style="background:var(--bg2);padding:1rem 1.25rem"><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:4px">Inward cost/client</div><div style="font-size:18px;font-weight:300;color:#fff" id="psp-in-per-client">—</div></div>
-          <div style="background:var(--bg2);padding:1rem 1.25rem"><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:4px">Outward cost/client</div><div style="font-size:18px;font-weight:300;color:#fff" id="psp-out-per-client">—</div></div>
-          <div style="background:var(--bg2);padding:1rem 1.25rem"><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:4px">Total PSP/client/mo</div><div style="font-size:18px;font-weight:300;color:var(--red)" id="psp-total-per-client">—</div></div>
-          <div style="background:var(--bg2);padding:1rem 1.25rem"><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:4px">PSP impact on NPC</div><div style="font-size:18px;font-weight:300;color:var(--red)" id="psp-npc-impact">—</div></div>
-        </div>
-
-      </div>
-
-      <div class="divider fu fu2"><div class="divider-label">Fixed Costs — edit each</div><div class="divider-line"></div></div>
-      <div class="costs-grid fu fu2" id="costs-grid"></div>
-
-      <div class="divider fu fu3"><div class="divider-label">Unit Economics</div><div class="divider-line"></div></div>
-      <div class="metrics-grid fu fu3" id="unit-grid"></div>
-
-      <div class="divider fu fu4"><div class="divider-label">Year 1 Summary</div><div class="divider-line"></div></div>
-      <div class="year-band fu fu4" id="year-band"></div>
-
-      <div class="divider fu fu4"><div class="divider-label">Quarterly Breakdown</div><div class="divider-line"></div></div>
-      <table class="q-table fu fu4">
-        <thead>
-          <tr>
-            <th>Quarter</th><th>Gross Revenue</th><th>Net Revenue</th>
-            <th>Total Costs</th><th>Operating Profit</th><th>Cumulative P&amp;L</th><th>Avg Clients</th>
-          </tr>
-        </thead>
-        <tbody id="q-body"></tbody>
-      </table>
-
-      <div class="divider fu fu5"><div class="divider-label">Monthly Projection</div><div class="divider-line"></div></div>
-      <div class="chart-section fu fu5">
-        <div class="chart-tabs" id="chart-tabs">
-          <button class="chart-tab active" data-chart="cashflow">Cash flow</button>
-          <button class="chart-tab" data-chart="clients">Client base</button>
-          <button class="chart-tab" data-chart="ltv">LTV vs CAC</button>
-        </div>
-        <div class="chart-legend" id="chart-legend"></div>
-        <div class="chart-canvas-wrap">
-          <canvas id="mainChart" role="img" aria-label="Monthly financial projection"></canvas>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ═══════════════ TAB 2: VENDOR COMPARISON ═══════════════ -->
-    <div class="tab-panel" id="tab2">
-
-      <div class="hero fu fu1">
-        <div class="hero-title">Vendor Comparison</div>
-      </div>
-
-      <div class="divider fu fu2"><div class="divider-label">Vendor Inputs</div><div class="divider-line"></div></div>
-
-      <div class="vc-note fu fu2">
-        Enter the name and quarterly cost for each vendor. The comparison shows how each vendor's cost affects your operating profit and breakeven month, using the assumptions set in Tab 1.
-      </div>
-
-      <div class="vc-wrap fu fu2">
-        <div class="vc-vendors">
-          <div class="vc-vendor va">
-            <div class="vc-name-row">
-              <div class="vc-dot a"></div>
-              <input class="vc-name-input vc-trigger" id="vc-name-a" type="text" value="Centroid Bridge" placeholder="Vendor name">
-            </div>
-            <div class="vc-q-grid">
-              <div class="vc-q-cell"><div class="vc-q-label">Q1</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vca-q1" type="number" value="7500" min="0" step="100"></div>
-              <div class="vc-q-cell"><div class="vc-q-label">Q2</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vca-q2" type="number" value="7500" min="0" step="100"></div>
-              <div class="vc-q-cell"><div class="vc-q-label">Q3</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vca-q3" type="number" value="7500" min="0" step="100"></div>
-              <div class="vc-q-cell"><div class="vc-q-label">Q4</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vca-q4" type="number" value="7500" min="0" step="100"></div>
-            </div>
-            <div class="vc-annual">Annual total: <strong id="vca-annual">—</strong></div>
-          </div>
-          <div class="vc-vendor vb">
-            <div class="vc-name-row">
-              <div class="vc-dot b"></div>
-              <input class="vc-name-input vc-trigger" id="vc-name-b" type="text" value="Alpha Dealing Desk" placeholder="Vendor name">
-            </div>
-            <div class="vc-q-grid">
-              <div class="vc-q-cell"><div class="vc-q-label">Q1</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vcb-q1" type="number" value="3000" min="0" step="100"></div>
-              <div class="vc-q-cell"><div class="vc-q-label">Q2</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vcb-q2" type="number" value="3000" min="0" step="100"></div>
-              <div class="vc-q-cell"><div class="vc-q-label">Q3</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vcb-q3" type="number" value="3500" min="0" step="100"></div>
-              <div class="vc-q-cell"><div class="vc-q-label">Q4</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vcb-q4" type="number" value="3500" min="0" step="100"></div>
-            </div>
-            <div class="vc-annual">Annual total: <strong id="vcb-annual">—</strong></div>
-          </div>
-        </div>
-
-        <table class="vc-results-table">
-          <thead>
-            <tr>
-              <th>Metric</th>
-              <th class="col-a" id="vc-th-a">Vendor A</th>
-              <th class="col-b" id="vc-th-b">Vendor B</th>
-              <th>Difference (B vs A)</th>
-            </tr>
-          </thead>
-          <tbody id="vc-tbody"></tbody>
-        </table>
-
-        <div class="vc-chart-panel">
-          <div class="chart-legend" id="vc-legend"></div>
-          <div class="vc-chart-canvas-wrap">
-            <canvas id="vcChart" role="img" aria-label="Vendor quarterly operating profit comparison"></canvas>
-          </div>
-        </div>
-      </div>
-
-
-    <!-- ═══════════════ TAB 3: IB NETWORK ═══════════════ -->
-    <div class="tab-panel" id="tab3">
-
-      <div class="hero fu fu1">
-        <div class="hero-title">IB Network</div>
-      </div>
-
-      <div class="divider fu fu2"><div class="divider-label">Network Overview</div><div class="divider-line"></div></div>
-      <div class="ib-summary fu fu2" id="ib-summary">
-        <div class="ib-sum-card"><div class="ib-sum-label">Total client base</div><div class="ib-sum-value pu" id="ib-total-clients">2,000</div><div class="ib-sum-sub">Active funded clients</div></div>
-        <div class="ib-sum-card"><div class="ib-sum-label">Total IBs</div><div class="ib-sum-value" id="ib-total-ibs">3</div><div class="ib-sum-sub">Across all tiers</div></div>
-        <div class="ib-sum-card"><div class="ib-sum-label">Total IB payout / mo</div><div class="ib-sum-value red" id="ib-total-payout">—</div><div class="ib-sum-sub">CPA + Rev share + Rebate</div></div>
-        <div class="ib-sum-card"><div class="ib-sum-label">Payout as % of revenue</div><div class="ib-sum-value" id="ib-payout-pct">—</div><div class="ib-sum-sub">Based on spread revenue</div></div>
-      </div>
-
-      <!-- CLIENT BASE SLIDER -->
-      <div class="divider fu fu2"><div class="divider-label">Client Base</div><div class="divider-line"></div></div>
-      <div style="background:var(--bg2);border:1px solid var(--border);padding:1.5rem 2rem;" class="fu fu2">
-        <div style="display:flex;flex-direction:column;gap:6px;max-width:500px">
-          <div style="display:flex;justify-content:space-between;align-items:baseline">
-            <span style="font-size:12px;color:#fff">Total active funded clients</span>
-            <span style="font-size:16px;font-weight:700;color:var(--pu)" id="ib-clients-display">2,000</span>
-          </div>
-          <input type="range" min="100" max="10000" step="100" id="ib-client-slider" value="2000">
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.4)"><span>100</span><span>10,000</span></div>
-        </div>
-      </div>
-
-      <div class="divider fu fu3"><div class="divider-label">IB Tiers & Profiles</div><div class="divider-line"></div></div>
-
-      <!-- TIER 1 -->
-      <div class="tier-block open fu fu3" id="tier1-block">
-        <div class="tier-header" onclick="toggleTier('tier1-block')">
-          <div class="tier-header-left">
-            <span class="tier-badge t1">Tier 1</span>
-            <div>
-              <div class="tier-title">Top IBs</div>
-              <div class="tier-meta">20% of client base · Senior partners with direct deal flow</div>
-            </div>
-          </div>
-          <div class="tier-header-right">
-            <div class="tier-stat"><div class="tier-stat-val" id="t1-clients">—</div><div class="tier-stat-label">Clients</div></div>
-            <div class="tier-stat"><div class="tier-stat-val" id="t1-payout">—</div><div class="tier-stat-label">Payout/mo</div></div>
-            <span class="tier-chevron">▼</span>
-          </div>
-        </div>
-        <div class="tier-body">
-          <div class="profiles-grid" id="t1-profiles"></div>
-          <button class="add-ib-btn" onclick="addProfile(1)">
-            <span class="add-ib-btn-icon">+</span> Add IB to Tier 1
-          </button>
-        </div>
-      </div>
-
-      <!-- TIER 2 -->
-      <div class="tier-block open fu fu3" id="tier2-block">
-        <div class="tier-header" onclick="toggleTier('tier2-block')">
-          <div class="tier-header-left">
-            <span class="tier-badge t2">Tier 2</span>
-            <div>
-              <div class="tier-title">Experienced IBs</div>
-              <div class="tier-meta">60% of client base · Established in the industry</div>
-            </div>
-          </div>
-          <div class="tier-header-right">
-            <div class="tier-stat"><div class="tier-stat-val" id="t2-clients">—</div><div class="tier-stat-label">Clients</div></div>
-            <div class="tier-stat"><div class="tier-stat-val" id="t2-payout">—</div><div class="tier-stat-label">Payout/mo</div></div>
-            <span class="tier-chevron">▼</span>
-          </div>
-        </div>
-        <div class="tier-body">
-          <div class="profiles-grid" id="t2-profiles"></div>
-          <button class="add-ib-btn" onclick="addProfile(2)">
-            <span class="add-ib-btn-icon">+</span> Add IB to Tier 2
-          </button>
-        </div>
-      </div>
-
-      <!-- TIER 3 -->
-      <div class="tier-block open fu fu3" id="tier3-block">
-        <div class="tier-header" onclick="toggleTier('tier3-block')">
-          <div class="tier-header-left">
-            <span class="tier-badge t3">Tier 3</span>
-            <div>
-              <div class="tier-title">New IBs</div>
-              <div class="tier-meta">20% of client base · Converted from retail clients</div>
-            </div>
-          </div>
-          <div class="tier-header-right">
-            <div class="tier-stat"><div class="tier-stat-val" id="t3-clients">—</div><div class="tier-stat-label">Clients</div></div>
-            <div class="tier-stat"><div class="tier-stat-val" id="t3-payout">—</div><div class="tier-stat-label">Payout/mo</div></div>
-            <span class="tier-chevron">▼</span>
-          </div>
-        </div>
-        <div class="tier-body">
-          <div class="profiles-grid" id="t3-profiles"></div>
-          <button class="add-ib-btn" onclick="addProfile(3)">
-            <span class="add-ib-btn-icon">+</span> Add IB to Tier 3
-          </button>
-        </div>
-      </div>
-
-      <!-- TOTAL BAR -->
-      <div class="ib-total-bar fu fu4" id="ib-total-bar">
-        <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-clients">—</div><div class="ib-total-bar-label">Total clients covered</div></div>
-        <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-ibs">—</div><div class="ib-total-bar-label">Active IBs</div></div>
-        <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-cpa">—</div><div class="ib-total-bar-label">CPA payout / mo</div></div>
-        <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-revshare">—</div><div class="ib-total-bar-label">Rev share / mo</div></div>
-        <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-rebate">—</div><div class="ib-total-bar-label">Rebate / mo</div></div>
-        <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-total">—</div><div class="ib-total-bar-label">Total IB cost / mo</div></div>
-      </div>
-
-    </div>
-    </div>
-
+  <div class="hero fu fu1">
+    <div class="hero-title">Year 1 Financial Model</div>
+    <div class="hero-sub">All figures are projections based on assumptions below. Revenue model: B-Book retail CFD broker, spread markup, IB distribution.</div>
   </div>
+
+  <!-- ASSUMPTIONS -->
+  <div class="divider fu fu2"><div class="divider-label">Revenue Assumptions</div><div class="divider-line"></div></div>
+  <div class="sliders-panel fu fu2">
+    <div class="slider-row">
+      <div class="slider-label"><span class="slider-name">New funded clients / month</span><span class="slider-value" id="sv-clients">20</span></div>
+      <input type="range" min="5" max="150" step="1" id="sl-clients" value="20">
+      <div class="formula-note">Clients who deposit and are cleared by KYC in the month</div>
+    </div>
+    <div class="slider-row">
+      <div class="slider-label"><span class="slider-name">Average first deposit per client</span><span class="slider-value" id="sv-deposit">$2,500</span></div>
+      <input type="range" min="500" max="15000" step="500" id="sl-deposit" value="2500">
+      <div class="formula-note">Used to calculate PSP inward cost and LTV context</div>
+    </div>
+    <div class="slider-row">
+      <div class="slider-label"><span class="slider-name">Avg lots traded / active client / month</span><span class="slider-value" id="sv-lots">20</span></div>
+      <input type="range" min="2" max="100" step="1" id="sl-lots" value="20">
+      <div class="formula-note">Trading activity volume — drives all revenue. 1 standard lot = 100,000 units</div>
+    </div>
+    <div class="slider-row">
+      <div class="slider-label"><span class="slider-name">Spread markup (pips per lot)</span><span class="slider-value" id="sv-spread">7 pips</span></div>
+      <input type="range" min="3" max="20" step="0.5" id="sl-spread" value="7">
+      <div class="formula-note"><strong>Gross revenue / lot</strong> = pips × $10 (per standard lot, major FX)</div>
+    </div>
+    <div class="slider-row">
+      <div class="slider-label"><span class="slider-name">LP cost per lot (pass-through)</span><span class="slider-value" id="sv-lp">$3.00</span></div>
+      <input type="range" min="0.5" max="8" step="0.5" id="sl-lp" value="3">
+      <div class="formula-note"><strong>LP cost / lot</strong> — paid to Liquidity Provider per executed lot. Deducted before any IB split</div>
+    </div>
+    <div class="slider-row">
+      <div class="slider-label"><span class="slider-name">Monthly client churn rate</span><span class="slider-value" id="sv-churn">15%</span></div>
+      <input type="range" min="2" max="50" step="1" id="sl-churn" value="15">
+      <div class="formula-note"><strong>Client lifespan</strong> = 1 ÷ churn rate. At 15%, avg client stays ~6.7 months</div>
+    </div>
+  </div>
+
+  <!-- ACQUISITION COSTS -->
+  <div class="divider fu fu2"><div class="divider-label">Client Acquisition Costs</div><div class="divider-line"></div></div>
+  <div class="sliders-panel fu fu2">
+    <div class="slider-row">
+      <div class="slider-label"><span class="slider-name">Direct marketing budget / month</span><span class="slider-value" id="sv-mkt">$5,000</span></div>
+      <input type="range" min="0" max="30000" step="500" id="sl-mkt" value="5000">
+      <div class="formula-note">Paid ads, content, events — does NOT include IB commissions (those are variable, below)</div>
+    </div>
+    <div class="slider-row">
+      <div class="slider-label"><span class="slider-name">IB revenue share of net spread</span><span class="slider-value" id="sv-ib">30%</span></div>
+      <input type="range" min="5" max="60" step="1" id="sl-ib" value="30">
+      <div class="formula-note"><strong>IB cost / client</strong> = (Gross/lot − LP/lot) × lots × IB%. Paid on net spread, not gross</div>
+    </div>
+  </div>
+
+  <!-- PSP COSTS -->
+  <div class="divider fu fu2"><div class="divider-label">PSP Transaction Costs</div><div class="divider-line"></div></div>
+  <div class="psp-panel fu fu2">
+    <div class="psp-grid">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font-size:12px;font-weight:500;color:#fff">Inward fee — client deposits</span>
+          <span style="font-size:14px;font-weight:700;color:#fff" id="sv-psp-in">3.0%</span>
+        </div>
+        <input type="range" min="0.5" max="6" step="0.1" id="sl-psp-in" value="3.0">
+        <div class="formula-note"><strong>Applied once</strong> per new deposit event. New clients × avg deposit × rate. Not charged monthly on existing clients.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font-size:12px;font-weight:500;color:#fff">Outward fee — client withdrawals</span>
+          <span style="font-size:14px;font-weight:700;color:#fff" id="sv-psp-out">2.0%</span>
+        </div>
+        <input type="range" min="0.5" max="5" step="0.1" id="sl-psp-out" value="2.0">
+        <div class="formula-note"><strong>Applied monthly</strong> to active client base. Winners and losers both withdraw at different rates.</div>
+      </div>
+      <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 3rem;margin-top:.5rem;padding-top:1rem;border-top:1px solid var(--border-dim)">
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:12px;font-weight:500;color:#fff">Winner withdrawal rate</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="range" min="0" max="100" step="5" id="sl-winner-pct" value="30" style="flex:1">
+            <span style="font-size:14px;font-weight:700;color:var(--green);min-width:40px" id="sv-winner-pct">30%</span>
+          </div>
+          <div class="formula-note">% of winning clients who withdraw profits monthly. Avg withdrawal = deposit × win rate</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:12px;font-weight:500;color:#fff">Loser withdrawal rate</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="range" min="0" max="100" step="5" id="sl-loser-pct" value="40" style="flex:1">
+            <span style="font-size:14px;font-weight:700;color:var(--red);min-width:40px" id="sv-loser-pct">40%</span>
+          </div>
+          <div class="formula-note">% of losing clients who partially withdraw remaining funds monthly</div>
+        </div>
+      </div>
+    </div>
+    <div class="psp-outputs" style="margin-top:1.25rem">
+      <div class="psp-out">
+        <div class="psp-out-label">Inward PSP / new client</div>
+        <div class="psp-out-formula">New client deposit × inward %</div>
+        <div class="psp-out-value" id="psp-in-val">—</div>
+      </div>
+      <div class="psp-out">
+        <div class="psp-out-label">Outward PSP / active client / mo</div>
+        <div class="psp-out-formula">(Winner + Loser withdrawal) × outward %</div>
+        <div class="psp-out-value" id="psp-out-val">—</div>
+      </div>
+      <div class="psp-out">
+        <div class="psp-out-label">Total PSP drag / client / mo</div>
+        <div class="psp-out-formula">Amortised inward + outward</div>
+        <div class="psp-out-value" style="color:var(--red)" id="psp-total-val">—</div>
+      </div>
+      <div class="psp-out">
+        <div class="psp-out-label">Annual PSP cost (est.)</div>
+        <div class="psp-out-formula">Avg active clients × total drag × 12</div>
+        <div class="psp-out-value" style="color:var(--red)" id="psp-annual-val">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIXED OVERHEADS -->
+  <div class="divider fu fu2"><div class="divider-label">Fixed Monthly Overheads</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2" id="costs-grid"></div>
+
+  <!-- UNIT ECONOMICS -->
+  <div class="divider fu fu3"><div class="divider-label">Unit Economics — Per Client</div><div class="divider-line"></div></div>
+  <div class="metrics-grid fu fu3" id="unit-grid"></div>
+
+  <!-- P&L WATERFALL -->
+  <div class="divider fu fu4"><div class="divider-label">Monthly P&amp;L Waterfall (at steady state)</div><div class="divider-line"></div></div>
+  <div class="waterfall fu fu4" id="waterfall"></div>
+
+  <!-- YEAR 1 SUMMARY -->
+  <div class="divider fu fu4"><div class="divider-label">Year 1 Summary</div><div class="divider-line"></div></div>
+  <div class="year-band fu fu4" id="year-band"></div>
+
+  <!-- QUARTERLY TABLE -->
+  <div class="divider fu fu4"><div class="divider-label">Quarterly P&amp;L Breakdown</div><div class="divider-line"></div></div>
+  <table class="q-table fu fu4">
+    <thead>
+      <tr>
+        <th>Quarter</th>
+        <th>Gross Trading Revenue<span class="th-formula">Active clients × lots × spread × $10</span></th>
+        <th>Net Revenue<span class="th-formula">Gross − IB − LP − PSP</span></th>
+        <th>Fixed Overheads<span class="th-formula">Servers + MT5 + CRM + Staff…</span></th>
+        <th>Variable Costs<span class="th-formula">IB + LP + PSP + Mkt</span></th>
+        <th>Operating Profit<span class="th-formula">Net Rev − Fixed OH</span></th>
+        <th>Cumulative P&amp;L<span class="th-formula">Incl. $18k setup cost</span></th>
+        <th>Avg Active Clients</th>
+      </tr>
+    </thead>
+    <tbody id="q-body"></tbody>
+  </table>
+
+  <!-- CHART -->
+  <div class="divider fu fu5"><div class="divider-label">Monthly Projection</div><div class="divider-line"></div></div>
+  <div class="chart-section fu fu5">
+    <div class="chart-tabs" id="chart-tabs">
+      <button class="chart-tab active" data-chart="cashflow">P&amp;L Trend</button>
+      <button class="chart-tab" data-chart="margin">Gross Margin %</button>
+      <button class="chart-tab" data-chart="clients">Client Growth</button>
+      <button class="chart-tab" data-chart="ltv">LTV vs CAC</button>
+    </div>
+    <div class="chart-legend" id="chart-legend"></div>
+    <div class="chart-canvas-wrap">
+      <canvas id="mainChart" role="img" aria-label="Monthly P&L projection"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 2 — VENDOR COMPARISON
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab2">
+
+  <div class="hero fu fu1">
+    <div class="hero-title">Vendor Cost Comparison</div>
+    <div class="hero-sub">Model how switching vendors affects quarterly operating profit and time-to-breakeven. Uses assumptions from Tab 1.</div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Vendor Quarterly Cost Inputs</div><div class="divider-line"></div></div>
+  <div class="vc-note fu fu2">Enter the name and quarterly fee for each vendor. The model shows the full-year P&L impact and breakeven difference between the two. All other assumptions (revenue, churn, overheads) are inherited from Tab 1.</div>
+
+  <div class="vc-wrap fu fu2">
+    <div class="vc-vendors">
+      <div class="vc-vendor va">
+        <div class="vc-name-row">
+          <div class="vc-dot a"></div>
+          <input class="vc-name-input vc-trigger" id="vc-name-a" type="text" value="Centroid Bridge" placeholder="Vendor name">
+        </div>
+        <div class="vc-q-grid">
+          <div class="vc-q-cell"><div class="vc-q-label">Q1</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vca-q1" type="number" value="7500" min="0" step="100"></div>
+          <div class="vc-q-cell"><div class="vc-q-label">Q2</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vca-q2" type="number" value="7500" min="0" step="100"></div>
+          <div class="vc-q-cell"><div class="vc-q-label">Q3</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vca-q3" type="number" value="7500" min="0" step="100"></div>
+          <div class="vc-q-cell"><div class="vc-q-label">Q4</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vca-q4" type="number" value="7500" min="0" step="100"></div>
+        </div>
+        <div class="vc-annual">Annual total: <strong id="vca-annual">—</strong></div>
+      </div>
+      <div class="vc-vendor vb">
+        <div class="vc-name-row">
+          <div class="vc-dot b"></div>
+          <input class="vc-name-input vc-trigger" id="vc-name-b" type="text" value="Alpha Dealing Desk" placeholder="Vendor name">
+        </div>
+        <div class="vc-q-grid">
+          <div class="vc-q-cell"><div class="vc-q-label">Q1</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vcb-q1" type="number" value="3000" min="0" step="100"></div>
+          <div class="vc-q-cell"><div class="vc-q-label">Q2</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vcb-q2" type="number" value="3000" min="0" step="100"></div>
+          <div class="vc-q-cell"><div class="vc-q-label">Q3</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vcb-q3" type="number" value="3500" min="0" step="100"></div>
+          <div class="vc-q-cell"><div class="vc-q-label">Q4</div><div class="vc-q-prefix">$</div><input class="vc-q-input vc-trigger" id="vcb-q4" type="number" value="3500" min="0" step="100"></div>
+        </div>
+        <div class="vc-annual">Annual total: <strong id="vcb-annual">—</strong></div>
+      </div>
+    </div>
+    <table class="vc-results-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th class="col-a" id="vc-th-a">Vendor A</th>
+          <th class="col-b" id="vc-th-b">Vendor B</th>
+          <th>Difference (B vs A)</th>
+        </tr>
+      </thead>
+      <tbody id="vc-tbody"></tbody>
+    </table>
+    <div class="vc-chart-panel">
+      <div class="chart-legend" id="vc-legend"></div>
+      <div class="vc-chart-canvas-wrap">
+        <canvas id="vcChart" role="img" aria-label="Vendor comparison chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 3 — IB NETWORK
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab3">
+
+  <div class="hero fu fu1">
+    <div class="hero-title">IB Network</div>
+    <div class="hero-sub">Three-tier IB structure. 20% / 60% / 20% client split. CPA = one-time per new client. Rev share = monthly on active base. Rebate = per lot traded.</div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Network Summary</div><div class="divider-line"></div></div>
+  <div class="ib-summary fu fu2">
+    <div class="ib-sum-card">
+      <div class="ib-sum-label">Total active client base</div>
+      <div class="ib-sum-formula">Adjust slider below</div>
+      <div class="ib-sum-value pu" id="ib-total-clients">2,000</div>
+    </div>
+    <div class="ib-sum-card">
+      <div class="ib-sum-label">Total IB payout / month</div>
+      <div class="ib-sum-formula">CPA + Rev share + Rebate (all IBs)</div>
+      <div class="ib-sum-value red" id="ib-total-payout">—</div>
+    </div>
+    <div class="ib-sum-card">
+      <div class="ib-sum-label">Payout as % of gross revenue</div>
+      <div class="ib-sum-formula">Total IB payout ÷ (clients × lots × spread × $10)</div>
+      <div class="ib-sum-value" id="ib-payout-pct">—</div>
+    </div>
+    <div class="ib-sum-card">
+      <div class="ib-sum-label">Total active IBs</div>
+      <div class="ib-sum-formula">Across all 3 tiers</div>
+      <div class="ib-sum-value" id="ib-total-ibs">3</div>
+    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Client Base</div><div class="divider-line"></div></div>
+  <div style="background:var(--bg2);border:1px solid var(--border);padding:1.5rem 2rem;" class="fu fu2">
+    <div style="display:flex;flex-direction:column;gap:6px;max-width:520px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:12px;font-weight:500;color:#fff">Total active funded clients</span>
+        <span style="font-size:16px;font-weight:700;color:var(--pu)" id="ib-clients-display">2,000</span>
+      </div>
+      <input type="range" min="100" max="10000" step="100" id="ib-client-slider" value="2000">
+      <div style="font-size:11px;color:rgba(255,255,255,0.35)">Tier 1 receives 20% · Tier 2 receives 60% · Tier 3 receives 20%. Distributed evenly across profiles within each tier.</div>
+    </div>
+  </div>
+
+  <div class="divider fu fu3"><div class="divider-label">IB Tiers &amp; Profiles</div><div class="divider-line"></div></div>
+
+  <div class="tier-block open fu fu3" id="tier1-block">
+    <div class="tier-header" onclick="toggleTier('tier1-block')">
+      <div class="tier-header-left">
+        <span class="tier-badge t1">Tier 1 — 20%</span>
+        <div>
+          <div class="tier-title">Top IBs (Fahad tier)</div>
+          <div class="tier-meta">High-conviction partners · Highest commission rates · Direct deal flow from large networks</div>
+        </div>
+      </div>
+      <div class="tier-header-right">
+        <div class="tier-stat"><div class="tier-stat-val" id="t1-clients">—</div><div class="tier-stat-label">Clients</div></div>
+        <div class="tier-stat"><div class="tier-stat-val" id="t1-payout">—</div><div class="tier-stat-label">Payout / mo</div></div>
+        <span class="tier-chevron">▼</span>
+      </div>
+    </div>
+    <div class="tier-body">
+      <div class="profiles-grid" id="t1-profiles"></div>
+      <button class="add-ib-btn" onclick="addProfile(1)">+ Add IB to Tier 1</button>
+    </div>
+  </div>
+
+  <div class="tier-block open fu fu3" id="tier2-block">
+    <div class="tier-header" onclick="toggleTier('tier2-block')">
+      <div class="tier-header-left">
+        <span class="tier-badge t2">Tier 2 — 60%</span>
+        <div>
+          <div class="tier-title">Experienced IBs</div>
+          <div class="tier-meta">Established professionals · Mid-tier commission · Proven track record in the industry</div>
+        </div>
+      </div>
+      <div class="tier-header-right">
+        <div class="tier-stat"><div class="tier-stat-val" id="t2-clients">—</div><div class="tier-stat-label">Clients</div></div>
+        <div class="tier-stat"><div class="tier-stat-val" id="t2-payout">—</div><div class="tier-stat-label">Payout / mo</div></div>
+        <span class="tier-chevron">▼</span>
+      </div>
+    </div>
+    <div class="tier-body">
+      <div class="profiles-grid" id="t2-profiles"></div>
+      <button class="add-ib-btn" onclick="addProfile(2)">+ Add IB to Tier 2</button>
+    </div>
+  </div>
+
+  <div class="tier-block open fu fu3" id="tier3-block">
+    <div class="tier-header" onclick="toggleTier('tier3-block')">
+      <div class="tier-header-left">
+        <span class="tier-badge t3">Tier 3 — 20%</span>
+        <div>
+          <div class="tier-title">New / Converted IBs</div>
+          <div class="tier-meta">Converted from retail clients · Lower commission while building book · Growth pipeline</div>
+        </div>
+      </div>
+      <div class="tier-header-right">
+        <div class="tier-stat"><div class="tier-stat-val" id="t3-clients">—</div><div class="tier-stat-label">Clients</div></div>
+        <div class="tier-stat"><div class="tier-stat-val" id="t3-payout">—</div><div class="tier-stat-label">Payout / mo</div></div>
+        <span class="tier-chevron">▼</span>
+      </div>
+    </div>
+    <div class="tier-body">
+      <div class="profiles-grid" id="t3-profiles"></div>
+      <button class="add-ib-btn" onclick="addProfile(3)">+ Add IB to Tier 3</button>
+    </div>
+  </div>
+
+  <div class="ib-total-bar fu fu4">
+    <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-clients">—</div><div class="ib-total-bar-label">Total clients</div></div>
+    <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-ibs">—</div><div class="ib-total-bar-label">Active IBs</div></div>
+    <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-cpa">—</div><div class="ib-total-bar-label">CPA payout / mo</div></div>
+    <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-revshare">—</div><div class="ib-total-bar-label">Rev share / mo</div></div>
+    <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-rebate">—</div><div class="ib-total-bar-label">Rebate / mo</div></div>
+    <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-total">—</div><div class="ib-total-bar-label">Total IB cost / mo</div></div>
+  </div>
+
+</div>
+
+</div>
 </main>
 
 <footer>
   <div class="container">
     <div class="inner">
-      <span>© 2026 Milele Prime · Milele Group, Dubai</span>
-      <span>Projections only · Internal use</span>
+      <span>© 2026 Milele Prime · Milele Group, Dubai · St. Lucia FSA</span>
+      <span>Projections only · Internal CFO use</span>
     </div>
   </div>
 </footer>
 
 <script>
+'use strict';
 document.getElementById('live-date').textContent = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
 
+// ─────────────────────────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────────────────────────
+const SETUP_COST = 18000; // One-time launch costs: IBC, FSA, MT5 setup, initial legal
+
+// Fixed monthly overheads — editable in UI
+const VENDORS = [
+  {key:'servers',  label:'Netshop Servers',    note:'LD7 Primary + AMS Backup + SG Access', default:1200},
+  {key:'bridge',   label:'Centroid Bridge',     note:'CS360 liquidity bridge — monthly SaaS', default:2500},
+  {key:'mt5',      label:'MT5 License',         note:'MetaTrader 5 platform license', default:1500},
+  {key:'crm',      label:'CRM Platform',        note:'Syntellicore or Brokeret — TBC', default:800},
+  {key:'dealing',  label:'Alpha Dealing Desk',  note:'Outsourced dealing desk — Aris C.', default:1000},
+  {key:'legal',    label:'Compliance / Legal',  note:'AML officer, legal retainer, FSA fees', default:1500},
+  {key:'salaries', label:'Team Salaries',       note:'Zain, Hamza, Billawal, Qayyum, Helia', default:8000},
+  {key:'misc',     label:'Misc / Ops',          note:'Comms, tools, subscriptions', default:1000},
+];
+
+// ─────────────────────────────────────────────────────────────────
 // PAGE TABS
+// ─────────────────────────────────────────────────────────────────
 document.querySelectorAll('.page-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
@@ -560,210 +674,377 @@ document.querySelectorAll('.page-tab').forEach(btn => {
   });
 });
 
-const VENDORS = [
-  {key:'servers',  label:'Netshop servers',   default:1200},
-  {key:'bridge',   label:'Centroid bridge',    default:2500},
-  {key:'mt5',      label:'MT5 license',        default:1500},
-  {key:'crm',      label:'CRM platform',       default:800},
-  {key:'dealing',  label:'Alpha Dealing desk', default:1000},
-  {key:'legal',    label:'Compliance / legal', default:1500},
-  {key:'salaries', label:'Team salaries',      default:8000},
-  {key:'misc',     label:'Misc / ops',         default:1000},
-];
-const SETUP_COST = 18000;
-let chartInstance = null, vcChartInstance = null, currentChart = 'cashflow';
-
+// ─────────────────────────────────────────────────────────────────
+// FIXED COSTS GRID (with notes)
+// ─────────────────────────────────────────────────────────────────
 function buildCostGrid() {
   let html = '';
   VENDORS.forEach(v => {
-    html += `<div class="ci"><div class="ci-label">${v.label}</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span>
-        <input class="ci-input" type="number" id="ci-${v.key}" value="${v.default}" min="0" step="100">
-      </div></div>`;
+    html += '<div class="ci">'
+      +'<div class="ci-label">'+v.label+'</div>'
+      +'<div class="ci-note">'+v.note+'</div>'
+      +'<div class="ci-input-wrap"><span class="ci-prefix">$</span>'
+        +'<input class="ci-input" type="number" id="ci-'+v.key+'" value="'+v.default+'" min="0" step="100">'
+      +'</div></div>';
   });
-  html += `<div class="ci total" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;flex-direction:row;gap:1rem"><div class="ci-label" style="margin-bottom:0">Total / month</div><div class="ci-total-value" id="ci-total">$0</div></div>`;
+  html += '<div class="ci total" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:1rem">'
+    +'<div><div class="ci-label" style="margin-bottom:0">Total Fixed Overheads / Month</div>'
+    +'<div class="ci-note">Excludes variable costs: IB, LP, PSP, marketing</div></div>'
+    +'<div class="ci-total-value" id="ci-total">$0</div></div>';
   document.getElementById('costs-grid').innerHTML = html;
   document.querySelectorAll('.ci-input').forEach(i => i.addEventListener('input', render));
 }
 
+// ─────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────
 function getTF() { return VENDORS.reduce((t,v)=>t+(+(document.getElementById('ci-'+v.key).value)||0),0); }
-function fmt(n) { return '$'+Math.round(n).toLocaleString(); }
+function fmt(n)  { return '$'+Math.round(Math.abs(n)).toLocaleString(); }
+function fmtS(n) { return (n<0?'-':'')+fmt(n); } // signed
 function fmtK(n) {
   const a=Math.abs(n),s=n<0?'-':'';
-  if(a>=1000000)return s+'$'+(a/1000000).toFixed(1)+'M';
-  if(a>=1000)return s+'$'+Math.round(a/1000)+'k';
+  if(a>=1000000) return s+'$'+(a/1000000).toFixed(2)+'M';
+  if(a>=1000)    return s+'$'+Math.round(a/1000)+'k';
   return s+'$'+Math.round(a);
 }
+function pct(n) { return n.toFixed(1)+'%'; }
+
+// ─────────────────────────────────────────────────────────────────
+// GET INPUTS
+// ─────────────────────────────────────────────────────────────────
 function getInp() {
-  const winnerPct = +(document.getElementById('psp-winner-pct').value)||30;
-  const loserPct  = +(document.getElementById('psp-loser-pct').value)||40;
-  return{
-    newClients:+document.getElementById('sl-clients').value,
-    avgDeposit:+document.getElementById('sl-deposit').value,
-    lots:+document.getElementById('sl-lots').value,
-    spreadPips:+document.getElementById('sl-spread').value,
-    mktBudget:+document.getElementById('sl-mkt').value,
-    ibShare:+document.getElementById('sl-ib').value/100,
-    churnRate:+document.getElementById('sl-churn').value/100,
-    pspIn:+(document.getElementById('sl-psp-in').value)||3,
-    pspOut:+(document.getElementById('sl-psp-out').value)||2,
-    winnerPct: winnerPct/100,
-    loserPct:  loserPct/100,
+  return {
+    newClients : +document.getElementById('sl-clients').value,
+    avgDeposit : +document.getElementById('sl-deposit').value,
+    lots       : +document.getElementById('sl-lots').value,
+    spreadPips : +document.getElementById('sl-spread').value,
+    lpPerLot   : +document.getElementById('sl-lp').value,
+    churnRate  : +document.getElementById('sl-churn').value / 100,
+    mktBudget  : +document.getElementById('sl-mkt').value,
+    ibShare    : +document.getElementById('sl-ib').value / 100,
+    pspIn      : +document.getElementById('sl-psp-in').value,
+    pspOut     : +document.getElementById('sl-psp-out').value,
+    winnerPct  : +document.getElementById('sl-winner-pct').value / 100,
+    loserPct   : +document.getElementById('sl-loser-pct').value / 100,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────
+// CORE P&L MODEL
+// FORMULA CHAIN:
+//   Gross Revenue / client / mo  = lots × spreadPips × $10
+//   LP Cost / client / mo        = lots × lpPerLot
+//   Net Spread / client / mo     = Gross − LP
+//   IB Cost / client / mo        = Net Spread × ibShare   ← paid on net, not gross
+//   PSP Inward / client           = avgDeposit × pspIn%  (one-time, amortised monthly over lifespan)
+//   PSP Outward / client / mo    = (winnerWithdraw + loserWithdraw) × pspOut%
+//   Net Revenue / client / mo    = Net Spread − IB − PSP (inward amortised + outward)
+//   Operating Profit / mo        = (Net Rev × active clients) − Fixed OH − Mkt budget
+//   Cumulative P&L               = Sum of monthly op profits − $18k setup cost
+// ─────────────────────────────────────────────────────────────────
 function calcModel(inp, tf, extraByMonth) {
-  const gpc=inp.lots*inp.spreadPips*10, ibpc=gpc*inp.ibShare, lppc=inp.lots*3;
-  // PSP: inward on deposits (once per new client allocated monthly), outward on winners + losers
-  const pspInPerClient  = inp.avgDeposit * (inp.pspIn/100);
-  const winnerWithdrawal = inp.avgDeposit * inp.winnerPct;
-  const loserWithdrawal  = inp.avgDeposit * inp.loserPct;
-  const pspOutPerClient = (winnerWithdrawal + loserWithdrawal) * (inp.pspOut/100);
-  const psp = pspInPerClient + pspOutPerClient;
-  const npc=gpc-ibpc-lppc-psp, lifespan=1/inp.churnRate;
-  const ltv=npc*lifespan, cac=inp.mktBudget/inp.newClients;
-  let months=[],ac=0,cum=-SETUP_COST;
-  for(let m=0;m<12;m++){
-    ac=ac*(1-inp.churnRate)+inp.newClients;
-    const gr=ac*gpc,ib=ac*ibpc,lp=ac*lppc,ps=ac*psp;
-    const nr=gr-ib-lp-ps;
-    const ex=extraByMonth?extraByMonth[m]:0;
-    const tc=tf+inp.mktBudget+ib+lp+ps+ex;
-    const op=nr-tf-inp.mktBudget-ex;
-    cum+=op;
-    months.push({m:m+1,ac:Math.round(ac),gr,nr,op,cum,ib,lp,ps,tc});
+  // Per-lot economics
+  const grossPerLot = inp.spreadPips * 10;           // e.g. 7 pips × $10 = $70/lot
+  const lpPerLot    = inp.lpPerLot;                  // e.g. $3/lot
+  const netPerLot   = grossPerLot - lpPerLot;        // e.g. $67/lot
+
+  // Per-client per-month (variable)
+  const gpc  = inp.lots * grossPerLot;               // Gross trading revenue
+  const lppc = inp.lots * lpPerLot;                  // LP pass-through cost
+  const nsc  = inp.lots * netPerLot;                 // Net spread before IB
+  const ibpc = nsc * inp.ibShare;                    // IB cost — % of net spread
+  const netSpreadAfterIB = nsc - ibpc;               // What broker keeps from spread
+
+  // PSP costs
+  // Inward: charged once per deposit event, amortised over expected lifespan
+  const lifespan = 1 / inp.churnRate;                // Months client stays
+  const pspInOneTime = inp.avgDeposit * (inp.pspIn / 100);
+  const pspInMonthly = pspInOneTime / lifespan;      // Amortised monthly cost
+
+  // Outward: charged monthly on withdrawals by active clients
+  const winnerWithdraw = inp.avgDeposit * inp.winnerPct;
+  const loserWithdraw  = inp.avgDeposit * inp.loserPct;
+  const pspOutMonthly  = (winnerWithdraw + loserWithdraw) * (inp.pspOut / 100);
+
+  const pspTotal = pspInMonthly + pspOutMonthly;     // Total PSP drag per client per month
+
+  // Net revenue per client (what broker earns per active client per month)
+  const npc = netSpreadAfterIB - pspTotal;
+
+  // LTV = Net Revenue per client × expected lifespan
+  const ltv = npc * lifespan;
+
+  // CAC = total acquisition spend ÷ new clients
+  // Note: mktBudget is direct marketing only. IB cost is variable (already in npc calc above)
+  const cac = inp.mktBudget / Math.max(inp.newClients, 1);
+
+  // Gross margin % = Net Revenue / Gross Revenue
+  const grossMarginPct = gpc > 0 ? (npc / gpc) * 100 : 0;
+
+  // Monthly model — rolling client base
+  let months = [], ac = 0, cum = -SETUP_COST;
+
+  for (let m = 0; m < 12; m++) {
+    // Active clients: previous cohorts decay at churn rate, new cohort added
+    ac = ac * (1 - inp.churnRate) + inp.newClients;
+
+    const gr   = ac * gpc;                           // Total gross trading revenue
+    const lp   = ac * lppc;                          // Total LP cost
+    const ib   = ac * ibpc;                          // Total IB cost (variable)
+    const psp  = ac * pspTotal;                      // Total PSP cost
+    const nr   = ac * npc;                           // Total net revenue
+    const ex   = extraByMonth ? extraByMonth[m] : 0; // Extra vendor cost (for comparison tab)
+    const varCosts = ib + lp + psp + inp.mktBudget;  // All variable costs
+    const tc   = tf + varCosts + ex;                 // Total costs incl. fixed OH
+    const op   = nr - tf - inp.mktBudget - ex;       // Operating profit = Net Rev − Fixed − Mkt
+    const gm   = gr > 0 ? (nr / gr) * 100 : 0;      // Gross margin this month
+
+    cum += op;
+    months.push({
+      m: m+1,
+      ac: Math.round(ac),
+      gr, nr, lp, ib, psp, op, cum, tc, varCosts, gm
+    });
   }
-  return{months,ltv,cac,ltvCac:ltv/cac,npc,gpc,lifespan};
+
+  return {
+    months, ltv, cac, ltvCac: ltv / Math.max(cac, 1),
+    npc, gpc, nsc, ibpc, lppc, pspTotal, pspInMonthly, pspOutMonthly, pspInOneTime,
+    lifespan, grossPerLot, lpPerLot, netPerLot, grossMarginPct
+  };
 }
 
-const QUARTERS=[{l:'Q1',m:[0,1,2]},{l:'Q2',m:[3,4,5]},{l:'Q3',m:[6,7,8]},{l:'Q4',m:[9,10,11]}];
+const QUARTERS = [{l:'Q1',m:[0,1,2]},{l:'Q2',m:[3,4,5]},{l:'Q3',m:[6,7,8]},{l:'Q4',m:[9,10,11]}];
+let chartInstance = null, vcChartInstance = null, currentChart = 'cashflow';
 
+// ─────────────────────────────────────────────────────────────────
+// MAIN RENDER
+// ─────────────────────────────────────────────────────────────────
 function render() {
-  const inp=getInp(), tf=getTF(), md=calcModel(inp,tf,null);
-  document.getElementById('ci-total').textContent=fmt(tf);
-  document.getElementById('sv-clients').textContent=inp.newClients;
-  document.getElementById('sv-deposit').textContent='$'+inp.avgDeposit.toLocaleString();
-  document.getElementById('sv-lots').textContent=inp.lots;
-  document.getElementById('sv-spread').textContent=inp.spreadPips+' pips';
-  document.getElementById('sv-mkt').textContent='$'+inp.mktBudget.toLocaleString();
-  document.getElementById('sv-ib').textContent=inp.ibShare*100+'%';
-  document.getElementById('sv-churn').textContent=Math.round(inp.churnRate*100)+'%';
+  const inp = getInp();
+  const tf  = getTF();
+  const md  = calcModel(inp, tf, null);
 
-  // PSP panel updates
-  const pspInPct  = inp.pspIn.toFixed(1)+'%';
-  const pspOutPct = inp.pspOut.toFixed(1)+'%';
-  const svpIn = document.getElementById('sv-psp-in');   if(svpIn) svpIn.textContent = pspInPct;
-  const svpOut = document.getElementById('sv-psp-out'); if(svpOut) svpOut.textContent = pspOutPct;
-  const exEl = document.getElementById('sv-psp-in-ex'); if(exEl) exEl.textContent = Math.round(inp.avgDeposit*(inp.pspIn/100));
-  const pspIn2  = inp.avgDeposit*(inp.pspIn/100);
-  const winW    = inp.avgDeposit*inp.winnerPct;
-  const losW    = inp.avgDeposit*inp.loserPct;
-  const pspOut2 = (winW+losW)*(inp.pspOut/100);
-  const pspTot  = pspIn2+pspOut2;
-  const inEl  = document.getElementById('psp-in-per-client');  if(inEl)  inEl.textContent  = '$'+pspIn2.toFixed(2);
-  const outEl = document.getElementById('psp-out-per-client'); if(outEl) outEl.textContent = '$'+pspOut2.toFixed(2);
-  const totEl2 = document.getElementById('psp-total-per-client'); if(totEl2) totEl2.textContent = '$'+pspTot.toFixed(2);
-  const npcEl = document.getElementById('psp-npc-impact'); if(npcEl) npcEl.textContent = '-$'+pspTot.toFixed(2)+'/mo';
+  // ── Slider labels
+  document.getElementById('ci-total').textContent       = fmtS(tf);
+  document.getElementById('sv-clients').textContent     = inp.newClients;
+  document.getElementById('sv-deposit').textContent     = '$'+inp.avgDeposit.toLocaleString();
+  document.getElementById('sv-lots').textContent        = inp.lots;
+  document.getElementById('sv-spread').textContent      = inp.spreadPips+' pips';
+  document.getElementById('sv-lp').textContent          = '$'+inp.lpPerLot.toFixed(2);
+  document.getElementById('sv-churn').textContent       = pct(inp.churnRate*100);
+  document.getElementById('sv-mkt').textContent         = fmtS(inp.mktBudget);
+  document.getElementById('sv-ib').textContent          = pct(inp.ibShare*100);
+  document.getElementById('sv-psp-in').textContent      = pct(inp.pspIn);
+  document.getElementById('sv-psp-out').textContent     = pct(inp.pspOut);
+  document.getElementById('sv-winner-pct').textContent  = pct(inp.winnerPct*100);
+  document.getElementById('sv-loser-pct').textContent   = pct(inp.loserPct*100);
 
-  let be=null;
+  // ── PSP outputs
+  document.getElementById('psp-in-val').textContent    = '$'+md.pspInOneTime.toFixed(2)+' per new client';
+  document.getElementById('psp-out-val').textContent   = '$'+md.pspOutMonthly.toFixed(2)+'/mo';
+  document.getElementById('psp-total-val').textContent = '$'+md.pspTotal.toFixed(2)+'/client/mo';
+  const avgAC = md.months.reduce((s,m)=>s+m.ac,0)/12;
+  document.getElementById('psp-annual-val').textContent = fmtK(md.pspTotal * avgAC * 12);
+
+  // ── Breakeven month
+  let be = null;
   for(let i=0;i<md.months.length;i++){if(md.months[i].cum>=0){be=md.months[i].m;break;}}
 
-  const lc=md.ltvCac>=3?'green':md.ltvCac>=1?'purple':'red';
-  const ls=md.ltvCac>=3?'healthy ✓':md.ltvCac>=1?'marginal':'unsustainable';
-  function mc(label,value,sub,cls){return`<div class="mc ${cls}"><div class="mc-label">${label}</div><div class="mc-value">${value}</div><div class="mc-sub">${sub}</div></div>`;}
-  document.getElementById('unit-grid').innerHTML=
-    mc('Customer acquisition cost',fmt(md.cac),'per funded client','')+
-    mc('Client lifetime value',fmt(md.ltv),'net revenue over lifespan','')+
-    mc('LTV : CAC ratio',md.ltvCac.toFixed(1)+'x',ls,lc)+
-    mc('Avg client lifespan',md.lifespan.toFixed(1)+' mo','before churn','')+
-    mc('Net rev / client / mo',fmt(md.npc),'after IB, LP & PSP fees','')+
-    mc('Gross rev / client / mo',fmt(md.gpc),'spread revenue only','');
-
-  const tg=md.months.reduce((a,b)=>a+b.gr,0);
-  const tp=md.months.reduce((a,b)=>a+b.op,0)-SETUP_COST;
-  document.getElementById('year-band').innerHTML=`
-    <div><div class="ys-label">Gross revenue</div><div class="ys-value">${fmtK(tg)}</div></div>
-    <div><div class="ys-label">Net profit / (loss)</div><div class="ys-value ${tp>=0?'pos':'neg'}">${fmtK(tp)}</div></div>
-    <div><div class="ys-label">Breakeven month</div><div class="ys-value ${be?'pu':'neg'}">${be?'Month '+be:'Beyond Y1'}</div></div>
-    <div><div class="ys-label">Clients at year end</div><div class="ys-value">${md.months[11].ac}</div></div>
-  `;
-
-  let qRows='',cumSoFar=-SETUP_COST,tot={gr:0,nr:0,tc:0,op:0,ac:0};
-  QUARTERS.forEach(q=>{
-    const ms=q.m.map(i=>md.months[i]);
-    const gr=ms.reduce((a,b)=>a+b.gr,0),nr=ms.reduce((a,b)=>a+b.nr,0);
-    const tc=ms.reduce((a,b)=>a+b.tc,0),op=ms.reduce((a,b)=>a+b.op,0);
-    const avgAc=Math.round(ms.reduce((a,b)=>a+b.ac,0)/3);
-    cumSoFar+=op; tot.gr+=gr;tot.nr+=nr;tot.tc+=tc;tot.op+=op;tot.ac+=avgAc;
-    qRows+=`<tr><td>${q.l}</td><td>${fmtK(gr)}</td><td>${fmtK(nr)}</td><td>${fmtK(tc)}</td><td class="${op>=0?'pos':'neg'}">${fmtK(op)}</td><td class="${cumSoFar>=0?'pos':'neg'}">${fmtK(cumSoFar)}</td><td>${avgAc}</td></tr>`;
-  });
-  qRows+=`<tr class="total-row"><td>Full Year</td><td>${fmtK(tot.gr)}</td><td>${fmtK(tot.nr)}</td><td>${fmtK(tot.tc)}</td><td class="${tot.op>=0?'pos':'neg'}">${fmtK(tot.op)}</td><td class="${md.months[11].cum>=0?'pos':'neg'}">${fmtK(md.months[11].cum)}</td><td>${Math.round(tot.ac/4)}</td></tr>`;
-  document.getElementById('q-body').innerHTML=qRows;
-
-  const labels=md.months.map(x=>'M'+x.m);
-  let datasets,legendItems;
-  if(currentChart==='cashflow'){
-    datasets=[
-      {label:'Net revenue',data:md.months.map(x=>Math.round(x.nr)),borderColor:'#3DDBA0',backgroundColor:'transparent',tension:.3,pointRadius:3,pointBackgroundColor:'#3DDBA0'},
-      {label:'Total costs',data:md.months.map(x=>Math.round(x.tc)),borderColor:'#FF6B6B',backgroundColor:'transparent',tension:.3,borderDash:[4,3],pointRadius:3,pointBackgroundColor:'#FF6B6B'},
-      {label:'Cumulative P&L',data:md.months.map(x=>Math.round(x.cum)),borderColor:'#BF6FFF',backgroundColor:'transparent',tension:.3,borderWidth:2,pointRadius:3,pointBackgroundColor:'#BF6FFF'},
-    ];
-    legendItems=[{c:'#3DDBA0',l:'Net revenue'},{c:'#FF6B6B',l:'Total costs',d:true},{c:'#BF6FFF',l:'Cumulative P&L'}];
-  }else if(currentChart==='clients'){
-    datasets=[{label:'Active clients',data:md.months.map(x=>x.ac),borderColor:'#BF6FFF',backgroundColor:'rgba(191,111,255,0.08)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:'#BF6FFF'}];
-    legendItems=[{c:'#BF6FFF',l:'Active funded clients'}];
-  }else{
-    datasets=[
-      {label:'LTV',data:md.months.map(()=>Math.round(md.ltv)),borderColor:'#3DDBA0',backgroundColor:'transparent',tension:0,pointRadius:0,borderWidth:2},
-      {label:'CAC',data:md.months.map(()=>Math.round(md.cac)),borderColor:'#FF6B6B',backgroundColor:'transparent',tension:0,borderDash:[4,3],pointRadius:0,borderWidth:2},
-    ];
-    legendItems=[{c:'#3DDBA0',l:'LTV'},{c:'#FF6B6B',l:'CAC',d:true}];
+  // ── Unit Economics cards
+  const lc = md.ltvCac >= 3 ? 'green' : md.ltvCac >= 1 ? 'amber' : 'red';
+  const ls = md.ltvCac >= 3 ? 'Healthy — scale marketing' : md.ltvCac >= 1 ? 'Marginal — optimise costs' : 'Unsustainable — restructure';
+  function mc(label, value, sub, formula, cls) {
+    return '<div class="mc '+cls+'">'
+      +'<div class="mc-label">'+label+'</div>'
+      +'<div class="mc-value">'+value+'</div>'
+      +'<div class="mc-sub">'+sub+'</div>'
+      +(formula?'<div class="mc-formula">'+formula+'</div>':'')
+    +'</div>';
   }
-  document.getElementById('chart-legend').innerHTML=legendItems.map(li=>
-    `<div class="li"><div class="ld" style="background:${li.d?'repeating-linear-gradient(90deg,'+li.c+' 0,'+li.c+' 4px,transparent 4px,transparent 8px)':li.c}"></div>${li.l}</div>`
+  document.getElementById('unit-grid').innerHTML =
+    mc('Gross Rev / Client / Mo',   fmtS(md.gpc),     'Before any deductions',                    'lots × pips × $10', '') +
+    mc('Net Spread / Client / Mo',  fmtS(md.nsc),     'After LP cost, before IB',                 'Gross − LP cost', '') +
+    mc('IB Cost / Client / Mo',     fmtS(md.ibpc),    'Paid on net spread, not gross',             'Net spread × IB%', 'red') +
+    mc('Net Rev / Client / Mo',     fmtS(md.npc),     'After IB, LP & PSP. Broker\'s earnings',   'Net spread − IB − PSP', md.npc>=0?'green':'red') +
+    mc('LTV (Lifetime Value)',       fmtS(md.ltv),     'Total broker profit per client lifetime',   'Net Rev/mo × (1 ÷ churn)', md.ltv>=0?'green':'red') +
+    mc('CAC (Acq. Cost)',            fmtS(md.cac),     'Direct marketing spend only',               'Mkt budget ÷ new clients', '') +
+    mc('LTV : CAC Ratio',           md.ltvCac.toFixed(1)+'x', ls,                                  '3x+ = healthy, <1x = destroying value', lc) +
+    mc('Avg Client Lifespan',       md.lifespan.toFixed(1)+' mo', 'Before churn',                  '1 ÷ churn rate', '') +
+    mc('Gross Margin %',            pct(md.grossMarginPct),        'Net Rev ÷ Gross Rev',           'Industry benchmark: 40–70%', md.grossMarginPct>=40?'green':md.grossMarginPct>=20?'amber':'red');
+
+  // ── P&L Waterfall (at M6 steady-state snapshot)
+  const snap = md.months[5]; // Month 6 as representative steady state
+  const totalVarCosts = snap.ib + snap.lp + snap.psp + inp.mktBudget;
+  const maxVal = snap.gr;
+  function wfBar(val) {
+    const w = Math.max(0, Math.min(100, (val/maxVal)*100));
+    return '<div class="wf-bar-wrap"><div class="wf-bar"><div class="wf-bar-fill" style="width:'+w+'%"></div></div></div>';
+  }
+  function wfRow(label, formula, note, value, cls, isSection) {
+    if(isSection) return '<div class="wf-row section-sep"><span>'+label+'</span></div>';
+    return '<div class="wf-row'+(cls?' '+cls:'')+'">'
+      +'<div><div class="wf-label">'+label+'</div>'
+        +(formula?'<div class="wf-formula">'+formula+'</div>':'')
+        +(note?'<div class="wf-note">'+note+'</div>':'')
+      +'</div>'
+      +(isSection?'':''+wfBar(Math.abs(value)))
+      +'<div class="wf-value'+(value<0?' neg':value>0?' pos':'')+'">'+(value>=0?'+':'')+fmtK(value)+'</div>'
+      +'<div class="wf-value '+(cls||'')+'">'+(value/snap.ac>0?'+':'')+fmtK(value/snap.ac)+'/client</div>'
+    +'</div>';
+  }
+  document.getElementById('waterfall').innerHTML =
+    '<div class="wf-row header"><span>Line Item</span><span></span><span>Month 6 Total</span><span>Per Client</span></div>'
+    +wfRow('REVENUE', null, null, null, null, true)
+    +wfRow('Gross Trading Revenue',     'Active clients × lots × pips × $10',        snap.ac+' clients active', snap.gr, 'pos')
+    +wfRow('COST OF REVENUE', null, null, null, null, true)
+    +wfRow('(−) LP Pass-Through',       'Lots × LP/lot × active clients',            'Paid to Liquidity Provider per executed lot', -snap.lp, 'neg')
+    +wfRow('(−) IB Commission',         'Net spread × IB% × active clients',         'Paid on net spread, not gross', -snap.ib, 'neg')
+    +wfRow('(−) PSP Transaction Costs', 'PSP inward (amortised) + PSP outward',      'Both deposit inflow and withdrawal costs', -snap.psp, 'neg')
+    +wfRow('= Net Revenue',             'Gross − LP − IB − PSP',                     'Broker\'s top-line earnings', snap.nr, 'subtotal')
+    +wfRow('OPERATING EXPENSES', null, null, null, null, true)
+    +wfRow('(−) Marketing Budget',      'Fixed monthly direct marketing spend',      'Excludes IB commissions (already above)', -inp.mktBudget, 'neg')
+    +wfRow('(−) Fixed Overheads',       'Servers + Bridge + MT5 + CRM + Dealing + Staff…', 'Infrastructure and team', -tf, 'neg')
+    +wfRow('= Operating Profit (EBIT)', 'Net Revenue − Marketing − Fixed OH',        'Earnings Before Interest & Tax', snap.op, snap.op>=0?'total':('total'))
+    +'<div class="wf-row"><div><div class="wf-label" style="color:rgba(255,255,255,0.5)">Memo: Setup cost</div><div class="wf-formula">IBC + FSA + MT5 + legal — one-time</div></div><div></div><div class="wf-value neg">−'+fmtK(SETUP_COST)+'</div><div class="wf-value">one-time</div></div>';
+
+  // ── Year 1 Summary
+  const tg = md.months.reduce((a,b)=>a+b.gr, 0);
+  const tn = md.months.reduce((a,b)=>a+b.nr, 0);
+  const top = md.months.reduce((a,b)=>a+b.op, 0);
+  const tp = top - SETUP_COST;
+  const avgGM = tn/tg*100;
+  document.getElementById('year-band').innerHTML =
+    '<div><div class="ys-label">Gross Trading Revenue</div><div class="ys-value">'+fmtK(tg)+'</div><div class="ys-formula">All 12 months</div></div>'
+    +'<div><div class="ys-label">Net Revenue</div><div class="ys-value">'+fmtK(tn)+'</div><div class="ys-formula">After IB, LP, PSP</div></div>'
+    +'<div><div class="ys-label">Gross Margin</div><div class="ys-value '+(avgGM>=40?'pos':'neg')+'">'+pct(avgGM)+'</div><div class="ys-formula">Net Rev ÷ Gross Rev</div></div>'
+    +'<div><div class="ys-label">Net Operating Profit</div><div class="ys-value '+(top>=0?'pos':'neg')+'">'+fmtK(top)+'</div><div class="ys-formula">Before setup cost</div></div>'
+    +'<div><div class="ys-label">Cumulative P&L</div><div class="ys-value '+(tp>=0?'pos':'neg')+'">'+fmtK(tp)+'</div><div class="ys-formula">Incl. $18k setup cost</div></div>';
+
+  // ── Quarterly table
+  let qRows = '', cumSoFar = -SETUP_COST;
+  let tot = {gr:0,nr:0,tf:0,vc:0,op:0,ac:0};
+  QUARTERS.forEach(q => {
+    const ms = q.m.map(i=>md.months[i]);
+    const gr = ms.reduce((a,b)=>a+b.gr,0);
+    const nr = ms.reduce((a,b)=>a+b.nr,0);
+    const fixedQ = tf*3;
+    const vcQ = ms.reduce((a,b)=>a+b.varCosts,0);
+    const op = ms.reduce((a,b)=>a+b.op,0);
+    const avgAc = Math.round(ms.reduce((a,b)=>a+b.ac,0)/3);
+    cumSoFar += op;
+    tot.gr+=gr;tot.nr+=nr;tot.tf+=fixedQ;tot.vc+=vcQ;tot.op+=op;tot.ac+=avgAc;
+    qRows += '<tr>'
+      +'<td>'+q.l+'</td>'
+      +'<td>'+fmtK(gr)+'</td>'
+      +'<td>'+fmtK(nr)+'</td>'
+      +'<td>'+fmtK(fixedQ)+'</td>'
+      +'<td>'+fmtK(vcQ)+'</td>'
+      +'<td class="'+(op>=0?'pos':'neg')+'">'+fmtK(op)+'</td>'
+      +'<td class="'+(cumSoFar>=0?'pos':'neg')+'">'+fmtK(cumSoFar)+'</td>'
+      +'<td>'+avgAc+'</td>'
+    +'</tr>';
+  });
+  const finalCum = md.months[11].cum;
+  qRows += '<tr class="total-row">'
+    +'<td>Full Year</td>'
+    +'<td>'+fmtK(tot.gr)+'</td>'
+    +'<td>'+fmtK(tot.nr)+'</td>'
+    +'<td>'+fmtK(tot.tf)+'</td>'
+    +'<td>'+fmtK(tot.vc)+'</td>'
+    +'<td class="'+(tot.op>=0?'pos':'neg')+'">'+fmtK(tot.op)+'</td>'
+    +'<td class="'+(finalCum>=0?'pos':'neg')+'">'+fmtK(finalCum)+'</td>'
+    +'<td>'+Math.round(tot.ac/4)+'</td>'
+  +'</tr>';
+  document.getElementById('q-body').innerHTML = qRows;
+
+  // ── Chart
+  const labels = md.months.map(x=>'M'+x.m);
+  let datasets, legendItems;
+
+  if(currentChart === 'cashflow') {
+    datasets = [
+      {label:'Net Revenue',     data:md.months.map(x=>Math.round(x.nr)),  borderColor:'#3DDBA0',backgroundColor:'transparent',tension:.3,pointRadius:3,pointBackgroundColor:'#3DDBA0'},
+      {label:'Total Costs',     data:md.months.map(x=>Math.round(x.tc)),  borderColor:'#FF6B6B',backgroundColor:'transparent',tension:.3,borderDash:[4,3],pointRadius:3,pointBackgroundColor:'#FF6B6B'},
+      {label:'Operating Profit',data:md.months.map(x=>Math.round(x.op)),  borderColor:'#F5A623',backgroundColor:'transparent',tension:.3,pointRadius:3,pointBackgroundColor:'#F5A623'},
+      {label:'Cumulative P&L',  data:md.months.map(x=>Math.round(x.cum)), borderColor:'#BF6FFF',backgroundColor:'transparent',tension:.3,borderWidth:2,pointRadius:3,pointBackgroundColor:'#BF6FFF'},
+    ];
+    legendItems = [{c:'#3DDBA0',l:'Net Revenue'},{c:'#FF6B6B',l:'Total Costs',d:true},{c:'#F5A623',l:'Operating Profit'},{c:'#BF6FFF',l:'Cumulative P&L'}];
+  } else if(currentChart === 'margin') {
+    datasets = [
+      {label:'Gross Margin %', data:md.months.map(x=>+x.gm.toFixed(1)), borderColor:'#3DDBA0',backgroundColor:'rgba(61,219,160,0.06)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:'#3DDBA0'},
+    ];
+    legendItems = [{c:'#3DDBA0',l:'Gross Margin % (Net Rev ÷ Gross Rev)'}];
+  } else if(currentChart === 'clients') {
+    datasets = [
+      {label:'Active Clients', data:md.months.map(x=>x.ac), borderColor:'#BF6FFF',backgroundColor:'rgba(191,111,255,0.08)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:'#BF6FFF'},
+    ];
+    legendItems = [{c:'#BF6FFF',l:'Active funded clients'}];
+  } else {
+    datasets = [
+      {label:'LTV', data:md.months.map(()=>Math.round(md.ltv)), borderColor:'#3DDBA0',backgroundColor:'transparent',tension:0,pointRadius:0,borderWidth:2},
+      {label:'CAC', data:md.months.map(()=>Math.round(md.cac)), borderColor:'#FF6B6B',backgroundColor:'transparent',tension:0,borderDash:[4,3],pointRadius:0,borderWidth:2},
+    ];
+    legendItems = [{c:'#3DDBA0',l:'LTV (lifetime net revenue)'},{c:'#FF6B6B',l:'CAC (direct marketing only)',d:true}];
+  }
+
+  document.getElementById('chart-legend').innerHTML = legendItems.map(li=>
+    '<div class="li"><div class="ld" style="background:'+
+    (li.d?'repeating-linear-gradient(90deg,'+li.c+' 0,'+li.c+' 4px,transparent 4px,transparent 8px)':li.c)+
+    '"></div>'+li.l+'</div>'
   ).join('');
-  if(chartInstance)chartInstance.destroy();
-  chartInstance=new Chart(document.getElementById('mainChart'),{
-    type:'line',data:{labels,datasets},
+
+  if(chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('mainChart'), {
+    type:'line', data:{labels, datasets},
     options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A1229',borderColor:'rgba(191,111,255,0.4)',borderWidth:1,titleColor:'#BF6FFF',bodyColor:'#fff',callbacks:{label:ctx=>' '+ctx.dataset.label+': '+(currentChart==='clients'?ctx.raw:fmt(ctx.raw))}}},
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#1A1229',borderColor:'rgba(191,111,255,0.4)',borderWidth:1,titleColor:'#BF6FFF',bodyColor:'#fff',
+          callbacks:{label:ctx=>' '+ctx.dataset.label+': '+(currentChart==='clients'?ctx.raw:currentChart==='margin'?ctx.raw+'%':fmtS(ctx.raw))}}
+      },
       scales:{
-        x:{ticks:{color:'#fff',font:{size:11},autoSkip:false,maxRotation:0},grid:{color:'rgba(255,255,255,0.06)'},border:{color:'rgba(255,255,255,0.12)'}},
-        y:{ticks:{color:'#fff',font:{size:11},callback:v=>currentChart==='clients'?v:(Math.abs(v)>=1000?(v<0?'-':'')+'$'+Math.abs(Math.round(v/1000))+'k':'$'+Math.round(v))},grid:{color:'rgba(255,255,255,0.06)'},border:{color:'rgba(255,255,255,0.12)'}}
+        x:{ticks:{color:'#fff',font:{size:11},autoSkip:false,maxRotation:0},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.1)'}},
+        y:{ticks:{color:'#fff',font:{size:11},callback:v=>currentChart==='clients'?v:currentChart==='margin'?v+'%':(Math.abs(v)>=1000?(v<0?'-':'')+'$'+Math.abs(Math.round(v/1000))+'k':'$'+Math.round(v))},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.1)'}}
       }
     }
   });
 }
 
-function getQVals(p){return[1,2,3,4].map(q=>(+(document.getElementById('vc'+p+'-q'+q).value)||0));}
-function qToMonthly(qv){return Array.from({length:12},(_,i)=>qv[Math.floor(i/3)]/3);}
+// ─────────────────────────────────────────────────────────────────
+// VENDOR COMPARISON (TAB 2)
+// ─────────────────────────────────────────────────────────────────
+function getQVals(p) { return [1,2,3,4].map(q=>(+(document.getElementById('vc'+p+'-q'+q).value)||0)); }
+function qToMonthly(qv) { return Array.from({length:12},(_,i)=>qv[Math.floor(i/3)]/3); }
 
 function renderVC() {
   const inp=getInp(), tf=getTF();
-  const nameA=document.getElementById('vc-name-a').value||'Vendor A';
-  const nameB=document.getElementById('vc-name-b').value||'Vendor B';
-  const qvA=getQVals('a'), qvB=getQVals('b');
-  const totalA=qvA.reduce((a,b)=>a+b,0), totalB=qvB.reduce((a,b)=>a+b,0);
-  document.getElementById('vca-annual').textContent=fmt(totalA);
-  document.getElementById('vcb-annual').textContent=fmt(totalB);
-  document.getElementById('vc-th-a').textContent=nameA;
-  document.getElementById('vc-th-b').textContent=nameB;
+  const nameA = document.getElementById('vc-name-a').value || 'Vendor A';
+  const nameB = document.getElementById('vc-name-b').value || 'Vendor B';
+  const qvA = getQVals('a'), qvB = getQVals('b');
+  const totalA = qvA.reduce((a,b)=>a+b,0), totalB = qvB.reduce((a,b)=>a+b,0);
+  document.getElementById('vca-annual').textContent = fmtS(totalA);
+  document.getElementById('vcb-annual').textContent = fmtS(totalB);
+  document.getElementById('vc-th-a').textContent = nameA;
+  document.getElementById('vc-th-b').textContent = nameB;
 
-  const mdA=calcModel(inp,tf,qToMonthly(qvA));
-  const mdB=calcModel(inp,tf,qToMonthly(qvB));
+  const mdA = calcModel(inp, tf, qToMonthly(qvA));
+  const mdB = calcModel(inp, tf, qToMonthly(qvB));
 
-  const qOpA=QUARTERS.map(q=>q.m.reduce((s,i)=>s+mdA.months[i].op,0));
-  const qOpB=QUARTERS.map(q=>q.m.reduce((s,i)=>s+mdB.months[i].op,0));
+  const qOpA = QUARTERS.map(q=>q.m.reduce((s,i)=>s+mdA.months[i].op,0));
+  const qOpB = QUARTERS.map(q=>q.m.reduce((s,i)=>s+mdB.months[i].op,0));
   let cA=-SETUP_COST, cB=-SETUP_COST;
   const qCumA=[], qCumB=[];
   for(let i=0;i<4;i++){cA+=qOpA[i];cB+=qOpB[i];qCumA.push(cA);qCumB.push(cB);}
 
-  const annNetA=mdA.months.reduce((s,m)=>s+m.op,0)-SETUP_COST;
-  const annNetB=mdB.months.reduce((s,m)=>s+m.op,0)-SETUP_COST;
+  const annNetA = mdA.months.reduce((s,m)=>s+m.op,0)-SETUP_COST;
+  const annNetB = mdB.months.reduce((s,m)=>s+m.op,0)-SETUP_COST;
+
   function be(md){for(let i=0;i<md.months.length;i++){if(md.months[i].cum>=0)return md.months[i].m;}return null;}
   const beA=be(mdA), beB=be(mdB);
 
-  function badge(val,cls){return`<span class="badge ${cls}">${val}</span>`;}
+  function badge(val,cls){return '<span class="badge '+cls+'">'+val+'</span>';}
   function diff(a,b,higherBetter=true,isMonth=false){
     if(isMonth){
       if(!a&&!b)return badge('same','same');
@@ -774,218 +1055,241 @@ function renderVC() {
       return badge(d<0?nameB+' faster by '+Math.abs(d)+'mo':nameA+' faster by '+d+'mo',d<0?'better':'worse');
     }
     const d=b-a;
-    if(Math.abs(d)<0.5)return badge('same','same');
-    const better=higherBetter?d>0:d<0;
-    return badge((d>0?'+':'')+fmtK(d),better?'better':'worse');
+    if(Math.abs(d)<0.5) return badge('same','same');
+    const better = higherBetter ? d>0 : d<0;
+    return badge((d>0?'+':'')+fmtK(d), better?'better':'worse');
   }
 
-  const rows=[
-    {section:'Cost'},
-    {label:'Annual vendor cost',  a:fmt(totalA),    b:fmt(totalB),    d:diff(totalA,totalB,false)},
-    {section:'Impact on P&L'},
-    {label:'Annual net profit',   a:fmtK(annNetA),  b:fmtK(annNetB),  d:diff(annNetA,annNetB)},
-    {label:'Q1 operating profit', a:fmtK(qOpA[0]),  b:fmtK(qOpB[0]),  d:diff(qOpA[0],qOpB[0])},
-    {label:'Q2 operating profit', a:fmtK(qOpA[1]),  b:fmtK(qOpB[1]),  d:diff(qOpA[1],qOpB[1])},
-    {label:'Q3 operating profit', a:fmtK(qOpA[2]),  b:fmtK(qOpB[2]),  d:diff(qOpA[2],qOpB[2])},
-    {label:'Q4 operating profit', a:fmtK(qOpA[3]),  b:fmtK(qOpB[3]),  d:diff(qOpA[3],qOpB[3])},
-    {label:'Q4 cumulative P&L',   a:fmtK(qCumA[3]), b:fmtK(qCumB[3]), d:diff(qCumA[3],qCumB[3])},
-    {section:'Breakeven'},
-    {label:'Breakeven month',     a:beA?'Month '+beA:'Beyond Y1', b:beB?'Month '+beB:'Beyond Y1', d:diff(beA,beB,false,true)},
+  const rows = [
+    {section:'Annual Cost'},
+    {label:'Annual vendor cost',   a:fmtS(totalA),    b:fmtS(totalB),    d:diff(totalA,totalB,false)},
+    {section:'Operating Profit Impact — Net Revenue minus all costs per quarter'},
+    {label:'Q1 operating profit',  a:fmtK(qOpA[0]),   b:fmtK(qOpB[0]),   d:diff(qOpA[0],qOpB[0])},
+    {label:'Q2 operating profit',  a:fmtK(qOpA[1]),   b:fmtK(qOpB[1]),   d:diff(qOpA[1],qOpB[1])},
+    {label:'Q3 operating profit',  a:fmtK(qOpA[2]),   b:fmtK(qOpB[2]),   d:diff(qOpA[2],qOpB[2])},
+    {label:'Q4 operating profit',  a:fmtK(qOpA[3]),   b:fmtK(qOpB[3]),   d:diff(qOpA[3],qOpB[3])},
+    {label:'Q4 cumulative P&L',    a:fmtK(qCumA[3]),  b:fmtK(qCumB[3]),  d:diff(qCumA[3],qCumB[3])},
+    {label:'Full year net profit',  a:fmtK(annNetA),   b:fmtK(annNetB),   d:diff(annNetA,annNetB)},
+    {section:'Breakeven — Month when cumulative P&L (incl. $18k setup) turns positive'},
+    {label:'Breakeven month',       a:beA?'Month '+beA:'Beyond Y1', b:beB?'Month '+beB:'Beyond Y1', d:diff(beA,beB,false,true)},
   ];
 
   let html='';
   rows.forEach(r=>{
-    if(r.section){html+=`<tr class="section-head"><td colspan="4">${r.section}</td></tr>`;return;}
-    html+=`<tr><td>${r.label}</td><td class="col-a">${r.a}</td><td class="col-b">${r.b}</td><td>${r.d}</td></tr>`;
+    if(r.section){html+='<tr class="section-head"><td colspan="4">'+r.section+'</td></tr>';return;}
+    html+='<tr><td>'+r.label+'</td><td class="col-a">'+r.a+'</td><td class="col-b">'+r.b+'</td><td>'+r.d+'</td></tr>';
   });
-  document.getElementById('vc-tbody').innerHTML=html;
+  document.getElementById('vc-tbody').innerHTML = html;
 
-  document.getElementById('vc-legend').innerHTML=`
-    <div class="li"><div class="ld" style="background:#BF6FFF"></div>${nameA} — Op Profit</div>
-    <div class="li"><div class="ld" style="background:#3DDBA0"></div>${nameB} — Op Profit</div>
-    <div class="li"><div class="ld" style="background:repeating-linear-gradient(90deg,#BF6FFF 0,#BF6FFF 4px,transparent 4px,transparent 8px)"></div>${nameA} — Cum P&L</div>
-    <div class="li"><div class="ld" style="background:repeating-linear-gradient(90deg,#3DDBA0 0,#3DDBA0 4px,transparent 4px,transparent 8px)"></div>${nameB} — Cum P&L</div>
-  `;
+  document.getElementById('vc-legend').innerHTML =
+    '<div class="li"><div class="ld" style="background:#BF6FFF"></div>'+nameA+' — Op Profit</div>'
+    +'<div class="li"><div class="ld" style="background:#3DDBA0"></div>'+nameB+' — Op Profit</div>'
+    +'<div class="li"><div class="ld" style="background:repeating-linear-gradient(90deg,#BF6FFF 0,#BF6FFF 4px,transparent 4px,transparent 8px)"></div>'+nameA+' — Cum P&L</div>'
+    +'<div class="li"><div class="ld" style="background:repeating-linear-gradient(90deg,#3DDBA0 0,#3DDBA0 4px,transparent 4px,transparent 8px)"></div>'+nameB+' — Cum P&L</div>';
 
-  if(vcChartInstance)vcChartInstance.destroy();
-  vcChartInstance=new Chart(document.getElementById('vcChart'),{
+  if(vcChartInstance) vcChartInstance.destroy();
+  vcChartInstance = new Chart(document.getElementById('vcChart'), {
     type:'bar',
     data:{
       labels:['Q1','Q2','Q3','Q4'],
       datasets:[
-        {label:nameA+' Op Profit',data:qOpA.map(v=>Math.round(v)),backgroundColor:'rgba(191,111,255,0.45)',borderColor:'#BF6FFF',borderWidth:1,borderRadius:3},
-        {label:nameB+' Op Profit',data:qOpB.map(v=>Math.round(v)),backgroundColor:'rgba(61,219,160,0.35)',borderColor:'#3DDBA0',borderWidth:1,borderRadius:3},
-        {label:nameA+' Cum P&L',data:qCumA.map(v=>Math.round(v)),type:'line',borderColor:'#BF6FFF',backgroundColor:'transparent',tension:.3,pointRadius:5,pointBackgroundColor:'#BF6FFF',borderWidth:2},
-        {label:nameB+' Cum P&L',data:qCumB.map(v=>Math.round(v)),type:'line',borderColor:'#3DDBA0',backgroundColor:'transparent',tension:.3,pointRadius:5,pointBackgroundColor:'#3DDBA0',borderWidth:2,borderDash:[5,3]},
+        {label:nameA+' Op Profit', data:qOpA.map(v=>Math.round(v)), backgroundColor:'rgba(191,111,255,0.4)',borderColor:'#BF6FFF',borderWidth:1,borderRadius:3},
+        {label:nameB+' Op Profit', data:qOpB.map(v=>Math.round(v)), backgroundColor:'rgba(61,219,160,0.3)',borderColor:'#3DDBA0',borderWidth:1,borderRadius:3},
+        {label:nameA+' Cum P&L',   data:qCumA.map(v=>Math.round(v)),type:'line',borderColor:'#BF6FFF',backgroundColor:'transparent',tension:.3,pointRadius:5,pointBackgroundColor:'#BF6FFF',borderWidth:2},
+        {label:nameB+' Cum P&L',   data:qCumB.map(v=>Math.round(v)),type:'line',borderColor:'#3DDBA0',backgroundColor:'transparent',tension:.3,pointRadius:5,pointBackgroundColor:'#3DDBA0',borderWidth:2,borderDash:[5,3]},
       ]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A1229',borderColor:'rgba(191,111,255,0.4)',borderWidth:1,titleColor:'#BF6FFF',bodyColor:'#fff',callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmt(ctx.raw)}}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A1229',borderColor:'rgba(191,111,255,0.4)',borderWidth:1,titleColor:'#BF6FFF',bodyColor:'#fff',callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmtS(ctx.raw)}}},
       scales:{
-        x:{ticks:{color:'#fff',font:{size:12}},grid:{color:'rgba(255,255,255,0.06)'},border:{color:'rgba(255,255,255,0.12)'}},
-        y:{ticks:{color:'#fff',font:{size:11},callback:v=>(Math.abs(v)>=1000?(v<0?'-':'')+'$'+Math.abs(Math.round(v/1000))+'k':'$'+Math.round(v))},grid:{color:'rgba(255,255,255,0.06)'},border:{color:'rgba(255,255,255,0.12)'}}
+        x:{ticks:{color:'#fff',font:{size:12}},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.1)'}},
+        y:{ticks:{color:'#fff',font:{size:11},callback:v=>(Math.abs(v)>=1000?(v<0?'-':'')+'$'+Math.abs(Math.round(v/1000))+'k':'$'+Math.round(v))},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.1)'}}
       }
     }
   });
 }
 
-
-
-// ── IB NETWORK ──
-const TIER_CLIENT_PCT = {1:0.20, 2:0.60, 3:0.20};
-const TIER_CLASS = {1:'t1', 2:'t2', 3:'t3'};
+// ─────────────────────────────────────────────────────────────────
+// IB NETWORK (TAB 3)
+// COMMISSION LOGIC:
+//   CPA  = one-time payment per NEW funded client brought by IB
+//          Formula: newClients × tier_share × cpa_rate
+//          NOT recurring — only paid when IB delivers a new funded client
+//   Rev share = monthly % of NET spread revenue from IB's active client base
+//          Formula: active_clients_under_IB × net_spread/client × revShare%
+//   Rebate = per lot traded by IB's clients, paid monthly
+//          Formula: active_clients × lots/client × rebate_per_lot
+// ─────────────────────────────────────────────────────────────────
+const TIER_PCT = {1:0.20, 2:0.60, 3:0.20};
+const TIER_CLS = {1:'t1', 2:'t2', 3:'t3'};
 
 let ibProfiles = {
-  1:[{id:'p1',name:'Fahad',   cpa:50, revShare:20, rebate:2}],
-  2:[{id:'p2',name:'Delnardo',cpa:30, revShare:15, rebate:1.5}],
-  3:[{id:'p3',name:'Helia',   cpa:20, revShare:10, rebate:1}],
+  1: [{id:'p1', name:'Fahad',    cpa:50, revShare:20, rebate:2,   clients:0}],
+  2: [{id:'p2', name:'Delnardo', cpa:30, revShare:15, rebate:1.5, clients:0}],
+  3: [{id:'p3', name:'Helia',    cpa:20, revShare:10, rebate:1,   clients:0}],
 };
 let profileCounter = 10;
 
-function getIBClientCount() {
+function getIBClients() {
   const el = document.getElementById('ib-client-slider');
-  return el ? (+el.value||2000) : 2000;
+  return el ? (+el.value || 2000) : 2000;
 }
 
-function getSpreadRevPerClient() {
-  const lots   = +(document.getElementById('sl-lots').value)||20;
-  const spread = +(document.getElementById('sl-spread').value)||7;
-  return lots * spread * 10;
+function getNetSpread() {
+  const lots   = +(document.getElementById('sl-lots').value)   || 20;
+  const spread = +(document.getElementById('sl-spread').value) || 7;
+  const lp     = +(document.getElementById('sl-lp').value)     || 3;
+  return lots * ((spread * 10) - lp); // Net spread per client per month
 }
 
-function calcPay(p) {
-  const rev    = getSpreadRevPerClient();
-  const lots   = +(document.getElementById('sl-lots').value)||20;
-  const newCli = Math.round(p.clients * 0.05);
-  const cpa    = newCli * p.cpa;
-  const rs     = (p.revShare/100) * p.clients * rev;
-  const rb     = p.rebate * lots * p.clients;
-  return {cpa, rs, rb, total: cpa+rs+rb};
+function calcIBPay(p) {
+  const netSpread  = getNetSpread();                              // Net spread / client / mo
+  const lots       = +(document.getElementById('sl-lots').value) || 20;
+  const newCliMo   = +(document.getElementById('sl-clients').value) || 20; // New clients / month (brokerage wide)
+  const tierShare  = TIER_PCT[p.tier] || 0.20;
+
+  // CPA: one-time, paid on new clients this IB brings (pro-rata their tier share of new clients)
+  const newCliForIB = Math.round(newCliMo * tierShare / Math.max(ibProfiles[p.tier]?.length || 1, 1));
+  const cpa = newCliForIB * p.cpa;
+
+  // Rev share: monthly on active base
+  const rs = (p.revShare / 100) * p.clients * netSpread;
+
+  // Rebate: per lot traded by their clients
+  const rb = p.rebate * lots * p.clients;
+
+  return {cpa, rs, rb, total: cpa + rs + rb, newCliForIB};
 }
 
 function fmtM(n) {
   const a=Math.abs(n),s=n<0?'-':'';
-  if(a>=1000000)return s+'$'+(a/1000000).toFixed(1)+'M';
-  if(a>=1000)return s+'$'+Math.round(a/1000)+'k';
+  if(a>=1000000) return s+'$'+(a/1000000).toFixed(1)+'M';
+  if(a>=1000)    return s+'$'+Math.round(a/1000)+'k';
   return s+'$'+Math.round(a);
 }
 
-function toggleTier(id){document.getElementById(id).classList.toggle('open');}
+function toggleTier(id) { document.getElementById(id).classList.toggle('open'); }
 
 function profileHTML(p, tier) {
-  const tc  = TIER_CLASS[tier];
-  const ini = p.name?p.name.slice(0,2).toUpperCase():'??';
-  const pay = calcPay(p);
+  const tc  = TIER_CLS[tier];
+  const ini = p.name ? p.name.slice(0,2).toUpperCase() : '??';
+  p.tier    = tier;
+  const pay = calcIBPay(p);
 
-  // Asset class rows: [label, grossRevPerLot, lpCostPerLot]
   const assets = p.assets || [
-    {label:'FX (majors/minors)',   gross: 9.00, lp: 1.80, rebate: p.rebate},
-    {label:'Commodities (XAU/oil)',gross:18.00, lp: 3.60, rebate: p.rebate},
-    {label:'Crypto CFDs',          gross:25.00, lp: 5.00, rebate: p.rebate},
+    {label:'FX (majors/minors)',    gross:9.00,  lp:1.80, rebate:p.rebate},
+    {label:'Commodities (XAU/oil)', gross:18.00, lp:3.60, rebate:p.rebate},
+    {label:'Crypto CFDs',           gross:25.00, lp:5.00, rebate:p.rebate},
   ];
 
   function assetRow(a) {
-    const net   = a.gross - a.lp;
+    const net    = a.gross - a.lp;
     const margin = net - a.rebate;
-    const marginColor = margin >= 0 ? 'var(--green)' : 'var(--red)';
     return '<tr>'
-      +'<td style="padding:.5rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;color:#fff">'+a.label+'</td>'
-      +'<td style="padding:.5rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:12px;color:var(--green)">$'+a.gross.toFixed(2)+'</td>'
-      +'<td style="padding:.5rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:12px;color:#fff">$'+a.lp.toFixed(2)+'</td>'
-      +'<td style="padding:.5rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:12px;color:#fff">$'+net.toFixed(2)+'</td>'
-      +'<td style="padding:.5rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:12px">'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;color:#fff">'+a.label+'</td>'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:12px;color:var(--green)">$'+a.gross.toFixed(2)+'</td>'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:12px;color:rgba(255,255,255,0.6)">$'+a.lp.toFixed(2)+'</td>'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:12px;color:#fff">$'+net.toFixed(2)+'</td>'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right">'
         +'<input type="number" value="'+a.rebate.toFixed(2)+'" step="0.10" min="0"'
-        +' data-pid="'+p.id+'" data-tier="'+tier+'" data-aclass="'+a.label+'"'
-        +' oninput="ibSetRebate(this)"'
+        +' data-pid="'+p.id+'" data-tier="'+tier+'" data-aclass="'+a.label+'" oninput="ibSetRebate(this)"'
         +' style="background:transparent;border:none;border-bottom:1px solid rgba(191,111,255,0.3);color:var(--pu);font-size:12px;font-weight:600;font-family:var(--font);outline:none;width:52px;text-align:right;padding:1px 0">'
       +'</td>'
-      +'<td style="padding:.5rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:13px;font-weight:700;color:'+marginColor+'">$'+margin.toFixed(2)+'</td>'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:13px;font-weight:700;color:'+(margin>=0?'var(--green)':'var(--red)')+'">$'+margin.toFixed(2)+'</td>'
     +'</tr>';
   }
 
   return '<div class="ib-profile" id="profile-'+p.id+'">'
-    +'<div class="ib-profile-head">'
+    // Profile header
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">'
       +'<div style="display:flex;align-items:center;gap:10px;flex:1">'
         +'<div class="ib-avatar '+tc+'">'+ini+'</div>'
-        +'<div class="ib-name-block">'
-          +'<input class="ib-name" style="background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.15);color:#fff;font-size:14px;font-weight:700;font-family:var(--font);outline:none;width:100%;padding:1px 0" value="'+p.name+'" placeholder="IB name" data-pid="'+p.id+'" data-tier="'+tier+'" onchange="ibSetNameEvt(this)">'
-          +'<div class="ib-role">Tier '+tier+' IB</div>'
+        +'<div style="margin-left:6px;flex:1">'
+          +'<input style="background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.15);color:#fff;font-size:14px;font-weight:700;font-family:var(--font);outline:none;width:100%;padding:1px 0"'
+            +' value="'+p.name+'" placeholder="IB name" data-pid="'+p.id+'" data-tier="'+tier+'" onchange="ibSetNameEvt(this)">'
+          +'<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px">Tier '+tier+' IB · '+p.clients.toLocaleString()+' clients · ~'+pay.newCliForIB+' new/mo</div>'
         +'</div>'
       +'</div>'
-      +'<div style="display:flex;align-items:center;gap:8px">'
-        +'<span style="font-size:11px;font-weight:600;padding:3px 10px;background:var(--pu-dim);color:var(--pu)">'+p.clients.toLocaleString()+' clients</span>'
-        +'<button data-pid="'+p.id+'" data-tier="'+tier+'" onclick="ibRemoveEvt(this)" style="background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:18px;cursor:pointer;line-height:1">\u00D7</button>'
-      +'</div>'
+      +'<button data-pid="'+p.id+'" data-tier="'+tier+'" onclick="ibRemoveEvt(this)"'
+        +' style="background:transparent;border:none;color:rgba(255,255,255,0.25);font-size:18px;cursor:pointer;line-height:1">\u00D7</button>'
     +'</div>'
-
     // Commission inputs
     +'<div class="ib-commission-grid">'
-      +'<div class="ib-field"><div class="ib-field-label">CPA per funded client</div>'
+      +'<div class="ib-field">'
+        +'<div class="ib-field-label">CPA per new funded client</div>'
+        +'<div class="ib-field-formula">One-time · ~'+pay.newCliForIB+' new clients/mo → '+fmtM(pay.cpa)+'/mo</div>'
         +'<div class="ib-field-wrap"><span class="ib-field-sym">$</span>'
-          +'<input class="ib-field-input" type="number" value="'+p.cpa+'" min="0" step="5" data-pid="'+p.id+'" data-tier="'+tier+'" data-field="cpa" oninput="ibSetEvt(this)">'
-        +'</div></div>'
-      +'<div class="ib-field"><div class="ib-field-label">Rev share %</div>'
+          +'<input class="ib-field-input" type="number" value="'+p.cpa+'" min="0" step="5"'
+            +' data-pid="'+p.id+'" data-tier="'+tier+'" data-field="cpa" oninput="ibSetEvt(this)">'
+        +'</div>'
+      +'</div>'
+      +'<div class="ib-field">'
+        +'<div class="ib-field-label">Rev share % of net spread</div>'
+        +'<div class="ib-field-formula">Monthly · '+p.clients+' clients × net spread × '+p.revShare+'%</div>'
         +'<div class="ib-field-wrap">'
-          +'<input class="ib-field-input" type="number" value="'+p.revShare+'" min="0" max="100" step="1" data-pid="'+p.id+'" data-tier="'+tier+'" data-field="revShare" oninput="ibSetEvt(this)">'
+          +'<input class="ib-field-input" type="number" value="'+p.revShare+'" min="0" max="80" step="1"'
+            +' data-pid="'+p.id+'" data-tier="'+tier+'" data-field="revShare" oninput="ibSetEvt(this)">'
           +'<span class="ib-field-sym">%</span>'
-        +'</div></div>'
-      +'<div class="ib-field"><div class="ib-field-label">Default rebate/lot ($)</div>'
+        +'</div>'
+      +'</div>'
+      +'<div class="ib-field">'
+        +'<div class="ib-field-label">Rebate per lot traded</div>'
+        +'<div class="ib-field-formula">Monthly · clients × lots × $'+p.rebate+'/lot</div>'
         +'<div class="ib-field-wrap"><span class="ib-field-sym">$</span>'
-          +'<input class="ib-field-input" type="number" value="'+p.rebate+'" min="0" step="0.5" data-pid="'+p.id+'" data-tier="'+tier+'" data-field="rebate" oninput="ibSetEvt(this)">'
-        +'</div></div>'
-      +'<div class="ib-field"><div class="ib-field-label">Monthly total payout</div>'
-        +'<div class="ib-field-wrap"><span style="color:var(--pu);font-size:15px;font-weight:600">'+fmtM(pay.total)+'</span>'
-        +'</div></div>'
+          +'<input class="ib-field-input" type="number" value="'+p.rebate+'" min="0" step="0.25"'
+            +' data-pid="'+p.id+'" data-tier="'+tier+'" data-field="rebate" oninput="ibSetEvt(this)">'
+        +'</div>'
+      +'</div>'
+      +'<div class="ib-field">'
+        +'<div class="ib-field-label">Total monthly payout</div>'
+        +'<div class="ib-field-formula">CPA + Rev share + Rebate</div>'
+        +'<div class="ib-field-wrap"><span style="color:var(--pu);font-size:16px;font-weight:600">'+fmtM(pay.total)+'</span></div>'
+      +'</div>'
     +'</div>'
-
-    // CPA + revshare outputs
+    // Output summary
     +'<div class="ib-output">'
       +'<div class="ib-out-item"><div class="ib-out-label">CPA / mo</div><div class="ib-out-value">'+fmtM(pay.cpa)+'</div></div>'
       +'<div class="ib-out-item"><div class="ib-out-label">Rev share / mo</div><div class="ib-out-value">'+fmtM(pay.rs)+'</div></div>'
       +'<div class="ib-out-item"><div class="ib-out-label">Rebate / mo</div><div class="ib-out-value">'+fmtM(pay.rb)+'</div></div>'
     +'</div>'
-
     // Asset class margin table
     +'<div style="margin-top:1rem;border:1px solid rgba(191,111,255,0.2)">'
       +'<div style="background:var(--pu);padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between">'
-        +'<span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff">Net margin per lot by asset class</span>'
-        +'<span style="font-size:10px;color:rgba(255,255,255,0.7)">Milele Prime profit after IB rebate</span>'
+        +'<span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff">Net Margin per Lot — Milele Prime profit after IB rebate</span>'
+        +'<span style="font-size:10px;color:rgba(255,255,255,0.65)">Gross − LP = Net to Broker · Net to Broker − IB Rebate = Milele\'s margin</span>'
       +'</div>'
       +'<table style="width:100%;border-collapse:collapse">'
         +'<thead><tr style="background:var(--bg3)">'
-          +'<th style="padding:.5rem .75rem;text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.6)">Asset class</th>'
-          +'<th style="padding:.5rem .75rem;text-align:right;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.6)">Gross/lot</th>'
-          +'<th style="padding:.5rem .75rem;text-align:right;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.6)">LP cost</th>'
-          +'<th style="padding:.5rem .75rem;text-align:right;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.6)">Net to broker</th>'
-          +'<th style="padding:.5rem .75rem;text-align:right;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pu)">IB rebate</th>'
-          +'<th style="padding:.5rem .75rem;text-align:right;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green)">Net margin</th>'
+          +'<th style="padding:.45rem .75rem;text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.5)">Asset Class</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Gross/lot</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:10px;color:rgba(255,255,255,0.5);font-weight:700;text-transform:uppercase;letter-spacing:.08em">LP cost</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:10px;color:rgba(255,255,255,0.5);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Net to broker</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:10px;color:var(--pu);font-weight:700;text-transform:uppercase;letter-spacing:.08em">IB rebate ✎</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Net margin</th>'
         +'</tr></thead>'
         +'<tbody>'+assets.map(a=>assetRow(a)).join('')+'</tbody>'
       +'</table>'
     +'</div>'
-
   +'</div>';
 }
 
-
 function ibSetClients() {
-  const total = getIBClientCount();
+  const total = getIBClients();
   [1,2,3].forEach(tier=>{
     const n = ibProfiles[tier].length;
     if(!n) return;
-    const perIB = Math.round(total * TIER_CLIENT_PCT[tier] / n);
-    ibProfiles[tier].forEach(p=>{ p.clients = perIB; });
+    const perIB = Math.round(total * TIER_PCT[tier] / n);
+    ibProfiles[tier].forEach(p=>{ p.clients = perIB; p.tier = tier; });
   });
 }
 
 function renderIB() {
   ibSetClients();
-  const total = getIBClientCount();
-  const dispEl = document.getElementById('ib-clients-display');
-  const totEl  = document.getElementById('ib-total-clients');
-  if(dispEl) dispEl.textContent = total.toLocaleString();
-  if(totEl)  totEl.textContent  = total.toLocaleString();
+  const total = getIBClients();
+  const setEl = (id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+  setEl('ib-total-clients', total.toLocaleString());
+  setEl('ib-clients-display', total.toLocaleString());
 
   let allIBs=0, allCPA=0, allRS=0, allRB=0;
 
@@ -993,97 +1297,83 @@ function renderIB() {
     const grid = document.getElementById('t'+tier+'-profiles');
     if(grid) grid.innerHTML = ibProfiles[tier].map(p=>profileHTML(p,tier)).join('');
 
-    const tierClients = Math.round(total * TIER_CLIENT_PCT[tier]);
+    const tierClients = Math.round(total * TIER_PCT[tier]);
     let tierPayout = 0;
     ibProfiles[tier].forEach(p=>{
-      const pay = calcPay(p);
+      const pay = calcIBPay(p);
       tierPayout += pay.total;
       allCPA += pay.cpa; allRS += pay.rs; allRB += pay.rb;
       allIBs++;
     });
-
-    const tcEl = document.getElementById('t'+tier+'-clients');
-    const tpEl = document.getElementById('t'+tier+'-payout');
-    if(tcEl) tcEl.textContent = tierClients.toLocaleString();
-    if(tpEl) tpEl.textContent = fmtM(tierPayout);
+    setEl('t'+tier+'-clients', tierClients.toLocaleString());
+    setEl('t'+tier+'-payout', fmtM(tierPayout));
   });
 
-  const totalPayout = allCPA+allRS+allRB;
-  const totalRev = total * getSpreadRevPerClient();
-  const pct = totalRev>0 ? ((totalPayout/totalRev)*100).toFixed(1)+'%' : '—';
+  const totalPayout = allCPA + allRS + allRB;
+  const netSpread   = getNetSpread();
+  const totalRev    = total * netSpread;
+  const payPct      = totalRev > 0 ? ((totalPayout/totalRev)*100).toFixed(1)+'%' : '—';
 
-  const setT = (id,val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-  setT('ib-total-ibs',    allIBs);
-  setT('ib-total-payout', fmtM(totalPayout));
-  setT('ib-payout-pct',   pct);
-  setT('ibt-clients',     total.toLocaleString());
-  setT('ibt-ibs',         allIBs);
-  setT('ibt-cpa',         fmtM(allCPA));
-  setT('ibt-revshare',    fmtM(allRS));
-  setT('ibt-rebate',      fmtM(allRB));
-  setT('ibt-total',       fmtM(totalPayout));
+  setEl('ib-total-ibs',    allIBs);
+  setEl('ib-total-payout', fmtM(totalPayout));
+  setEl('ib-payout-pct',   payPct);
+  setEl('ibt-clients',     total.toLocaleString());
+  setEl('ibt-ibs',         allIBs);
+  setEl('ibt-cpa',         fmtM(allCPA));
+  setEl('ibt-revshare',    fmtM(allRS));
+  setEl('ibt-rebate',      fmtM(allRB));
+  setEl('ibt-total',       fmtM(totalPayout));
 }
 
 function ibSet(id, tier, field, val) {
   const p = ibProfiles[tier].find(x=>x.id===id);
   if(!p) return;
-  p[field]=val;
-  // sync default rebate to all assets that haven't been individually set
-  if(field==='rebate' && p.assets) {
-    p.assets.forEach(a=>{ a.rebate = val; });
-  }
+  p[field] = val;
+  if(field==='rebate' && p.assets) p.assets.forEach(a=>{ a.rebate = val; });
   renderIB();
 }
-function ibSetName(id, tier, val) {
-  const p = ibProfiles[tier].find(x=>x.id===id);
-  if(p) p.name=val;
-}
+function ibSetName(id, tier, val) { const p=ibProfiles[tier].find(x=>x.id===id); if(p) p.name=val; }
+function ibSetEvt(el) { ibSet(el.dataset.pid, +el.dataset.tier, el.dataset.field, +el.value); }
+function ibSetNameEvt(el) { ibSetName(el.dataset.pid, +el.dataset.tier, el.value); }
+function ibRemoveEvt(el) { ibProfiles[+el.dataset.tier]=ibProfiles[+el.dataset.tier].filter(p=>p.id!==el.dataset.pid); renderIB(); }
 function addProfile(tier) {
   profileCounter++;
-  ibProfiles[tier].push({id:'p'+profileCounter,name:'New IB',cpa:25,revShare:12,rebate:1,clients:0});
+  ibProfiles[tier].push({id:'p'+profileCounter, name:'New IB', cpa:25, revShare:12, rebate:1, clients:0, tier});
   renderIB();
 }
-
-function ibSetEvt(el) { ibSet(el.dataset.pid, +el.dataset.tier, el.dataset.field, +el.value); }
 function ibSetRebate(el) {
-  const pid = el.dataset.pid, tier = +el.dataset.tier, aclass = el.dataset.aclass;
+  const pid=el.dataset.pid, tier=+el.dataset.tier, aclass=el.dataset.aclass;
   const p = ibProfiles[tier].find(x=>x.id===pid);
   if(!p) return;
-  if(!p.assets) {
-    p.assets = [
-      {label:'FX (majors/minors)',   gross:9.00,  lp:1.80, rebate:p.rebate},
-      {label:'Commodities (XAU/oil)',gross:18.00, lp:3.60, rebate:p.rebate},
-      {label:'Crypto CFDs',          gross:25.00, lp:5.00, rebate:p.rebate},
-    ];
-  }
+  if(!p.assets) p.assets=[
+    {label:'FX (majors/minors)',    gross:9.00,  lp:1.80, rebate:p.rebate},
+    {label:'Commodities (XAU/oil)', gross:18.00, lp:3.60, rebate:p.rebate},
+    {label:'Crypto CFDs',           gross:25.00, lp:5.00, rebate:p.rebate},
+  ];
   const a = p.assets.find(x=>x.label===aclass);
-  if(a) { a.rebate = +el.value; renderIB(); }
-}
-function ibSetNameEvt(el) { ibSetName(el.dataset.pid, +el.dataset.tier, el.value); }
-function ibRemoveEvt(el) { ibRemove(el.dataset.pid, +el.dataset.tier); }
-function ibRemove(id, tier) {
-  ibProfiles[tier] = ibProfiles[tier].filter(p=>p.id!==id);
-  renderIB();
+  if(a){ a.rebate=+el.value; renderIB(); }
 }
 
 const ibSlider = document.getElementById('ib-client-slider');
 if(ibSlider) ibSlider.addEventListener('input', renderIB);
 
+// ─────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────
 buildCostGrid();
-document.getElementById('chart-tabs').addEventListener('click',e=>{
-  const btn=e.target.closest('.chart-tab');
-  if(!btn)return;
+
+document.getElementById('chart-tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.chart-tab');
+  if(!btn) return;
   document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
-  currentChart=btn.dataset.chart;
+  currentChart = btn.dataset.chart;
   render();
 });
-document.querySelectorAll('input[type=range]').forEach(s=>s.addEventListener('input',render));
-['psp-winner-pct','psp-loser-pct'].forEach(id=>{
-  const el=document.getElementById(id);
-  if(el) el.addEventListener('input',render);
-});
-document.querySelectorAll('.vc-trigger').forEach(el=>el.addEventListener('input',renderVC));
+
+document.querySelectorAll('input[type=range]').forEach(s=>s.addEventListener('input', render));
+document.querySelectorAll('.vc-trigger').forEach(el=>el.addEventListener('input', renderVC));
+
 render();
 </script>
 </body>
