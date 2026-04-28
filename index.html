@@ -200,13 +200,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .tier-block.open .tier-chevron{transform:rotate(180deg)}
 .tier-body{display:none;background:var(--bg2)}
 .tier-block.open .tier-body{display:block}
-.profiles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1px;background:var(--border-dim)}
+.profiles-grid{display:flex;flex-direction:column;gap:1px;background:var(--border-dim)}
 .ib-profile{background:var(--bg2);padding:1.5rem}
 .ib-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
 .ib-avatar.t1{background:var(--pu);color:#fff}
 .ib-avatar.t2{background:rgba(61,219,160,0.15);color:var(--green);border:1px solid rgba(61,219,160,0.4)}
 .ib-avatar.t3{background:rgba(255,255,255,0.1);color:#fff}
-.ib-commission-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-bottom:1rem}
+.ib-commission-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 20px;margin-bottom:1rem}
 .ib-field{display:flex;flex-direction:column;gap:3px}
 .ib-field-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.45)}
 .ib-field-formula{font-size:9px;color:rgba(191,111,255,0.5)}
@@ -214,7 +214,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .ib-field-sym{font-size:12px;color:rgba(255,255,255,0.4)}
 .ib-field-input{background:transparent;border:none;color:#fff;font-size:16px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0}
 .ib-field-input::-webkit-inner-spin-button,.ib-field-input::-webkit-outer-spin-button{-webkit-appearance:none}
-.ib-output{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border-dim)}
+.ib-output{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border-dim)}
+.ib-asset-table{margin-top:1rem;border:1px solid rgba(191,111,255,0.2);overflow:hidden;width:100%}
 .ib-out-item{background:var(--bg3);padding:.5rem .6rem;border-radius:2px}
 .ib-out-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:1px}
 .ib-out-value{font-size:13px;font-weight:600;color:#fff}
@@ -661,18 +662,8 @@ const VENDORS = [
 ];
 
 // ─────────────────────────────────────────────────────────────────
-// PAGE TABS
+// PAGE TABS — wired in renderAll() block below
 // ─────────────────────────────────────────────────────────────────
-document.querySelectorAll('.page-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.tab).classList.add('active');
-    if(btn.dataset.tab === 'tab2') renderVC();
-    if(btn.dataset.tab === 'tab3') renderIB();
-  });
-});
 
 // ─────────────────────────────────────────────────────────────────
 // FIXED COSTS GRID (with notes)
@@ -1177,11 +1168,23 @@ function profileHTML(p, tier) {
   p.tier    = tier;
   const pay = calcIBPay(p);
 
+  // Asset LP costs scale with Tab1 LP slider (as a proportion of FX base $1.80)
+  const baseLpFx   = +(document.getElementById('sl-lp').value) || 3;
+  // LP cost per asset scales proportionally: commodities 2×, crypto 2.78× FX LP
+  const assetLpFx  = +(baseLpFx * 0.6).toFixed(2);   // FX: 60% of slider (tight spreads)
+  const assetLpCom = +(baseLpFx * 1.2).toFixed(2);   // Commodities: 120%
+  const assetLpCry = +(baseLpFx * 1.67).toFixed(2);  // Crypto CFDs: 167%
   const assets = p.assets || [
-    {label:'FX (majors/minors)',    gross:9.00,  lp:1.80, rebate:p.rebate},
-    {label:'Commodities (XAU/oil)', gross:18.00, lp:3.60, rebate:p.rebate},
-    {label:'Crypto CFDs',           gross:25.00, lp:5.00, rebate:p.rebate},
+    {label:'FX (majors/minors)',    gross:9.00,  lp:assetLpFx,  rebate:p.rebate},
+    {label:'Commodities (XAU/oil)', gross:18.00, lp:assetLpCom, rebate:p.rebate},
+    {label:'Crypto CFDs',           gross:25.00, lp:assetLpCry, rebate:p.rebate},
   ];
+  // Always refresh LP from slider even if assets already exist
+  if(p.assets) {
+    p.assets[0].lp = assetLpFx;
+    p.assets[1].lp = assetLpCom;
+    p.assets[2].lp = assetLpCry;
+  }
 
   function assetRow(a) {
     const net    = a.gross - a.lp;
@@ -1242,9 +1245,9 @@ function profileHTML(p, tier) {
         +'</div>'
       +'</div>'
       +'<div class="ib-field">'
-        +'<div class="ib-field-label">Total monthly payout</div>'
-        +'<div class="ib-field-formula">CPA + Rev share + Rebate</div>'
-        +'<div class="ib-field-wrap"><span style="color:var(--pu);font-size:16px;font-weight:600">'+fmtM(pay.total)+'</span></div>'
+        +'<div class="ib-field-label">Net spread / client / mo</div>'
+        +'<div class="ib-field-formula">(Gross − LP) × lots = broker\'s spread per client</div>'
+        +'<div class="ib-field-wrap"><span style="color:var(--green);font-size:16px;font-weight:600">'+fmtM(getNetSpread())+'</span></div>'
       +'</div>'
     +'</div>'
     // Output summary
@@ -1252,9 +1255,10 @@ function profileHTML(p, tier) {
       +'<div class="ib-out-item"><div class="ib-out-label">CPA / mo</div><div class="ib-out-value">'+fmtM(pay.cpa)+'</div></div>'
       +'<div class="ib-out-item"><div class="ib-out-label">Rev share / mo</div><div class="ib-out-value">'+fmtM(pay.rs)+'</div></div>'
       +'<div class="ib-out-item"><div class="ib-out-label">Rebate / mo</div><div class="ib-out-value">'+fmtM(pay.rb)+'</div></div>'
+      +'<div class="ib-out-item" style="background:var(--pu-dim)"><div class="ib-out-label" style="color:rgba(191,111,255,0.8)">Total / mo</div><div class="ib-out-value" style="color:var(--pu)">'+fmtM(pay.total)+'</div></div>'
     +'</div>'
     // Asset class margin table
-    +'<div style="margin-top:1rem;border:1px solid rgba(191,111,255,0.2)">'
+    +'<div class="ib-asset-table">'
       +'<div style="background:var(--pu);padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between">'
         +'<span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff">Net Margin per Lot — Milele Prime profit after IB rebate</span>'
         +'<span style="font-size:10px;color:rgba(255,255,255,0.65)">Gross − LP = Net to Broker · Net to Broker − IB Rebate = Milele\'s margin</span>'
@@ -1345,22 +1349,49 @@ function ibSetRebate(el) {
   const pid=el.dataset.pid, tier=+el.dataset.tier, aclass=el.dataset.aclass;
   const p = ibProfiles[tier].find(x=>x.id===pid);
   if(!p) return;
-  if(!p.assets) p.assets=[
-    {label:'FX (majors/minors)',    gross:9.00,  lp:1.80, rebate:p.rebate},
-    {label:'Commodities (XAU/oil)', gross:18.00, lp:3.60, rebate:p.rebate},
-    {label:'Crypto CFDs',           gross:25.00, lp:5.00, rebate:p.rebate},
-  ];
+  if(!p.assets) {
+    const bLp = +(document.getElementById('sl-lp').value)||3;
+    p.assets=[
+      {label:'FX (majors/minors)',    gross:9.00,  lp:+(bLp*0.6).toFixed(2),  rebate:p.rebate},
+      {label:'Commodities (XAU/oil)', gross:18.00, lp:+(bLp*1.2).toFixed(2),  rebate:p.rebate},
+      {label:'Crypto CFDs',           gross:25.00, lp:+(bLp*1.67).toFixed(2), rebate:p.rebate},
+    ];
+  }
   const a = p.assets.find(x=>x.label===aclass);
   if(a){ a.rebate=+el.value; renderIB(); }
 }
 
-const ibSlider = document.getElementById('ib-client-slider');
-if(ibSlider) ibSlider.addEventListener('input', renderIB);
+// ib-client-slider wired in renderAll block
 
 // ─────────────────────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────────────────────
 buildCostGrid();
+
+// ── MASTER RENDER: fires all active tabs so cross-tab changes propagate immediately
+function renderAll() {
+  render(); // Tab 1 always re-renders (it's always in the DOM)
+  // Tab 2 and 3: only re-render if visible, otherwise flag as stale so they
+  // re-render on next tab switch
+  if(document.getElementById('tab2').classList.contains('active')) renderVC();
+  if(document.getElementById('tab3').classList.contains('active')) renderIB();
+  vcStale = true;
+  ibStale = true;
+}
+
+let vcStale = true, ibStale = true;
+
+// Tab switch: re-render stale tabs
+document.querySelectorAll('.page-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab === 'tab2') { renderVC(); vcStale = false; }
+    if(btn.dataset.tab === 'tab3') { renderIB(); ibStale = false; }
+  });
+});
 
 document.getElementById('chart-tabs').addEventListener('click', e=>{
   const btn = e.target.closest('.chart-tab');
@@ -1371,10 +1402,18 @@ document.getElementById('chart-tabs').addEventListener('click', e=>{
   render();
 });
 
-document.querySelectorAll('input[type=range]').forEach(s=>s.addEventListener('input', render));
-document.querySelectorAll('.vc-trigger').forEach(el=>el.addEventListener('input', renderVC));
+// All sliders + cost inputs fire renderAll so Tab 2 & 3 stay in sync
+document.querySelectorAll('input[type=range]').forEach(s => s.addEventListener('input', renderAll));
+document.querySelectorAll('.ci-input').forEach(s => s.addEventListener('input', renderAll));
 
-render();
+// VC-specific triggers
+document.querySelectorAll('.vc-trigger').forEach(el => el.addEventListener('input', renderVC));
+
+// IB slider
+const ibSliderEl = document.getElementById('ib-client-slider');
+if(ibSliderEl) ibSliderEl.addEventListener('input', renderIB);
+
+renderAll();
 </script>
 </body>
 </html>
