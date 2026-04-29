@@ -259,6 +259,11 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 <div class="page-tabs">
   <div class="container">
     <div class="page-tabs-inner">
+      <button class="page-tab" data-tab="tab4">Deposits</button>
+      <button class="page-tab" data-tab="tab5">Trading Float</button>
+      <button class="page-tab" data-tab="tab6">Revenue</button>
+      <button class="page-tab" data-tab="tab7">Variable Costs</button>
+      <button class="page-tab" data-tab="tab8">Fixed Costs</button>
       <button class="page-tab active" data-tab="tab1">Financial Model</button>
       <button class="page-tab" data-tab="tab2">Vendor Comparison</button>
       <button class="page-tab" data-tab="tab3">IB Network</button>
@@ -626,6 +631,374 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
     <div class="ib-total-bar-item"><div class="ib-total-bar-val" id="ibt-total">—</div><div class="ib-total-bar-label">Total IB cost / mo</div></div>
   </div>
 
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 4 — DEPOSITS
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab4">
+  <div class="hero fu fu1">
+    <div class="hero-title">Deposits</div>
+    <div class="hero-sub">Standalone inputs — client counts and assumed deposit volume per IB tier. Calculations to be wired later.</div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Client Base</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">Total Clients Count</div>
+      <div class="ci-note">Active funded clients across all tiers</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-clients" value="2000" min="0" step="1"></div>
+    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">IB Tier — Assumed Client Deposit Volume</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t1" style="margin-right:8px">Tier 1 — 20%</span></div>
+      <div class="ci-note">Avg deposit volume per client (Tier 1)</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t1-vol" value="10000" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t2" style="margin-right:8px">Tier 2 — 60%</span></div>
+      <div class="ci-note">Avg deposit volume per client (Tier 2)</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t2-vol" value="5000" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t3" style="margin-right:8px">Tier 3 — 20%</span></div>
+      <div class="ci-note">Avg deposit volume per client (Tier 3)</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t3-vol" value="2500" min="0" step="100"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 5 — TRADING FLOAT
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab5">
+  <div class="hero fu fu1">
+    <div class="hero-title">Trading Float</div>
+    <div class="hero-sub">Standalone inputs — float, deposit/withdrawal flows. Calculations to be wired later.</div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Float &amp; Cash Movement</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">Total Trading Float</div>
+      <div class="ci-note">Capital available for B-book exposure</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="flt-total" value="500000" min="0" step="1000"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Deposit Amount</div>
+      <div class="ci-note">Avg deposit per event</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="flt-deposit" value="2500" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Redeposit Count</div>
+      <div class="ci-note">Avg redeposits per active client</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="flt-redep" value="2" min="0" step="1"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Withdrawal</div>
+      <div class="ci-note">Avg withdrawal amount per event</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="flt-withdraw" value="1500" min="0" step="100"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 6 — REVENUE
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab6">
+  <div class="hero fu fu1">
+    <div class="hero-title">Revenue</div>
+    <div class="hero-sub">Standalone revenue line items. Each value is editable; calculations to be wired later.</div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Book P&amp;L</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">Win A Book</div>
+      <div class="ci-note">A-book client wins (broker passes to LP)</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-win-a" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Win B Book</div>
+      <div class="ci-note">B-book client wins (broker pays out)</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-win-b" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Loss A Book</div>
+      <div class="ci-note">A-book client losses (broker keeps share)</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-loss-a" value="0" min="0" step="100"></div>
+    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Trading Revenue Streams</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">Spread Revenue</div>
+      <div class="ci-note">Markup on client spreads</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-spread" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Swaps Revenue</div>
+      <div class="ci-note">Overnight financing income</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-swaps" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Interest on Deposits</div>
+      <div class="ci-note">Yield on idle client funds</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-interest" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Commission Revenue</div>
+      <div class="ci-note">Per-lot or per-trade commission</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-commission" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">FX Conversion Rate</div>
+      <div class="ci-note">FX markup on deposits/withdrawals</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-fx" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Inactivity Revenue</div>
+      <div class="ci-note">Dormant account fees</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-inactivity" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Withdrawal Revenue</div>
+      <div class="ci-note">Withdrawal processing fees</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-withdrawal" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">LP Volume Rebate</div>
+      <div class="ci-note">Volume-tier rebates from LP</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-lp-rebate" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Slippage Revenue</div>
+      <div class="ci-note">Net positive slippage capture</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-slippage" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">B2B Tech / Data Licensing</div>
+      <div class="ci-note">White-label, API, or data feed revenue</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b2b" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Premium Subscription</div>
+      <div class="ci-note">Pro tier / signal service subscriptions</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-premium" value="0" min="0" step="100"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 7 — VARIABLE COSTS
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab7">
+  <div class="hero fu fu1">
+    <div class="hero-title">Variable Costs</div>
+    <div class="hero-sub">Standalone inputs — book losses, IB payouts per tier, acquisition, and transaction fees.</div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Book P&amp;L</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">Loss B Book</div>
+      <div class="ci-note">B-book client losses paid out by broker</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-loss-b" value="0" min="0" step="100"></div>
+    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">IB Payouts by Tier</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t1" style="margin-right:8px">Tier 1</span> CPA</div>
+      <div class="ci-note">One-time payment per new funded client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t1-cpa" value="50" min="0" step="5"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t1" style="margin-right:8px">Tier 1</span> Rev Share</div>
+      <div class="ci-note">% of net spread, monthly</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="vrc-t1-rs" value="20" min="0" step="1"><span class="ci-prefix">%</span></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t1" style="margin-right:8px">Tier 1</span> Rebate / Lot</div>
+      <div class="ci-note">Per lot traded by IB clients</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t1-reb" value="2" min="0" step="0.1"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t2" style="margin-right:8px">Tier 2</span> CPA</div>
+      <div class="ci-note">One-time payment per new funded client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t2-cpa" value="30" min="0" step="5"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t2" style="margin-right:8px">Tier 2</span> Rev Share</div>
+      <div class="ci-note">% of net spread, monthly</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="vrc-t2-rs" value="15" min="0" step="1"><span class="ci-prefix">%</span></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t2" style="margin-right:8px">Tier 2</span> Rebate / Lot</div>
+      <div class="ci-note">Per lot traded by IB clients</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t2-reb" value="1.5" min="0" step="0.1"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t3" style="margin-right:8px">Tier 3</span> CPA</div>
+      <div class="ci-note">One-time payment per new funded client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t3-cpa" value="20" min="0" step="5"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t3" style="margin-right:8px">Tier 3</span> Rev Share</div>
+      <div class="ci-note">% of net spread, monthly</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="vrc-t3-rs" value="10" min="0" step="1"><span class="ci-prefix">%</span></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:#fff"><span class="tier-badge t3" style="margin-right:8px">Tier 3</span> Rebate / Lot</div>
+      <div class="ci-note">Per lot traded by IB clients</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t3-reb" value="1" min="0" step="0.1"></div>
+    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Acquisition Costs</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">IB Acquisition Cost</div>
+      <div class="ci-note">Spend to recruit / onboard new IBs</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-ib-acq" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Customer Acquisition Cost</div>
+      <div class="ci-note">Direct marketing spend per client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-cac" value="0" min="0" step="100"></div>
+    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Transaction Fees</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">PSP Fee</div>
+      <div class="ci-note">Payment service provider fee</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-psp" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">PO Fee</div>
+      <div class="ci-note">Payout / withdrawal processing fee</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-po" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">LP Fee</div>
+      <div class="ci-note">Liquidity provider per-lot cost</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-lp" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">LP Swap</div>
+      <div class="ci-note">LP overnight swap charges</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-lp-swap" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Bridge Volume Fee</div>
+      <div class="ci-note">Bridge / aggregator volume-based cost</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-bridge" value="0" min="0" step="100"></div>
+    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Dealing Desk</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">Dealing Desk Profit Sharing</div>
+      <div class="ci-note">% or $ paid to dealing desk on B-book P&amp;L</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-dd-share" value="0" min="0" step="100"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 8 — FIXED COSTS
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab8">
+  <div class="hero fu fu1">
+    <div class="hero-title">Fixed Costs</div>
+    <div class="hero-sub">Standalone inputs — infrastructure vendors and other fixed monthly overheads.</div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Infrastructure Vendors</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">Bridge</div>
+      <div class="ci-note">Liquidity bridge — monthly SaaS</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-bridge" value="2500" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Trading Platform</div>
+      <div class="ci-note">MT5 / cTrader / proprietary license</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-platform" value="1500" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Dealing Desk</div>
+      <div class="ci-note">Outsourced dealing desk retainer</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-dd" value="1000" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Risk Management</div>
+      <div class="ci-note">Risk system / monitoring tools</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-risk" value="500" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">CRM</div>
+      <div class="ci-note">CRM platform subscription</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-crm" value="800" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Hosting</div>
+      <div class="ci-note">Servers, colocation, network</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-hosting" value="1200" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">LP</div>
+      <div class="ci-note">LP fixed retainer (if any)</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-lp" value="1000" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Licensing</div>
+      <div class="ci-note">FSA / regulatory licensing fees</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-licensing" value="1500" min="0" step="100"></div>
+    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Other Fixed Costs</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">Branding</div>
+      <div class="ci-note">Design, identity, creative</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-branding" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Events</div>
+      <div class="ci-note">Conference, expo, hosted events</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-events" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Sponsorship</div>
+      <div class="ci-note">Brand partnerships, athlete deals</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-sponsorship" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Salaries</div>
+      <div class="ci-note">Total monthly team salaries</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-salaries" value="8000" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Utilities</div>
+      <div class="ci-note">Power, internet, telephony</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-utilities" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Rent</div>
+      <div class="ci-note">Office rent, monthly</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="fxc-rent" value="0" min="0" step="100"></div>
+    </div>
+  </div>
 </div>
 
 </div>
