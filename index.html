@@ -5,55 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Milele Prime — Year 1 Financial Model</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --pu:#BF6FFF;--pu-dim:rgba(191,111,255,0.12);--pu-mid:rgba(191,111,255,0.25);
-  --bg:#0D0A14;--bg2:#130E1F;--bg3:#1A1229;
-  --border:rgba(191,111,255,0.3);--border-dim:rgba(255,255,255,0.08);
-  --green:#3DDBA0;--green-bg:rgba(61,219,160,0.08);
-  --red:#FF6B6B;--red-bg:rgba(255,107,107,0.08);
-  --amber:#F5A623;--amber-bg:rgba(245,166,35,0.08);
+  --pu:#BF6FFF;--pu-dim:rgba(191,111,255,0.10);--pu-mid:rgba(191,111,255,0.25);
+  --bg:#F5F2EC;--bg2:#FFFFFF;--bg3:#EDE8DE;
+  --border:rgba(191,111,255,0.30);--border-dim:rgba(26,18,41,0.10);
+  --green:#1FA876;--green-bg:rgba(31,168,118,0.10);
+  --red:#D94545;--red-bg:rgba(217,69,69,0.10);
+  --amber:#C8851F;--amber-bg:rgba(200,133,31,0.10);
+  --text:#1A1229;
   --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
 }
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:#fff;font-family:var(--font);font-size:14px;line-height:1.6;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.6;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(191,111,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(191,111,255,0.03) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0}
 .container{max-width:1200px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
 
-header{background:var(--pu);padding:1.25rem 0}
-.header-inner{display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
-.logo{font-weight:700;font-size:22px;letter-spacing:-0.02em;color:#fff}
-.header-right{font-size:11px;color:#fff;text-align:right}
-.header-right strong{color:#fff;font-weight:600;display:block;font-size:12px;margin-bottom:1px}
+header{background:#000;padding:.4rem 0}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:nowrap;min-height:0}
+.logo{font-weight:700;font-size:14px;letter-spacing:-0.01em;color:#fff;line-height:1}
+.header-right{font-size:11px;color:#fff;text-align:right;line-height:1.2;display:flex;gap:1rem;align-items:center}
+.header-right strong{color:#fff;font-weight:600;font-size:11px;margin-bottom:0}
 
 .page-tabs{background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .page-tabs-inner{display:flex}
-.page-tab{padding:1rem 2rem;font-size:13px;font-weight:600;background:transparent;border:none;border-bottom:3px solid transparent;color:rgba(255,255,255,0.45);cursor:pointer;font-family:var(--font);transition:all .2s}
-.page-tab.active{color:#fff;border-bottom-color:var(--pu)}
-.page-tab:hover:not(.active){color:#fff;background:rgba(191,111,255,0.06)}
+.page-tab{padding:1rem 2rem;font-size:15px;font-weight:600;background:transparent;border:none;border-bottom:3px solid transparent;color:var(--text);cursor:pointer;font-family:var(--font);transition:all .2s}
+.page-tab.active{color:var(--text);border-bottom-color:var(--pu)}
+.page-tab:hover:not(.active){color:var(--text);background:rgba(191,111,255,0.06)}
 
 .tab-panel{position:absolute;left:-9999px;pointer-events:none;opacity:0;width:100%}
 .tab-panel.active{position:static;pointer-events:auto;opacity:1;display:block}
 
 .hero{padding:2rem 0 1.25rem;border-bottom:1px solid var(--border-dim)}
 .hero-title{font-weight:700;font-size:clamp(24px,3vw,36px);letter-spacing:-0.02em}
-.hero-sub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px}
+.hero-sub{font-size:14px;color:var(--text);margin-top:4px}
 
 .divider{display:flex;align-items:center;gap:1rem;margin:2rem 0 1rem}
-.divider-label{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#fff;white-space:nowrap}
+.divider-label{font-size:13px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);white-space:nowrap}
 .divider-line{flex:1;height:1px;background:var(--border-dim)}
 
 /* FORMULA ANNOTATION */
-.formula-note{font-size:11px;color:rgba(255,255,255,0.4);font-style:italic;margin-top:3px;line-height:1.5}
+.formula-note{font-size:13px;color:var(--text);font-style:italic;margin-top:3px;line-height:1.5}
 .formula-note strong{color:rgba(191,111,255,0.8);font-style:normal}
 
 /* SLIDERS */
 .sliders-panel{background:var(--bg2);border:1px solid var(--border);padding:1.75rem 2rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 3rem}
 .slider-row{display:flex;flex-direction:column;gap:5px}
 .slider-label{display:flex;justify-content:space-between;align-items:baseline}
-.slider-name{font-size:12px;color:#fff;font-weight:500}
-.slider-value{font-size:13px;font-weight:700;color:#fff}
+.slider-name{font-size:14px;color:var(--text);font-weight:500}
+.slider-value{font-size:15px;font-weight:700;color:var(--text)}
 input[type=range]{-webkit-appearance:none;width:100%;height:2px;background:var(--border-dim);outline:none;cursor:pointer}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--pu);border-radius:50%;cursor:pointer;transition:transform .15s}
 input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3)}
@@ -63,23 +65,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border-dim);border:1px solid var(--border)}
 .mc{background:var(--bg2);padding:1.5rem}
 .mc.green{background:var(--green-bg)}.mc.red{background:var(--red-bg)}.mc.amber{background:var(--amber-bg)}.mc.purple{background:var(--pu-dim)}
-.mc-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:.4rem}
-.mc-value{font-size:30px;font-weight:300;line-height:1;color:#fff;margin-bottom:3px}
+.mc-label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text);margin-bottom:.4rem}
+.mc-value{font-size:30px;font-weight:300;line-height:1;color:var(--text);margin-bottom:3px}
 .mc.green .mc-value{color:var(--green)}.mc.red .mc-value{color:var(--red)}.mc.amber .mc-value{color:var(--amber)}.mc.purple .mc-value{color:var(--pu)}
-.mc-sub{font-size:10px;color:rgba(255,255,255,0.4)}
-.mc-formula{font-size:10px;color:rgba(191,111,255,0.6);margin-top:5px;border-top:1px solid rgba(255,255,255,0.06);padding-top:5px}
+.mc-sub{font-size:12px;color:var(--text)}
+.mc-formula{font-size:12px;color:rgba(191,111,255,0.7);margin-top:5px;border-top:1px solid rgba(0,0,0,0.08);padding-top:5px}
 
 /* P&L WATERFALL */
 .waterfall{background:var(--bg2);border:1px solid var(--border);overflow:hidden}
-.wf-row{display:grid;grid-template-columns:280px 1fr 130px 130px;align-items:center;border-bottom:1px solid var(--border-dim);padding:.6rem 1.25rem;font-size:13px}
+.wf-row{display:grid;grid-template-columns:280px 1fr 130px 130px;align-items:center;border-bottom:1px solid var(--border-dim);padding:.6rem 1.25rem;font-size:15px}
 .wf-row:last-child{border-bottom:none}
-.wf-row.header{background:var(--pu);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;padding:.6rem 1.25rem}
-.wf-row.subtotal{background:rgba(255,255,255,0.04);font-weight:600}
-.wf-row.total{background:var(--pu-dim);font-weight:700;font-size:14px}
-.wf-row.section-sep{background:var(--bg3);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.5);padding:.4rem 1.25rem}
-.wf-label{color:#fff}
-.wf-formula{font-size:10px;color:rgba(191,111,255,0.6);margin-top:2px}
-.wf-note{font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px}
+.wf-row.header{background:var(--pu);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;padding:.6rem 1.25rem}
+.wf-row.subtotal{background:rgba(0,0,0,0.04);font-weight:600}
+.wf-row.total{background:var(--pu-dim);font-weight:700;font-size:16px}
+.wf-row.section-sep{background:var(--bg3);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text);padding:.4rem 1.25rem}
+.wf-label{color:var(--text)}
+.wf-formula{font-size:12px;color:rgba(191,111,255,0.6);margin-top:2px}
+.wf-note{font-size:12px;color:var(--text);margin-top:1px}
 .wf-value{text-align:right;font-weight:500}
 .wf-value.pos{color:var(--green)}.wf-value.neg{color:var(--red)}.wf-value.pu{color:var(--pu)}
 .wf-bar-wrap{padding:0 1rem}
@@ -88,55 +90,55 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 
 /* YEAR SUMMARY */
 .year-band{background:var(--bg2);border:1px solid var(--border);padding:1.75rem;display:grid;grid-template-columns:repeat(5,1fr);gap:1.5rem}
-.ys-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:4px}
-.ys-value{font-size:26px;font-weight:300;line-height:1;color:#fff}
+.ys-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin-bottom:4px}
+.ys-value{font-size:26px;font-weight:300;line-height:1;color:var(--text)}
 .ys-value.pos{color:var(--green)}.ys-value.neg{color:var(--red)}.ys-value.pu{color:var(--pu)}
-.ys-formula{font-size:10px;color:rgba(191,111,255,0.5);margin-top:4px}
+.ys-formula{font-size:12px;color:rgba(191,111,255,0.5);margin-top:4px}
 
 /* QUARTERLY TABLE */
 .q-table{width:100%;border-collapse:collapse;border:1px solid var(--border)}
-.q-table th{background:var(--pu);padding:.75rem 1.25rem;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+.q-table th{background:var(--pu);padding:.75rem 1.25rem;text-align:left;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff}
 .q-table th:not(:first-child){text-align:right}
-.q-table td{padding:.8rem 1.25rem;font-size:13px;color:#fff;border-bottom:1px solid var(--border-dim);background:var(--bg2)}
+.q-table td{padding:.8rem 1.25rem;font-size:15px;color:var(--text);border-bottom:1px solid var(--border-dim);background:var(--bg2)}
 .q-table td:not(:first-child){text-align:right;font-weight:500}
-.q-table .th-formula{font-size:9px;color:rgba(255,255,255,0.55);font-weight:400;letter-spacing:0;text-transform:none;display:block;margin-top:2px}
+.q-table .th-formula{font-size:11px;color:var(--text);font-weight:400;letter-spacing:0;text-transform:none;display:block;margin-top:2px}
 .q-table tr.total-row td{background:var(--pu-dim);color:var(--pu);font-weight:700;border-bottom:none}
 .q-table .pos{color:var(--green) !important}.q-table .neg{color:var(--red) !important}
 
 /* CHART */
 .chart-section{background:var(--bg2);border:1px solid var(--border);padding:2rem}
 .chart-tabs{display:flex;margin-bottom:1.5rem;border:1px solid var(--border);width:fit-content}
-.chart-tab{padding:7px 18px;font-size:11px;font-weight:600;background:transparent;border:none;border-right:1px solid var(--border);color:rgba(255,255,255,0.5);cursor:pointer;font-family:var(--font);transition:all .15s}
+.chart-tab{padding:7px 18px;font-size:13px;font-weight:600;background:transparent;border:none;border-right:1px solid var(--border);color:var(--text);cursor:pointer;font-family:var(--font);transition:all .15s}
 .chart-tab:last-child{border-right:none}
 .chart-tab.active{background:var(--pu);color:#fff}
-.chart-tab:hover:not(.active){background:var(--pu-dim);color:#fff}
+.chart-tab:hover:not(.active){background:var(--pu-dim);color:var(--text)}
 .chart-legend{display:flex;gap:1.5rem;margin-bottom:1rem;flex-wrap:wrap}
-.li{display:flex;align-items:center;gap:8px;font-size:12px;color:#fff}
+.li{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
 .ld{width:20px;height:2px;border-radius:1px}
 .chart-canvas-wrap{position:relative;height:300px}
 
 /* EDITABLE COSTS */
 .costs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-dim);border:1px solid var(--border)}
 .ci{background:var(--bg2);padding:1.25rem}
-.ci-label{font-size:11px;color:#fff;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-.ci-note{font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:8px}
+.ci-label{font-size:13px;color:var(--text);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.ci-note{font-size:12px;color:var(--text);margin-bottom:8px}
 .ci-input-wrap{display:flex;align-items:center;gap:4px}
-.ci-prefix{font-size:13px;color:rgba(255,255,255,0.5)}
-.ci-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:#fff;font-size:18px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0;transition:border-color .15s}
+.ci-prefix{font-size:15px;color:var(--text)}
+.ci-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:var(--text);font-size:18px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0;transition:border-color .15s}
 .ci-input:focus{border-bottom-color:var(--pu)}
 .ci-input::-webkit-inner-spin-button,.ci-input::-webkit-outer-spin-button{-webkit-appearance:none}
 .ci.total{background:var(--pu)}
-.ci.total .ci-label,.ci.total .ci-note{color:rgba(255,255,255,0.8)}
+.ci.total .ci-label,.ci.total .ci-note{color:#fff}
 .ci-total-value{font-size:22px;font-weight:700;color:#fff}
 
 /* PSP PANEL */
 .psp-panel{background:var(--bg2);border:1px solid var(--border);padding:1.75rem 2rem}
 .psp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 3rem}
-.psp-outputs{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,0.07);border:1px solid rgba(191,111,255,0.2);margin-top:.5rem}
+.psp-outputs{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(0,0,0,0.07);border:1px solid rgba(191,111,255,0.25);margin-top:.5rem}
 .psp-out{background:var(--bg2);padding:1rem 1.25rem}
-.psp-out-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:3px}
-.psp-out-formula{font-size:9px;color:rgba(191,111,255,0.5);margin-bottom:4px}
-.psp-out-value{font-size:18px;font-weight:300;color:#fff}
+.psp-out-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin-bottom:3px}
+.psp-out-formula{font-size:11px;color:rgba(191,111,255,0.5);margin-bottom:4px}
+.psp-out-value{font-size:18px;font-weight:300;color:var(--text)}
 
 /* VENDOR COMPARISON */
 .vc-wrap{background:var(--bg2);border:1px solid var(--border)}
@@ -147,87 +149,115 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .vc-name-row{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem}
 .vc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .vc-dot.a{background:var(--pu)}.vc-dot.b{background:var(--green)}
-.vc-name-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:#fff;font-size:15px;font-weight:700;font-family:var(--font);width:100%;outline:none;padding:2px 0}
+.vc-name-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:var(--text);font-size:15px;font-weight:700;font-family:var(--font);width:100%;outline:none;padding:2px 0}
 .vc-q-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1rem}
 .vc-q-cell{display:flex;flex-direction:column;gap:4px}
-.vc-q-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.6)}
-.vc-q-prefix{font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:1px}
-.vc-q-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:#fff;font-size:17px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0}
+.vc-q-label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text)}
+.vc-q-prefix{font-size:13px;color:var(--text);margin-bottom:1px}
+.vc-q-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:var(--text);font-size:17px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0}
 .vc-q-input::-webkit-inner-spin-button,.vc-q-input::-webkit-outer-spin-button{-webkit-appearance:none}
-.vc-annual{font-size:12px;color:rgba(255,255,255,0.5)}
-.vc-annual strong{font-size:15px;font-weight:700;color:#fff;margin-left:4px}
-.vc-note{padding:1rem 1.5rem;background:var(--pu-dim);border-left:3px solid var(--pu);margin-bottom:1.5rem;font-size:12px;color:#fff;line-height:1.7}
+.vc-annual{font-size:14px;color:var(--text)}
+.vc-annual strong{font-size:15px;font-weight:700;color:var(--text);margin-left:4px}
+.vc-note{padding:1rem 1.5rem;background:var(--pu-dim);border-left:3px solid var(--pu);margin-bottom:1.5rem;font-size:14px;color:var(--text);line-height:1.7}
 .vc-results-table{width:100%;border-collapse:collapse}
-.vc-results-table th{padding:.7rem 1.25rem;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--bg3);text-align:left}
+.vc-results-table th{padding:.7rem 1.25rem;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);background:var(--bg3);text-align:left}
 .vc-results-table th:not(:first-child){text-align:right}
-.vc-results-table th.col-a{background:var(--pu-mid);color:#fff}
+.vc-results-table th.col-a{background:var(--pu-mid);color:var(--text)}
 .vc-results-table th.col-b{background:rgba(61,219,160,0.2);color:var(--green)}
-.vc-results-table td{padding:.75rem 1.25rem;font-size:13px;color:#fff;border-bottom:1px solid var(--border-dim);background:var(--bg2)}
+.vc-results-table td{padding:.75rem 1.25rem;font-size:15px;color:var(--text);border-bottom:1px solid var(--border-dim);background:var(--bg2)}
 .vc-results-table td:not(:first-child){text-align:right;font-weight:600}
 .vc-results-table td.col-a{color:var(--pu)}
 .vc-results-table td.col-b{color:var(--green)}
-.vc-results-table tr.section-head td{background:var(--bg3);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);padding:.4rem 1.25rem}
+.vc-results-table tr.section-head td{background:var(--bg3);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);padding:.4rem 1.25rem}
 .vc-results-table tr:last-child td{border-bottom:none}
-.badge{display:inline-block;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700}
+.badge{display:inline-block;padding:2px 7px;border-radius:3px;font-size:13px;font-weight:700}
 .badge.better{background:rgba(61,219,160,0.15);color:var(--green)}
 .badge.worse{background:rgba(255,107,107,0.15);color:var(--red)}
-.badge.same{background:rgba(255,255,255,0.07);color:#fff}
+.badge.same{background:rgba(0,0,0,0.06);color:var(--text)}
 .vc-chart-panel{padding:1.5rem 2rem;border-top:1px solid var(--border-dim)}
 .vc-chart-canvas-wrap{position:relative;height:240px}
 
 /* IB NETWORK */
 .ib-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-dim);border:1px solid var(--border)}
 .ib-sum-card{background:var(--bg2);padding:1.25rem 1.5rem}
-.ib-sum-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:4px}
-.ib-sum-formula{font-size:9px;color:rgba(191,111,255,0.5);margin-bottom:4px}
-.ib-sum-value{font-size:26px;font-weight:300;color:#fff;line-height:1}
+.ib-sum-label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text);margin-bottom:4px}
+.ib-sum-formula{font-size:11px;color:rgba(191,111,255,0.5);margin-bottom:4px}
+.ib-sum-value{font-size:26px;font-weight:300;color:var(--text);line-height:1}
 .ib-sum-value.pu{color:var(--pu)}.ib-sum-value.green{color:var(--green)}.ib-sum-value.red{color:var(--red)}
 .tier-block{border:1px solid var(--border);margin-bottom:1.25rem;overflow:hidden}
 .tier-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;cursor:pointer;user-select:none;transition:background .15s}
 .tier-header:hover{background:rgba(191,111,255,0.06)}
 .tier-header-left{display:flex;align-items:center;gap:14px}
-.tier-badge{padding:4px 12px;border-radius:2px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.tier-badge{padding:4px 12px;border-radius:2px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 .tier-badge.t1{background:var(--pu);color:#fff}
-.tier-badge.t2{background:rgba(61,219,160,0.15);color:var(--green);border:1px solid rgba(61,219,160,0.4)}
-.tier-badge.t3{background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15)}
-.tier-title{font-size:15px;font-weight:700;color:#fff}
-.tier-meta{font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px}
+.tier-badge.t2{background:rgba(31,168,118,0.15);color:var(--green);border:1px solid rgba(31,168,118,0.4)}
+.tier-badge.t3{background:rgba(0,0,0,0.06);color:var(--text);border:1px solid rgba(0,0,0,0.15)}
+.tier-title{font-size:15px;font-weight:700;color:var(--text)}
+.tier-meta{font-size:13px;color:var(--text);margin-top:1px}
 .tier-header-right{display:flex;align-items:center;gap:1.5rem}
 .tier-stat{text-align:right}
-.tier-stat-val{font-size:16px;font-weight:600;color:#fff}
-.tier-stat-label{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:.06em;text-transform:uppercase}
-.tier-chevron{font-size:12px;color:rgba(255,255,255,0.4);transition:transform .2s;margin-left:.5rem}
+.tier-stat-val{font-size:16px;font-weight:600;color:var(--text)}
+.tier-stat-label{font-size:12px;color:var(--text);letter-spacing:.06em;text-transform:uppercase}
+.tier-chevron{font-size:14px;color:var(--text);transition:transform .2s;margin-left:.5rem}
 .tier-block.open .tier-chevron{transform:rotate(180deg)}
 .tier-body{display:none;background:var(--bg2)}
 .tier-block.open .tier-body{display:block}
 .profiles-grid{display:flex;flex-direction:column;gap:1px;background:var(--border-dim)}
 .ib-profile{background:var(--bg2);padding:1.5rem}
-.ib-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.ib-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
 .ib-avatar.t1{background:var(--pu);color:#fff}
-.ib-avatar.t2{background:rgba(61,219,160,0.15);color:var(--green);border:1px solid rgba(61,219,160,0.4)}
-.ib-avatar.t3{background:rgba(255,255,255,0.1);color:#fff}
+.ib-avatar.t2{background:rgba(31,168,118,0.15);color:var(--green);border:1px solid rgba(31,168,118,0.4)}
+.ib-avatar.t3{background:rgba(0,0,0,0.08);color:var(--text)}
 .ib-commission-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 20px;margin-bottom:1rem}
 .ib-field{display:flex;flex-direction:column;gap:3px}
-.ib-field-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.45)}
-.ib-field-formula{font-size:9px;color:rgba(191,111,255,0.5)}
+.ib-field-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text)}
+.ib-field-formula{font-size:11px;color:rgba(191,111,255,0.5)}
 .ib-field-wrap{display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border-dim);padding-bottom:3px}
-.ib-field-sym{font-size:12px;color:rgba(255,255,255,0.4)}
-.ib-field-input{background:transparent;border:none;color:#fff;font-size:16px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0}
+.ib-field-sym{font-size:14px;color:var(--text)}
+.ib-field-input{background:transparent;border:none;color:var(--text);font-size:16px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0}
 .ib-field-input::-webkit-inner-spin-button,.ib-field-input::-webkit-outer-spin-button{-webkit-appearance:none}
 .ib-output{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border-dim)}
 .ib-asset-table{margin-top:1rem;border:1px solid rgba(191,111,255,0.2);overflow:hidden;width:100%}
 .ib-out-item{background:var(--bg3);padding:.5rem .6rem;border-radius:2px}
-.ib-out-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:1px}
-.ib-out-value{font-size:13px;font-weight:600;color:#fff}
-.add-ib-btn{display:flex;align-items:center;gap:8px;padding:1rem 1.5rem;border:none;background:transparent;border-top:1px solid var(--border-dim);color:rgba(255,255,255,0.35);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:var(--font);width:100%;transition:all .15s}
-.add-ib-btn:hover{background:var(--pu-dim);color:#fff}
+.ib-out-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text);margin-bottom:1px}
+.ib-out-value{font-size:15px;font-weight:600;color:var(--text)}
+.add-ib-btn{display:flex;align-items:center;gap:8px;padding:1rem 1.5rem;border:none;background:transparent;border-top:1px solid var(--border-dim);color:var(--text);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:var(--font);width:100%;transition:all .15s}
+.add-ib-btn:hover{background:var(--pu-dim);color:var(--text)}
 .ib-total-bar{background:var(--pu);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-top:1.5rem}
 .ib-total-bar-item{text-align:center}
 .ib-total-bar-val{font-size:20px;font-weight:700;color:#fff}
-.ib-total-bar-label{font-size:10px;color:rgba(255,255,255,0.7);letter-spacing:.08em;text-transform:uppercase}
+.ib-total-bar-label{font-size:12px;color:#fff;letter-spacing:.08em;text-transform:uppercase}
 
 footer{border-top:1px solid var(--border-dim);padding:1.5rem 0;margin-top:4rem}
-footer .inner{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:rgba(255,255,255,0.4)}
+footer .inner{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--text)}
+
+/* TIER TREE — for per-tier IB payouts (Variable Costs tab) */
+.tt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.tt-tier{background:var(--bg2);border:1px solid var(--border);padding:1.5rem 1rem 1.25rem;display:flex;flex-direction:column;align-items:center}
+.tt-trunk{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:32px}
+.tt-trunk-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);opacity:.7}
+/* Vertical line dropping out of the trunk down to the horizontal connector */
+.tt-trunk::after{content:'';position:absolute;top:100%;left:50%;width:2px;height:32px;background:var(--pu);transform:translateX(-1px)}
+.tt-branches{position:relative;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+/* Horizontal connector spanning the centers of the three branch cards */
+.tt-branches::before{content:'';position:absolute;top:-1px;left:16.67%;right:16.67%;height:2px;background:var(--pu)}
+.tt-branch{position:relative;background:var(--bg3);padding:1rem .75rem .85rem;margin-top:24px;display:flex;flex-direction:column}
+/* Vertical drop from horizontal connector down to top of each branch card */
+.tt-branch::before{content:'';position:absolute;top:-24px;left:50%;width:2px;height:24px;background:var(--pu);transform:translateX(-1px)}
+.tt-branch-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text);margin-bottom:3px}
+.tt-branch-note{font-size:11px;color:var(--text);opacity:.55;margin-bottom:8px;line-height:1.35;flex:1}
+.tt-branch-input-wrap{display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border-dim);padding-bottom:3px;margin-top:auto}
+.tt-branch-input{background:transparent;border:none;color:var(--text);font-size:16px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0}
+.tt-branch-input::-webkit-inner-spin-button,.tt-branch-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.tt-branch-sym{font-size:14px;color:var(--text);opacity:.6}
+
+/* SAVE-ALL FLOATING BUTTON */
+.save-fab{position:fixed;bottom:1.75rem;right:1.75rem;z-index:200;background:var(--pu);color:#fff;border:none;padding:.85rem 1.5rem;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:var(--font);border-radius:4px;box-shadow:0 6px 18px rgba(191,111,255,0.35);transition:transform .15s,background .2s,box-shadow .2s;display:flex;align-items:center;gap:8px}
+.save-fab:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(191,111,255,0.45)}
+.save-fab:active{transform:translateY(0)}
+.save-fab.saved{background:var(--green);box-shadow:0 6px 18px rgba(31,168,118,0.35);pointer-events:none}
+.save-fab-icon{width:14px;height:14px;flex-shrink:0}
+.save-fab-stamp{position:fixed;bottom:.65rem;right:1.85rem;z-index:200;font-size:11px;color:var(--text);opacity:.55;letter-spacing:.04em;pointer-events:none}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fu{animation:fadeUp .4s ease forwards;opacity:0}
@@ -238,7 +268,8 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   .metrics-grid,.year-band{grid-template-columns:1fr 1fr}
   .costs-grid,.psp-outputs{grid-template-columns:1fr 1fr}
   .vc-q-grid{grid-template-columns:1fr 1fr}
-  .page-tab{padding:.75rem 1rem;font-size:12px}
+  .page-tab{padding:.75rem 1rem;font-size:14px}
+  .tt-grid{grid-template-columns:1fr;gap:1rem}
 }
 </style>
 </head>
@@ -340,34 +371,34 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
     <div class="psp-grid">
       <div style="display:flex;flex-direction:column;gap:8px">
         <div style="display:flex;justify-content:space-between;align-items:baseline">
-          <span style="font-size:12px;font-weight:500;color:#fff">Inward fee — client deposits</span>
-          <span style="font-size:14px;font-weight:700;color:#fff" id="sv-psp-in">3.0%</span>
+          <span style="font-size:14px;font-weight:500;color:var(--text)">Inward fee — client deposits</span>
+          <span style="font-size:16px;font-weight:700;color:var(--text)" id="sv-psp-in">3.0%</span>
         </div>
         <input type="range" min="0.5" max="6" step="0.1" id="sl-psp-in" value="3.0">
         <div class="formula-note"><strong>Applied once</strong> per new deposit event. New clients × avg deposit × rate. Not charged monthly on existing clients.</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px">
         <div style="display:flex;justify-content:space-between;align-items:baseline">
-          <span style="font-size:12px;font-weight:500;color:#fff">Outward fee — client withdrawals</span>
-          <span style="font-size:14px;font-weight:700;color:#fff" id="sv-psp-out">2.0%</span>
+          <span style="font-size:14px;font-weight:500;color:var(--text)">Outward fee — client withdrawals</span>
+          <span style="font-size:16px;font-weight:700;color:var(--text)" id="sv-psp-out">2.0%</span>
         </div>
         <input type="range" min="0.5" max="5" step="0.1" id="sl-psp-out" value="2.0">
         <div class="formula-note"><strong>Applied monthly</strong> to active client base. Winners and losers both withdraw at different rates.</div>
       </div>
       <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 3rem;margin-top:.5rem;padding-top:1rem;border-top:1px solid var(--border-dim)">
         <div style="display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:12px;font-weight:500;color:#fff">Winner withdrawal rate</span>
+          <span style="font-size:14px;font-weight:500;color:var(--text)">Winner withdrawal rate</span>
           <div style="display:flex;align-items:center;gap:8px">
             <input type="range" min="0" max="100" step="5" id="sl-winner-pct" value="30" style="flex:1">
-            <span style="font-size:14px;font-weight:700;color:var(--green);min-width:40px" id="sv-winner-pct">30%</span>
+            <span style="font-size:16px;font-weight:700;color:var(--green);min-width:40px" id="sv-winner-pct">30%</span>
           </div>
           <div class="formula-note">% of winning clients who withdraw profits monthly. Avg withdrawal = deposit × win rate</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:12px;font-weight:500;color:#fff">Loser withdrawal rate</span>
+          <span style="font-size:14px;font-weight:500;color:var(--text)">Loser withdrawal rate</span>
           <div style="display:flex;align-items:center;gap:8px">
             <input type="range" min="0" max="100" step="5" id="sl-loser-pct" value="40" style="flex:1">
-            <span style="font-size:14px;font-weight:700;color:var(--red);min-width:40px" id="sv-loser-pct">40%</span>
+            <span style="font-size:16px;font-weight:700;color:var(--red);min-width:40px" id="sv-loser-pct">40%</span>
           </div>
           <div class="formula-note">% of losing clients who partially withdraw remaining funds monthly</div>
         </div>
@@ -549,11 +580,11 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   <div style="background:var(--bg2);border:1px solid var(--border);padding:1.5rem 2rem;" class="fu fu2">
     <div style="display:flex;flex-direction:column;gap:6px;max-width:520px">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:12px;font-weight:500;color:#fff">Total active funded clients</span>
+        <span style="font-size:14px;font-weight:500;color:var(--text)">Total active funded clients</span>
         <span style="font-size:16px;font-weight:700;color:var(--pu)" id="ib-clients-display">2,000</span>
       </div>
       <input type="range" min="100" max="10000" step="100" id="ib-client-slider" value="2000">
-      <div style="font-size:11px;color:rgba(255,255,255,0.35)">Tier 1 receives 20% · Tier 2 receives 60% · Tier 3 receives 20%. Distributed evenly across profiles within each tier.</div>
+      <div style="font-size:13px;color:var(--text)">Tier 1 receives 20% · Tier 2 receives 60% · Tier 3 receives 20%. Distributed evenly across profiles within each tier.</div>
     </div>
   </div>
 
@@ -654,17 +685,17 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   <div class="divider fu fu2"><div class="divider-label">IB Tier — Assumed Client Deposit Volume</div><div class="divider-line"></div></div>
   <div class="costs-grid fu fu2">
     <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t1" style="margin-right:8px">Tier 1 — 20%</span></div>
+      <div class="ci-label" style="color:var(--text)"><span class="tier-badge t1" style="margin-right:8px">Tier 1 — 20%</span></div>
       <div class="ci-note">Avg deposit volume per client (Tier 1)</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t1-vol" value="10000" min="0" step="100"></div>
     </div>
     <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t2" style="margin-right:8px">Tier 2 — 60%</span></div>
+      <div class="ci-label" style="color:var(--text)"><span class="tier-badge t2" style="margin-right:8px">Tier 2 — 60%</span></div>
       <div class="ci-note">Avg deposit volume per client (Tier 2)</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t2-vol" value="5000" min="0" step="100"></div>
     </div>
     <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t3" style="margin-right:8px">Tier 3 — 20%</span></div>
+      <div class="ci-label" style="color:var(--text)"><span class="tier-badge t3" style="margin-right:8px">Tier 3 — 20%</span></div>
       <div class="ci-note">Avg deposit volume per client (Tier 3)</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t3-vol" value="2500" min="0" step="100"></div>
     </div>
@@ -812,52 +843,80 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   </div>
 
   <div class="divider fu fu2"><div class="divider-label">IB Payouts by Tier</div><div class="divider-line"></div></div>
-  <div class="costs-grid fu fu2">
-    <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t1" style="margin-right:8px">Tier 1</span> CPA</div>
-      <div class="ci-note">One-time payment per new funded client</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t1-cpa" value="50" min="0" step="5"></div>
+  <div class="tt-grid fu fu2">
+
+    <div class="tt-tier">
+      <div class="tt-trunk">
+        <span class="tier-badge t1">Tier 1 — 20%</span>
+        <div class="tt-trunk-label">Top IBs</div>
+      </div>
+      <div class="tt-branches">
+        <div class="tt-branch">
+          <div class="tt-branch-label">CPA</div>
+          <div class="tt-branch-note">One-time per new funded client</div>
+          <div class="tt-branch-input-wrap"><span class="tt-branch-sym">$</span><input class="tt-branch-input" type="number" id="vrc-t1-cpa" value="50" min="0" step="5"></div>
+        </div>
+        <div class="tt-branch">
+          <div class="tt-branch-label">Rev Share</div>
+          <div class="tt-branch-note">% of net spread, monthly</div>
+          <div class="tt-branch-input-wrap"><input class="tt-branch-input" type="number" id="vrc-t1-rs" value="20" min="0" step="1"><span class="tt-branch-sym">%</span></div>
+        </div>
+        <div class="tt-branch">
+          <div class="tt-branch-label">Rebate / Lot</div>
+          <div class="tt-branch-note">Per lot traded by IB clients</div>
+          <div class="tt-branch-input-wrap"><span class="tt-branch-sym">$</span><input class="tt-branch-input" type="number" id="vrc-t1-reb" value="2" min="0" step="0.1"></div>
+        </div>
+      </div>
     </div>
-    <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t1" style="margin-right:8px">Tier 1</span> Rev Share</div>
-      <div class="ci-note">% of net spread, monthly</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="number" id="vrc-t1-rs" value="20" min="0" step="1"><span class="ci-prefix">%</span></div>
+
+    <div class="tt-tier">
+      <div class="tt-trunk">
+        <span class="tier-badge t2">Tier 2 — 60%</span>
+        <div class="tt-trunk-label">Experienced IBs</div>
+      </div>
+      <div class="tt-branches">
+        <div class="tt-branch">
+          <div class="tt-branch-label">CPA</div>
+          <div class="tt-branch-note">One-time per new funded client</div>
+          <div class="tt-branch-input-wrap"><span class="tt-branch-sym">$</span><input class="tt-branch-input" type="number" id="vrc-t2-cpa" value="30" min="0" step="5"></div>
+        </div>
+        <div class="tt-branch">
+          <div class="tt-branch-label">Rev Share</div>
+          <div class="tt-branch-note">% of net spread, monthly</div>
+          <div class="tt-branch-input-wrap"><input class="tt-branch-input" type="number" id="vrc-t2-rs" value="15" min="0" step="1"><span class="tt-branch-sym">%</span></div>
+        </div>
+        <div class="tt-branch">
+          <div class="tt-branch-label">Rebate / Lot</div>
+          <div class="tt-branch-note">Per lot traded by IB clients</div>
+          <div class="tt-branch-input-wrap"><span class="tt-branch-sym">$</span><input class="tt-branch-input" type="number" id="vrc-t2-reb" value="1.5" min="0" step="0.1"></div>
+        </div>
+      </div>
     </div>
-    <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t1" style="margin-right:8px">Tier 1</span> Rebate / Lot</div>
-      <div class="ci-note">Per lot traded by IB clients</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t1-reb" value="2" min="0" step="0.1"></div>
+
+    <div class="tt-tier">
+      <div class="tt-trunk">
+        <span class="tier-badge t3">Tier 3 — 20%</span>
+        <div class="tt-trunk-label">New / Converted IBs</div>
+      </div>
+      <div class="tt-branches">
+        <div class="tt-branch">
+          <div class="tt-branch-label">CPA</div>
+          <div class="tt-branch-note">One-time per new funded client</div>
+          <div class="tt-branch-input-wrap"><span class="tt-branch-sym">$</span><input class="tt-branch-input" type="number" id="vrc-t3-cpa" value="20" min="0" step="5"></div>
+        </div>
+        <div class="tt-branch">
+          <div class="tt-branch-label">Rev Share</div>
+          <div class="tt-branch-note">% of net spread, monthly</div>
+          <div class="tt-branch-input-wrap"><input class="tt-branch-input" type="number" id="vrc-t3-rs" value="10" min="0" step="1"><span class="tt-branch-sym">%</span></div>
+        </div>
+        <div class="tt-branch">
+          <div class="tt-branch-label">Rebate / Lot</div>
+          <div class="tt-branch-note">Per lot traded by IB clients</div>
+          <div class="tt-branch-input-wrap"><span class="tt-branch-sym">$</span><input class="tt-branch-input" type="number" id="vrc-t3-reb" value="1" min="0" step="0.1"></div>
+        </div>
+      </div>
     </div>
-    <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t2" style="margin-right:8px">Tier 2</span> CPA</div>
-      <div class="ci-note">One-time payment per new funded client</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t2-cpa" value="30" min="0" step="5"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t2" style="margin-right:8px">Tier 2</span> Rev Share</div>
-      <div class="ci-note">% of net spread, monthly</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="number" id="vrc-t2-rs" value="15" min="0" step="1"><span class="ci-prefix">%</span></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t2" style="margin-right:8px">Tier 2</span> Rebate / Lot</div>
-      <div class="ci-note">Per lot traded by IB clients</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t2-reb" value="1.5" min="0" step="0.1"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t3" style="margin-right:8px">Tier 3</span> CPA</div>
-      <div class="ci-note">One-time payment per new funded client</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t3-cpa" value="20" min="0" step="5"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t3" style="margin-right:8px">Tier 3</span> Rev Share</div>
-      <div class="ci-note">% of net spread, monthly</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="number" id="vrc-t3-rs" value="10" min="0" step="1"><span class="ci-prefix">%</span></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label" style="color:#fff"><span class="tier-badge t3" style="margin-right:8px">Tier 3</span> Rebate / Lot</div>
-      <div class="ci-note">Per lot traded by IB clients</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-t3-reb" value="1" min="0" step="0.1"></div>
-    </div>
+
   </div>
 
   <div class="divider fu fu2"><div class="divider-label">Acquisition Costs</div><div class="divider-line"></div></div>
@@ -1012,6 +1071,13 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
     </div>
   </div>
 </footer>
+
+<!-- Persists every input on every tab to Supabase (shared across all users). Auto-save also runs (debounced) on each input change. -->
+<button class="save-fab" id="save-fab" type="button" onclick="saveAllNow()" title="Save all values from every tab to local storage">
+  <svg class="save-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+  <span id="save-fab-text">Save All</span>
+</button>
+<div class="save-fab-stamp" id="save-fab-stamp"></div>
 
 <script>
 'use strict';
@@ -1270,7 +1336,7 @@ function render() {
     +wfRow('(−) Marketing Budget',      'Fixed monthly direct marketing spend',      'Excludes IB commissions (already above)', -inp.mktBudget, 'neg')
     +wfRow('(−) Fixed Overheads',       'Servers + Bridge + MT5 + CRM + Dealing + Staff…', 'Infrastructure and team', -tf, 'neg')
     +wfRow('= Operating Profit (EBIT)', 'Net Revenue − Marketing − Fixed OH',        'Earnings Before Interest & Tax', snap.op, snap.op>=0?'total':('total'))
-    +'<div class="wf-row"><div><div class="wf-label" style="color:rgba(255,255,255,0.5)">Memo: Setup cost</div><div class="wf-formula">IBC + FSA + MT5 + legal — one-time</div></div><div></div><div class="wf-value neg">−'+fmtK(SETUP_COST)+'</div><div class="wf-value">one-time</div></div>';
+    +'<div class="wf-row"><div><div class="wf-label" style="color:var(--text)">Memo: Setup cost</div><div class="wf-formula">IBC + FSA + MT5 + legal — one-time</div></div><div></div><div class="wf-value neg">−'+fmtK(SETUP_COST)+'</div><div class="wf-value">one-time</div></div>';
 
   // ── Year 1 Summary
   const tg = md.months.reduce((a,b)=>a+b.gr, 0);
@@ -1369,8 +1435,8 @@ function render() {
           callbacks:{label:ctx=>' '+ctx.dataset.label+': '+(currentChart==='clients'?ctx.raw:currentChart==='margin'?ctx.raw+'%':fmtS(ctx.raw))}}
       },
       scales:{
-        x:{ticks:{color:'#fff',font:{size:11},autoSkip:false,maxRotation:0},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.1)'}},
-        y:{ticks:{color:'#fff',font:{size:11},callback:v=>currentChart==='clients'?v:currentChart==='margin'?v+'%':(Math.abs(v)>=1000?(v<0?'-':'')+'$'+Math.abs(Math.round(v/1000))+'k':'$'+Math.round(v))},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.1)'}}
+        x:{ticks:{color:'#1A1229',font:{size:11},autoSkip:false,maxRotation:0},grid:{color:'rgba(0,0,0,0.06)'},border:{color:'rgba(0,0,0,0.15)'}},
+        y:{ticks:{color:'#1A1229',font:{size:11},callback:v=>currentChart==='clients'?v:currentChart==='margin'?v+'%':(Math.abs(v)>=1000?(v<0?'-':'')+'$'+Math.abs(Math.round(v/1000))+'k':'$'+Math.round(v))},grid:{color:'rgba(0,0,0,0.06)'},border:{color:'rgba(0,0,0,0.15)'}}
       }
     }
   });
@@ -1427,15 +1493,6 @@ function renderVC() {
   const rows = [
     {section:'Annual Cost'},
     {label:'Annual vendor cost',   a:fmtS(totalA),    b:fmtS(totalB),    d:diff(totalA,totalB,false)},
-    {section:'Operating Profit Impact — Net Revenue minus all costs per quarter'},
-    {label:'Q1 operating profit',  a:fmtK(qOpA[0]),   b:fmtK(qOpB[0]),   d:diff(qOpA[0],qOpB[0])},
-    {label:'Q2 operating profit',  a:fmtK(qOpA[1]),   b:fmtK(qOpB[1]),   d:diff(qOpA[1],qOpB[1])},
-    {label:'Q3 operating profit',  a:fmtK(qOpA[2]),   b:fmtK(qOpB[2]),   d:diff(qOpA[2],qOpB[2])},
-    {label:'Q4 operating profit',  a:fmtK(qOpA[3]),   b:fmtK(qOpB[3]),   d:diff(qOpA[3],qOpB[3])},
-    {label:'Q4 cumulative P&L',    a:fmtK(qCumA[3]),  b:fmtK(qCumB[3]),  d:diff(qCumA[3],qCumB[3])},
-    {label:'Full year net profit',  a:fmtK(annNetA),   b:fmtK(annNetB),   d:diff(annNetA,annNetB)},
-    {section:'Breakeven — Month when cumulative P&L (incl. $18k setup) turns positive'},
-    {label:'Breakeven month',       a:beA?'Month '+beA:'Beyond Y1', b:beB?'Month '+beB:'Beyond Y1', d:diff(beA,beB,false,true)},
   ];
 
   let html='';
@@ -1467,8 +1524,8 @@ function renderVC() {
       responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{backgroundColor:'#1A1229',borderColor:'rgba(191,111,255,0.4)',borderWidth:1,titleColor:'#BF6FFF',bodyColor:'#fff',callbacks:{label:ctx=>' '+ctx.dataset.label+': '+fmtS(ctx.raw)}}},
       scales:{
-        x:{ticks:{color:'#fff',font:{size:12}},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.1)'}},
-        y:{ticks:{color:'#fff',font:{size:11},callback:v=>(Math.abs(v)>=1000?(v<0?'-':'')+'$'+Math.abs(Math.round(v/1000))+'k':'$'+Math.round(v))},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.1)'}}
+        x:{ticks:{color:'#1A1229',font:{size:12}},grid:{color:'rgba(0,0,0,0.06)'},border:{color:'rgba(0,0,0,0.15)'}},
+        y:{ticks:{color:'#1A1229',font:{size:11},callback:v=>(Math.abs(v)>=1000?(v<0?'-':'')+'$'+Math.abs(Math.round(v/1000))+'k':'$'+Math.round(v))},grid:{color:'rgba(0,0,0,0.06)'},border:{color:'rgba(0,0,0,0.15)'}}
       }
     }
   });
@@ -1563,16 +1620,16 @@ function profileHTML(p, tier) {
     const net    = a.gross - a.lp;
     const margin = net - a.rebate;
     return '<tr>'
-      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;color:#fff">'+a.label+'</td>'
-      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:12px;color:var(--green)">$'+a.gross.toFixed(2)+'</td>'
-      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:12px;color:rgba(255,255,255,0.6)">$'+a.lp.toFixed(2)+'</td>'
-      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:12px;color:#fff">$'+net.toFixed(2)+'</td>'
-      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right">'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(0,0,0,0.08);font-size:14px;color:var(--text)">'+a.label+'</td>'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(0,0,0,0.08);text-align:right;font-size:14px;color:var(--green)">$'+a.gross.toFixed(2)+'</td>'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(0,0,0,0.08);text-align:right;font-size:14px;color:var(--text)">$'+a.lp.toFixed(2)+'</td>'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(0,0,0,0.08);text-align:right;font-size:14px;color:var(--text)">$'+net.toFixed(2)+'</td>'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(0,0,0,0.08);text-align:right">'
         +'<input type="number" value="'+a.rebate.toFixed(2)+'" step="0.10" min="0"'
         +' data-pid="'+p.id+'" data-tier="'+tier+'" data-aclass="'+a.label+'" oninput="ibSetRebate(this)"'
-        +' style="background:transparent;border:none;border-bottom:1px solid rgba(191,111,255,0.3);color:var(--pu);font-size:12px;font-weight:600;font-family:var(--font);outline:none;width:52px;text-align:right;padding:1px 0">'
+        +' style="background:transparent;border:none;border-bottom:1px solid rgba(191,111,255,0.3);color:var(--pu);font-size:14px;font-weight:600;font-family:var(--font);outline:none;width:52px;text-align:right;padding:1px 0">'
       +'</td>'
-      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(255,255,255,0.06);text-align:right;font-size:13px;font-weight:700;color:'+(margin>=0?'var(--green)':'var(--red)')+'">$'+margin.toFixed(2)+'</td>'
+      +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(0,0,0,0.08);text-align:right;font-size:15px;font-weight:700;color:'+(margin>=0?'var(--green)':'var(--red)')+'">$'+margin.toFixed(2)+'</td>'
     +'</tr>';
   }
 
@@ -1582,13 +1639,13 @@ function profileHTML(p, tier) {
       +'<div style="display:flex;align-items:center;gap:10px;flex:1">'
         +'<div class="ib-avatar '+tc+'">'+ini+'</div>'
         +'<div style="margin-left:6px;flex:1">'
-          +'<input style="background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.15);color:#fff;font-size:14px;font-weight:700;font-family:var(--font);outline:none;width:100%;padding:1px 0"'
+          +'<input style="background:transparent;border:none;border-bottom:1px solid rgba(0,0,0,0.2);color:var(--text);font-size:16px;font-weight:700;font-family:var(--font);outline:none;width:100%;padding:1px 0"'
             +' value="'+p.name+'" placeholder="IB name" data-pid="'+p.id+'" data-tier="'+tier+'" onchange="ibSetNameEvt(this)">'
-          +'<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px">Tier '+tier+' IB · '+p.clients.toLocaleString()+' clients · ~'+pay.newCliForIB+' new/mo</div>'
+          +'<div style="font-size:13px;color:var(--text);margin-top:1px">Tier '+tier+' IB · '+p.clients.toLocaleString()+' clients · ~'+pay.newCliForIB+' new/mo</div>'
         +'</div>'
       +'</div>'
       +'<button data-pid="'+p.id+'" data-tier="'+tier+'" onclick="ibRemoveEvt(this)"'
-        +' style="background:transparent;border:none;color:rgba(255,255,255,0.25);font-size:18px;cursor:pointer;line-height:1">\u00D7</button>'
+        +' style="background:transparent;border:none;color:var(--text);font-size:18px;cursor:pointer;line-height:1">\u00D7</button>'
     +'</div>'
     // Commission inputs
     +'<div class="ib-commission-grid">'
@@ -1633,17 +1690,17 @@ function profileHTML(p, tier) {
     // Asset class margin table
     +'<div class="ib-asset-table">'
       +'<div style="background:var(--pu);padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between">'
-        +'<span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff">Net Margin per Lot — Milele Prime profit after IB rebate</span>'
-        +'<span style="font-size:10px;color:rgba(255,255,255,0.65)">Gross − LP = Net to Broker · Net to Broker − IB Rebate = Milele\'s margin</span>'
+        +'<span style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff">Net Margin per Lot — Milele Prime profit after IB rebate</span>'
+        +'<span style="font-size:12px;color:#fff">Gross − LP = Net to Broker · Net to Broker − IB Rebate = Milele\'s margin</span>'
       +'</div>'
       +'<table style="width:100%;border-collapse:collapse">'
         +'<thead><tr style="background:var(--bg3)">'
-          +'<th style="padding:.45rem .75rem;text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.5)">Asset Class</th>'
-          +'<th style="padding:.45rem .75rem;text-align:right;font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Gross/lot</th>'
-          +'<th style="padding:.45rem .75rem;text-align:right;font-size:10px;color:rgba(255,255,255,0.5);font-weight:700;text-transform:uppercase;letter-spacing:.08em">LP cost</th>'
-          +'<th style="padding:.45rem .75rem;text-align:right;font-size:10px;color:rgba(255,255,255,0.5);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Net to broker</th>'
-          +'<th style="padding:.45rem .75rem;text-align:right;font-size:10px;color:var(--pu);font-weight:700;text-transform:uppercase;letter-spacing:.08em">IB rebate ✎</th>'
-          +'<th style="padding:.45rem .75rem;text-align:right;font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Net margin</th>'
+          +'<th style="padding:.45rem .75rem;text-align:left;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text)">Asset Class</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Gross/lot</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--text);font-weight:700;text-transform:uppercase;letter-spacing:.08em">LP cost</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--text);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Net to broker</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--pu);font-weight:700;text-transform:uppercase;letter-spacing:.08em">IB rebate ✎</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Net margin</th>'
         +'</tr></thead>'
         +'<tbody>'+assets.map(a=>assetRow(a)).join('')+'</tbody>'
       +'</table>'
@@ -1766,31 +1823,49 @@ function ibSetRebate(el) {
 // ib-client-slider wired in renderAll block
 
 // ─────────────────────────────────────────────────────────────────
-// PERSISTENCE — restore all inputs, IB profiles, and active tabs on reload
+// PERSISTENCE — Supabase (shared across users / devices via cloud DB)
+//
+// SETUP (one-time):
+// 1. Go to https://supabase.com → sign up → "New project" (free tier is fine)
+// 2. Once provisioned, open the SQL Editor and run:
+//
+//      create table state (
+//        id text primary key,
+//        data jsonb not null,
+//        updated_at timestamptz default now()
+//      );
+//      alter table state enable row level security;
+//      create policy "anon read"   on state for select using (true);
+//      create policy "anon insert" on state for insert with check (true);
+//      create policy "anon update" on state for update using (true);
+//
+//    (Open policies — anyone with the URL+anon key can read/write. Internal-tool
+//     trade-off; lock down with auth later if needed.)
+// 3. Settings → API → copy the "Project URL" and the "anon / public" key
+// 4. Paste them into the two constants below and save the file
 // ─────────────────────────────────────────────────────────────────
-const STORAGE_KEY = 'milele-prime-state-v1';
+const SUPABASE_URL      = 'https://zhmwjniswuigvekkgpan.supabase.co';   // e.g. 'https://xxxxxxxxxxxx.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpobXdqbmlzd3VpZ3Zla2tncGFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NjAxMzgsImV4cCI6MjA5MzAzNjEzOH0.71PDrY31SwYAc4eXfbJeJb38Hg3OJnFFv8QSvrc4X2o';   // anon/public key — NOT the service_role key
+const STATE_ROW_ID      = 'main'; // single shared row everyone reads/writes
 
-function saveState() {
-  try {
-    const s = { inputs: {} };
-    document.querySelectorAll('input[id]').forEach(el => { s.inputs[el.id] = el.value; });
-    s.ibProfiles    = ibProfiles;
-    s.profileCounter = profileCounter;
-    const at = document.querySelector('.page-tab.active');
-    if(at) s.activeTab = at.dataset.tab;
-    s.currentChart = currentChart;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  } catch(_) { /* localStorage unavailable (private mode / quota) — ignore */ }
+const sb = (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+function collectState() {
+  const s = { inputs: {} };
+  document.querySelectorAll('input[id]').forEach(el => { s.inputs[el.id] = el.value; });
+  s.ibProfiles    = ibProfiles;
+  s.profileCounter = profileCounter;
+  const at = document.querySelector('.page-tab.active');
+  if(at) s.activeTab = at.dataset.tab;
+  s.currentChart = currentChart;
+  s.savedAt = Date.now();
+  return s;
 }
 
-function loadState() {
-  let s;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return;
-    s = JSON.parse(raw);
-  } catch(_) { return; }
-
+function applyState(s) {
+  if(!s || typeof s !== 'object') return;
   if(s.inputs) {
     Object.keys(s.inputs).forEach(id => {
       const el = document.getElementById(id);
@@ -1815,6 +1890,86 @@ function loadState() {
       t.classList.toggle('active', t.dataset.chart === s.currentChart);
     });
   }
+  if(s.savedAt) updateSaveStamp(s.savedAt);
+}
+
+function updateSaveStamp(ts) {
+  const el = document.getElementById('save-fab-stamp');
+  if(!el || !ts) return;
+  const d = new Date(ts);
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  const ss = String(d.getSeconds()).padStart(2,'0');
+  el.textContent = 'Last saved ' + hh + ':' + mm + ':' + ss;
+  el.style.color = '';
+}
+
+function showServerError(msg) {
+  const el = document.getElementById('save-fab-stamp');
+  if(!el) return;
+  el.textContent = '⚠ ' + msg;
+  el.style.color = 'var(--red)';
+}
+
+async function saveState() {
+  const s = collectState();
+  if(!sb) {
+    showServerError('Supabase not configured — fill in URL and anon key in index.html');
+    return;
+  }
+  try {
+    const { error } = await sb.from('state').upsert({
+      id: STATE_ROW_ID,
+      data: s,
+      updated_at: new Date().toISOString(),
+    });
+    if(error) throw error;
+    updateSaveStamp(s.savedAt);
+  } catch(e) {
+    showServerError('Save failed: ' + (e.message || e));
+  }
+}
+
+// Auto-save on every input fires hundreds of times per drag; debounce so we
+// hit the database at most every 400ms.
+let _saveTimer = null;
+function saveStateDebounced() {
+  if(_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveState, 400);
+}
+
+async function loadState() {
+  if(!sb) {
+    showServerError('Supabase not configured — fill in URL and anon key in index.html');
+    return;
+  }
+  try {
+    const { data, error } = await sb
+      .from('state')
+      .select('data')
+      .eq('id', STATE_ROW_ID)
+      .maybeSingle();
+    if(error) throw error;
+    if(data && data.data) applyState(data.data);
+  } catch(e) {
+    showServerError('Load failed: ' + (e.message || e));
+  }
+}
+
+async function saveAllNow() {
+  const btn = document.getElementById('save-fab');
+  const txt = document.getElementById('save-fab-text');
+  await saveState();
+  if(!btn || !txt) return;
+  // Only show success state if the save didn't surface an error
+  const stamp = document.getElementById('save-fab-stamp');
+  if(stamp && stamp.textContent.startsWith('⚠')) return;
+  btn.classList.add('saved');
+  txt.textContent = '✓ Saved';
+  setTimeout(() => {
+    btn.classList.remove('saved');
+    txt.textContent = 'Save All';
+  }, 1400);
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1870,12 +2025,13 @@ const ibSliderEl = document.getElementById('ib-client-slider');
 if(ibSliderEl) ibSliderEl.addEventListener('input', renderIB);
 
 // Autosave on any input/change anywhere on the page (bubble phase, so inline
-// oninput handlers — e.g. ibSetEvt — finish mutating ibProfiles before we serialize)
-document.addEventListener('input',  saveState);
-document.addEventListener('change', saveState);
+// oninput handlers — e.g. ibSetEvt — finish mutating ibProfiles before we serialize).
+// Debounced so a slider drag posts ~once instead of on every pixel.
+document.addEventListener('input',  saveStateDebounced);
+document.addEventListener('change', saveStateDebounced);
 
-loadState();
-renderAll();
+// Load from /api/data first, then render so the UI paints with the right values.
+loadState().then(renderAll);
 </script>
 </body>
 </html>
