@@ -10,12 +10,15 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --pu:#BF6FFF;--pu-dim:rgba(191,111,255,0.10);--pu-mid:rgba(191,111,255,0.25);
+  --pu-text:#6F2BCF; /* darker purple — for text accents on light bg (passes WCAG AA on white) */
   --bg:#F5F2EC;--bg2:#FFFFFF;--bg3:#EDE8DE;
   --border:rgba(191,111,255,0.30);--border-dim:rgba(26,18,41,0.10);
   --green:#1FA876;--green-bg:rgba(31,168,118,0.10);
   --red:#D94545;--red-bg:rgba(217,69,69,0.10);
   --amber:#C8851F;--amber-bg:rgba(200,133,31,0.10);
   --text:#1A1229;
+  --text-dim:rgba(26,18,41,.65);  /* secondary text — formula notes, captions */
+  --text-mute:rgba(26,18,41,.45); /* tertiary text — formatting hints */
   --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
 }
 html{scroll-behavior:smooth}
@@ -32,7 +35,7 @@ header{background:#000;padding:.4rem 0}
 .page-tabs{background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .page-tabs-inner{display:flex}
 .page-tab{padding:1rem 2rem;font-size:15px;font-weight:600;background:transparent;border:none;border-bottom:3px solid transparent;color:var(--text);cursor:pointer;font-family:var(--font);transition:all .2s}
-.page-tab.active{color:var(--text);border-bottom-color:var(--pu)}
+.page-tab.active{color:var(--text);border-bottom-color:var(--pu-text)}
 .page-tab:hover:not(.active){color:var(--text);background:rgba(191,111,255,0.06)}
 
 .tab-panel{position:absolute;left:-9999px;pointer-events:none;opacity:0;width:100%}
@@ -48,7 +51,7 @@ header{background:#000;padding:.4rem 0}
 
 /* FORMULA ANNOTATION */
 .formula-note{font-size:13px;color:var(--text);font-style:italic;margin-top:3px;line-height:1.5}
-.formula-note strong{color:rgba(191,111,255,0.8);font-style:normal}
+.formula-note strong{color:var(--pu-text);font-style:normal}
 
 /* SLIDERS */
 .sliders-panel{background:var(--bg2);border:1px solid var(--border);padding:1.75rem 2rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 3rem}
@@ -67,9 +70,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .mc.green{background:var(--green-bg)}.mc.red{background:var(--red-bg)}.mc.amber{background:var(--amber-bg)}.mc.purple{background:var(--pu-dim)}
 .mc-label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text);margin-bottom:.4rem}
 .mc-value{font-size:30px;font-weight:300;line-height:1;color:var(--text);margin-bottom:3px}
-.mc.green .mc-value{color:var(--green)}.mc.red .mc-value{color:var(--red)}.mc.amber .mc-value{color:var(--amber)}.mc.purple .mc-value{color:var(--pu)}
+.mc.green .mc-value{color:var(--green)}.mc.red .mc-value{color:var(--red)}.mc.amber .mc-value{color:var(--amber)}.mc.purple .mc-value{color:var(--pu-text)}
 .mc-sub{font-size:12px;color:var(--text)}
-.mc-formula{font-size:12px;color:rgba(191,111,255,0.7);margin-top:5px;border-top:1px solid rgba(0,0,0,0.08);padding-top:5px}
+.mc-formula{font-size:12px;color:var(--text-dim);margin-top:5px;border-top:1px solid rgba(0,0,0,0.08);padding-top:5px}
 
 /* P&L WATERFALL */
 .waterfall{background:var(--bg2);border:1px solid var(--border);overflow:hidden}
@@ -80,10 +83,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .wf-row.total{background:var(--pu-dim);font-weight:700;font-size:16px}
 .wf-row.section-sep{background:var(--bg3);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text);padding:.4rem 1.25rem}
 .wf-label{color:var(--text)}
-.wf-formula{font-size:12px;color:rgba(191,111,255,0.6);margin-top:2px}
+.wf-formula{font-size:12px;color:var(--text-dim);margin-top:2px}
 .wf-note{font-size:12px;color:var(--text);margin-top:1px}
 .wf-value{text-align:right;font-weight:500}
-.wf-value.pos{color:var(--green)}.wf-value.neg{color:var(--red)}.wf-value.pu{color:var(--pu)}
+.wf-value.pos{color:var(--green)}.wf-value.neg{color:var(--red)}.wf-value.pu{color:var(--pu-text)}
 .wf-bar-wrap{padding:0 1rem}
 .wf-bar{height:6px;border-radius:2px;background:var(--pu-dim)}
 .wf-bar-fill{height:100%;border-radius:2px;background:var(--pu);transition:width .4s}
@@ -92,8 +95,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .year-band{background:var(--bg2);border:1px solid var(--border);padding:1.75rem;display:grid;grid-template-columns:repeat(5,1fr);gap:1.5rem}
 .ys-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin-bottom:4px}
 .ys-value{font-size:26px;font-weight:300;line-height:1;color:var(--text)}
-.ys-value.pos{color:var(--green)}.ys-value.neg{color:var(--red)}.ys-value.pu{color:var(--pu)}
-.ys-formula{font-size:12px;color:rgba(191,111,255,0.5);margin-top:4px}
+.ys-value.pos{color:var(--green)}.ys-value.neg{color:var(--red)}.ys-value.pu{color:var(--pu-text)}
+.ys-formula{font-size:12px;color:var(--text-dim);margin-top:4px}
 
 /* QUARTERLY TABLE */
 .q-table{width:100%;border-collapse:collapse;border:1px solid var(--border)}
@@ -102,7 +105,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .q-table td{padding:.8rem 1.25rem;font-size:15px;color:var(--text);border-bottom:1px solid var(--border-dim);background:var(--bg2)}
 .q-table td:not(:first-child){text-align:right;font-weight:500}
 .q-table .th-formula{font-size:11px;color:var(--text);font-weight:400;letter-spacing:0;text-transform:none;display:block;margin-top:2px}
-.q-table tr.total-row td{background:var(--pu-dim);color:var(--pu);font-weight:700;border-bottom:none}
+.q-table tr.total-row td{background:var(--pu-dim);color:var(--pu-text);font-weight:700;border-bottom:none}
 .q-table .pos{color:var(--green) !important}.q-table .neg{color:var(--red) !important}
 
 /* CHART */
@@ -125,7 +128,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .ci-input-wrap{display:flex;align-items:center;gap:4px}
 .ci-prefix{font-size:15px;color:var(--text)}
 .ci-input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:var(--text);font-size:18px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0;transition:border-color .15s}
-.ci-input:focus{border-bottom-color:var(--pu)}
+.ci-input:focus{border-bottom-color:var(--pu-text)}
 .ci-input::-webkit-inner-spin-button,.ci-input::-webkit-outer-spin-button{-webkit-appearance:none}
 .ci.total{background:var(--pu)}
 .ci.total .ci-label,.ci.total .ci-note{color:#fff}
@@ -137,7 +140,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .psp-outputs{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(0,0,0,0.07);border:1px solid rgba(191,111,255,0.25);margin-top:.5rem}
 .psp-out{background:var(--bg2);padding:1rem 1.25rem}
 .psp-out-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin-bottom:3px}
-.psp-out-formula{font-size:11px;color:rgba(191,111,255,0.5);margin-bottom:4px}
+.psp-out-formula{font-size:11px;color:var(--text-dim);margin-bottom:4px}
 .psp-out-value{font-size:18px;font-weight:300;color:var(--text)}
 
 /* VENDOR COMPARISON */
@@ -161,12 +164,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .vc-note{padding:1rem 1.5rem;background:var(--pu-dim);border-left:3px solid var(--pu);margin-bottom:1.5rem;font-size:14px;color:var(--text);line-height:1.7}
 .vc-results-table{width:100%;border-collapse:collapse}
 .vc-results-table th{padding:.7rem 1.25rem;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);background:var(--bg3);text-align:left}
-.vc-results-table th:not(:first-child){text-align:right}
+.vc-results-table th:not(:first-child){text-align:center}
 .vc-results-table th.col-a{background:var(--pu-mid);color:var(--text)}
 .vc-results-table th.col-b{background:rgba(61,219,160,0.2);color:var(--green)}
 .vc-results-table td{padding:.75rem 1.25rem;font-size:15px;color:var(--text);border-bottom:1px solid var(--border-dim);background:var(--bg2)}
-.vc-results-table td:not(:first-child){text-align:right;font-weight:600}
-.vc-results-table td.col-a{color:var(--pu)}
+.vc-results-table td:not(:first-child){text-align:center;font-weight:600}
+.vc-results-table td.col-a{color:var(--pu-text)}
 .vc-results-table td.col-b{color:var(--green)}
 .vc-results-table tr.section-head td{background:var(--bg3);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);padding:.4rem 1.25rem}
 .vc-results-table tr:last-child td{border-bottom:none}
@@ -181,9 +184,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .ib-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-dim);border:1px solid var(--border)}
 .ib-sum-card{background:var(--bg2);padding:1.25rem 1.5rem}
 .ib-sum-label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text);margin-bottom:4px}
-.ib-sum-formula{font-size:11px;color:rgba(191,111,255,0.5);margin-bottom:4px}
+.ib-sum-formula{font-size:11px;color:var(--text-dim);margin-bottom:4px}
 .ib-sum-value{font-size:26px;font-weight:300;color:var(--text);line-height:1}
-.ib-sum-value.pu{color:var(--pu)}.ib-sum-value.green{color:var(--green)}.ib-sum-value.red{color:var(--red)}
+.ib-sum-value.pu{color:var(--pu-text)}.ib-sum-value.green{color:var(--green)}.ib-sum-value.red{color:var(--red)}
 .tier-block{border:1px solid var(--border);margin-bottom:1.25rem;overflow:hidden}
 .tier-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;cursor:pointer;user-select:none;transition:background .15s}
 .tier-header:hover{background:rgba(191,111,255,0.06)}
@@ -211,7 +214,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--pu);
 .ib-commission-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 20px;margin-bottom:1rem}
 .ib-field{display:flex;flex-direction:column;gap:3px}
 .ib-field-label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text)}
-.ib-field-formula{font-size:11px;color:rgba(191,111,255,0.5)}
+.ib-field-formula{font-size:11px;color:var(--text-dim)}
 .ib-field-wrap{display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border-dim);padding-bottom:3px}
 .ib-field-sym{font-size:14px;color:var(--text)}
 .ib-field-input{background:transparent;border:none;color:var(--text);font-size:16px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0}
@@ -235,7 +238,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 .tt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
 .tt-tier{background:var(--bg2);border:1px solid var(--border);padding:1.5rem 1rem 1.25rem;display:flex;flex-direction:column;align-items:center}
 .tt-trunk{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:32px}
-.tt-trunk-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);opacity:.7}
+.tt-trunk-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
 /* Vertical line dropping out of the trunk down to the horizontal connector */
 .tt-trunk::after{content:'';position:absolute;top:100%;left:50%;width:2px;height:32px;background:var(--pu);transform:translateX(-1px)}
 .tt-branches{position:relative;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
@@ -245,11 +248,48 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 /* Vertical drop from horizontal connector down to top of each branch card */
 .tt-branch::before{content:'';position:absolute;top:-24px;left:50%;width:2px;height:24px;background:var(--pu);transform:translateX(-1px)}
 .tt-branch-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text);margin-bottom:3px}
-.tt-branch-note{font-size:11px;color:var(--text);opacity:.55;margin-bottom:8px;line-height:1.35;flex:1}
+.tt-branch-note{font-size:11px;color:var(--text-dim);margin-bottom:8px;line-height:1.35;flex:1}
 .tt-branch-input-wrap{display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border-dim);padding-bottom:3px;margin-top:auto}
 .tt-branch-input{background:transparent;border:none;color:var(--text);font-size:16px;font-weight:400;font-family:var(--font);width:100%;outline:none;padding:2px 0}
 .tt-branch-input::-webkit-inner-spin-button,.tt-branch-input::-webkit-outer-spin-button{-webkit-appearance:none}
-.tt-branch-sym{font-size:14px;color:var(--text);opacity:.6}
+.tt-branch-sym{font-size:14px;color:var(--text-dim)}
+
+/* TRADING FLOAT — per-client-type table */
+.ft-wrap{background:var(--bg2);border:1px solid var(--border);overflow-x:auto}
+.ft-table{width:100%;border-collapse:collapse;min-width:760px}
+.ft-table th{padding:.7rem .9rem;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);background:var(--bg3);text-align:right;border-bottom:1px solid var(--border-dim)}
+.ft-table th:first-child,.ft-table th:nth-child(2){text-align:left}
+.ft-table td{padding:.7rem .9rem;font-size:14px;color:var(--text);border-bottom:1px solid var(--border-dim);vertical-align:middle;background:var(--bg2)}
+.ft-table tr:last-child td{border-bottom:none}
+.ft-table td:first-child{font-weight:600;white-space:nowrap}
+.ft-table td.ft-vol{font-weight:700;color:var(--pu-text);font-size:15px;white-space:nowrap}
+.ft-table td.ft-result{font-weight:700;font-size:15px;white-space:nowrap;text-align:right;background:var(--pu-dim);color:var(--pu-text);border-left:1px solid var(--border-dim)}
+.ft-table th:last-child{background:var(--pu-mid);color:var(--text)}
+.ft-table td.ft-input-cell{padding:.45rem .9rem}
+.ft-input-wrap{display:flex;align-items:center;justify-content:flex-end;gap:3px;border-bottom:1px solid var(--border-dim);padding-bottom:2px}
+.ft-input-wrap:focus-within{border-bottom-color:var(--pu-text)}
+.ft-input-sym{font-size:12px;color:var(--text-dim)}
+.ft-input{background:transparent;border:none;color:var(--text);font-size:14px;font-weight:500;font-family:var(--font);width:100%;outline:none;padding:2px 0;text-align:right}
+.ft-input::-webkit-inner-spin-button,.ft-input::-webkit-outer-spin-button{-webkit-appearance:none}
+
+/* REVENUE FORMULA CALCULATOR (collapsible per-card) */
+.calc-toggle{display:inline-block;margin-top:8px;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--pu-text);cursor:pointer;text-decoration:underline dotted;border:none;background:transparent;padding:0;font-family:var(--font)}
+.calc-toggle:hover{text-decoration:underline}
+.calc-panel{display:none;margin-top:10px;padding:.75rem .85rem;background:var(--pu-dim);border-left:2px solid var(--pu);border-radius:2px}
+.calc-panel.open{display:block}
+.calc-formula{font-size:11px;color:var(--pu-text);font-style:italic;margin-bottom:8px;font-family:'SFMono-Regular',Consolas,monospace;word-break:break-word}
+.calc-input-row{display:flex;flex-direction:column;gap:1px;margin-bottom:8px}
+.calc-input-row label{font-size:10px;color:var(--text-dim);font-weight:500}
+.calc-input-row input{background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:var(--text);font-size:13px;font-family:var(--font);width:100%;outline:none;padding:2px 0}
+.calc-input-row input:focus{border-bottom-color:var(--pu-text)}
+.calc-input-row input::-webkit-inner-spin-button,.calc-input-row input::-webkit-outer-spin-button{-webkit-appearance:none}
+.calc-result{font-size:13px;color:var(--pu-text);font-weight:700;margin:8px 0 0;padding-top:6px;border-top:1px solid rgba(191,111,255,0.25)}
+.calc-actions{display:flex;gap:6px;margin-top:8px}
+.calc-btn{padding:5px 12px;border:none;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--font);border-radius:2px}
+.calc-btn-apply{background:var(--pu);color:#fff}
+.calc-btn-apply:hover{filter:brightness(.92)}
+.calc-btn-cancel{background:transparent;color:var(--text-dim);border:1px solid var(--border-dim)}
+.calc-btn-cancel:hover{background:var(--bg3);color:var(--text)}
 
 /* SAVE-ALL FLOATING BUTTON */
 .save-fab{position:fixed;bottom:1.75rem;right:1.75rem;z-index:200;background:var(--pu);color:#fff;border:none;padding:.85rem 1.5rem;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:var(--font);border-radius:4px;box-shadow:0 6px 18px rgba(191,111,255,0.35);transition:transform .15s,background .2s,box-shadow .2s;display:flex;align-items:center;gap:8px}
@@ -257,7 +297,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 .save-fab:active{transform:translateY(0)}
 .save-fab.saved{background:var(--green);box-shadow:0 6px 18px rgba(31,168,118,0.35);pointer-events:none}
 .save-fab-icon{width:14px;height:14px;flex-shrink:0}
-.save-fab-stamp{position:fixed;bottom:.65rem;right:1.85rem;z-index:200;font-size:11px;color:var(--text);opacity:.55;letter-spacing:.04em;pointer-events:none}
+.save-fab-stamp{position:fixed;bottom:.65rem;right:1.85rem;z-index:200;font-size:11px;color:var(--text-dim);letter-spacing:.04em;pointer-events:none}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fu{animation:fadeUp .4s ease forwards;opacity:0}
@@ -279,10 +319,6 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   <div class="container">
     <div class="header-inner">
       <div class="logo">MilelePrime</div>
-      <div class="header-right">
-        <strong id="live-date"></strong>
-        CFO Model v2.0 · Internal
-      </div>
     </div>
   </div>
 </header>
@@ -581,7 +617,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
     <div style="display:flex;flex-direction:column;gap:6px;max-width:520px">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:14px;font-weight:500;color:var(--text)">Total active funded clients</span>
-        <span style="font-size:16px;font-weight:700;color:var(--pu)" id="ib-clients-display">2,000</span>
+        <span style="font-size:16px;font-weight:700;color:var(--pu-text)" id="ib-clients-display">2,000</span>
       </div>
       <input type="range" min="100" max="10000" step="100" id="ib-client-slider" value="2000">
       <div style="font-size:13px;color:var(--text)">Tier 1 receives 20% · Tier 2 receives 60% · Tier 3 receives 20%. Distributed evenly across profiles within each tier.</div>
@@ -670,34 +706,73 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 <div class="tab-panel" id="tab4">
   <div class="hero fu fu1">
     <div class="hero-title">Deposits</div>
-    <div class="hero-sub">Standalone inputs — client counts and assumed deposit volume per IB tier. Calculations to be wired later.</div>
+    <div class="hero-sub">Per-section deposit volume = clients × avg deposit. Totals at the top sum every section (3 IB tiers + organic clients).</div>
   </div>
 
-  <div class="divider fu fu2"><div class="divider-label">Client Base</div><div class="divider-line"></div></div>
-  <div class="costs-grid fu fu2">
+  <div class="divider fu fu2"><div class="divider-label">Totals</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2" style="grid-template-columns:repeat(2,1fr)">
     <div class="ci">
       <div class="ci-label">Total Clients Count</div>
-      <div class="ci-note">Active funded clients across all tiers</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-clients" value="2000" min="0" step="1"></div>
+      <div class="ci-note">Calculated: Tier 1 + Tier 2 + Tier 3 + Organic clients</div>
+      <div id="dep-clients-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">2,000</div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Total Deposit Volume</div>
+      <div class="ci-note">Sum of (clients × avg deposit) across all 4 sections</div>
+      <div id="dep-volume-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
     </div>
   </div>
 
-  <div class="divider fu fu2"><div class="divider-label">IB Tier — Assumed Client Deposit Volume</div><div class="divider-line"></div></div>
+  <div class="divider fu fu2"><div class="divider-label">IB Tiers — Clients &amp; Avg Deposit Volume</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2" style="grid-template-columns:repeat(3,1fr)">
+    <div class="ci">
+      <div class="ci-label" style="color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="tier-badge t1">Tier 1 — 20%</span><span style="color:var(--text-dim);text-transform:none;letter-spacing:.02em;font-weight:600">Top IBs</span></div>
+      <div class="ci-note" style="margin-top:8px">Clients count</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t1-clients" value="400" min="0" step="1"></div>
+      <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t1-vol" value="10000" min="0" step="100"></div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Section deposit</span>
+        <span id="dep-t1-subtotal" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
+      </div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="tier-badge t2">Tier 2 — 60%</span><span style="color:var(--text-dim);text-transform:none;letter-spacing:.02em;font-weight:600">Experienced IBs</span></div>
+      <div class="ci-note" style="margin-top:8px">Clients count</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t2-clients" value="1200" min="0" step="1"></div>
+      <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t2-vol" value="5000" min="0" step="100"></div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Section deposit</span>
+        <span id="dep-t2-subtotal" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
+      </div>
+    </div>
+    <div class="ci">
+      <div class="ci-label" style="color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="tier-badge t3">Tier 3 — 20%</span><span style="color:var(--text-dim);text-transform:none;letter-spacing:.02em;font-weight:600">New / Converted IBs</span></div>
+      <div class="ci-note" style="margin-top:8px">Clients count</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t3-clients" value="400" min="0" step="1"></div>
+      <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t3-vol" value="2500" min="0" step="100"></div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Section deposit</span>
+        <span id="dep-t3-subtotal" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Organic Clients</div><div class="divider-line"></div></div>
   <div class="costs-grid fu fu2">
     <div class="ci">
-      <div class="ci-label" style="color:var(--text)"><span class="tier-badge t1" style="margin-right:8px">Tier 1 — 20%</span></div>
-      <div class="ci-note">Avg deposit volume per client (Tier 1)</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t1-vol" value="10000" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label" style="color:var(--text)"><span class="tier-badge t2" style="margin-right:8px">Tier 2 — 60%</span></div>
-      <div class="ci-note">Avg deposit volume per client (Tier 2)</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t2-vol" value="5000" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label" style="color:var(--text)"><span class="tier-badge t3" style="margin-right:8px">Tier 3 — 20%</span></div>
-      <div class="ci-note">Avg deposit volume per client (Tier 3)</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t3-vol" value="2500" min="0" step="100"></div>
+      <div class="ci-label">Organic Clients — Clients &amp; Avg Deposit</div>
+      <div class="ci-note">Direct ads, content, affiliates, organic search, partnerships — anything non-IB</div>
+      <div class="ci-note" style="margin-top:8px">Clients count</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-other-clients" value="0" min="0" step="1"></div>
+      <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-other-vol" value="0" min="0" step="100"></div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Section deposit</span>
+        <span id="dep-other-subtotal" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
+      </div>
     </div>
   </div>
 </div>
@@ -708,31 +783,91 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 <div class="tab-panel" id="tab5">
   <div class="hero fu fu1">
     <div class="hero-title">Trading Float</div>
-    <div class="hero-sub">Standalone inputs — float, deposit/withdrawal flows. Calculations to be wired later.</div>
+    <div class="hero-sub">Per-client-type trading activity. Each row's deposit volume is pulled live from the Deposits tab (clients × avg deposit).</div>
   </div>
 
-  <div class="divider fu fu2"><div class="divider-label">Float &amp; Cash Movement</div><div class="divider-line"></div></div>
-  <div class="costs-grid fu fu2">
+  <div class="divider fu fu2"><div class="divider-label">Trading Float Overview</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2" style="grid-template-columns:repeat(2,1fr)">
     <div class="ci">
       <div class="ci-label">Total Trading Float</div>
-      <div class="ci-note">Capital available for B-book exposure</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="flt-total" value="500000" min="0" step="1000"></div>
+      <div class="ci-note">Sum of Net Float across all 4 client types — live</div>
+      <div id="flt-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
     </div>
     <div class="ci">
-      <div class="ci-label">Deposit Amount</div>
-      <div class="ci-note">Avg deposit per event</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="flt-deposit" value="2500" min="0" step="100"></div>
+      <div class="ci-label">Total Client Deposits Volume</div>
+      <div class="ci-note">Live from Deposits tab — sum of clients × avg deposit across all 4 sections</div>
+      <div id="flt-volume-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
     </div>
-    <div class="ci">
-      <div class="ci-label">Redeposit Count</div>
-      <div class="ci-note">Avg redeposits per active client</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="number" id="flt-redep" value="2" min="0" step="1"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Withdrawal</div>
-      <div class="ci-note">Avg withdrawal amount per event</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="flt-withdraw" value="1500" min="0" step="100"></div>
-    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Per Client Type — Trading Activity</div><div class="divider-line"></div></div>
+  <div class="ft-wrap fu fu2">
+    <table class="ft-table">
+      <thead>
+        <tr>
+          <th>Client Type</th>
+          <th>Deposit Volume</th>
+          <th>Active %</th>
+          <th>Leverage (×)</th>
+          <th>Amount $</th>
+          <th>Redeposits</th>
+          <th>Withdrawal $</th>
+          <th>Lifetime (mo)</th>
+          <th>Bonus $</th>
+          <th>= Net Float</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tier-badge t1" style="margin-right:8px">Tier 1</span> Top IBs</td>
+          <td class="ft-vol" id="flt-t1-volume">$0</td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-active" value="100" min="0" max="100" step="1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-leverage" value="100" min="1" step="1"><span class="ft-input-sym">×</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t1-amount"   value="2500" min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-redep"     value="2"    min="0" step="1"  ></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t1-withdraw" value="1500" min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-lifetime"  value="12"   min="0" step="1"  ></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t1-bonus"    value="200"  min="0" step="10" ></span></td>
+          <td class="ft-result" id="flt-t1-result">$0</td>
+        </tr>
+        <tr>
+          <td><span class="tier-badge t2" style="margin-right:8px">Tier 2</span> Experienced IBs</td>
+          <td class="ft-vol" id="flt-t2-volume">$0</td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-active" value="100" min="0" max="100" step="1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-leverage" value="100" min="1" step="1"><span class="ft-input-sym">×</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t2-amount"   value="2000" min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-redep"     value="2"    min="0" step="1"  ></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t2-withdraw" value="1200" min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-lifetime"  value="9"    min="0" step="1"  ></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t2-bonus"    value="100"  min="0" step="10" ></span></td>
+          <td class="ft-result" id="flt-t2-result">$0</td>
+        </tr>
+        <tr>
+          <td><span class="tier-badge t3" style="margin-right:8px">Tier 3</span> New / Converted IBs</td>
+          <td class="ft-vol" id="flt-t3-volume">$0</td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-active" value="100" min="0" max="100" step="1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-leverage" value="100" min="1" step="1"><span class="ft-input-sym">×</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t3-amount"   value="1500" min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-redep"     value="1"    min="0" step="1"  ></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t3-withdraw" value="800"  min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-lifetime"  value="6"    min="0" step="1"  ></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t3-bonus"    value="50"   min="0" step="10" ></span></td>
+          <td class="ft-result" id="flt-t3-result">$0</td>
+        </tr>
+        <tr>
+          <td><span style="display:inline-block;padding:4px 12px;border-radius:2px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--bg3);color:var(--text-dim);border:1px solid var(--border-dim);margin-right:8px">Organic</span> Direct / Affiliates</td>
+          <td class="ft-vol" id="flt-other-volume">$0</td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-active" value="100" min="0" max="100" step="1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-leverage" value="100" min="1" step="1"><span class="ft-input-sym">×</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-other-amount"   value="1500" min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-redep"     value="1"    min="0" step="1"  ></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-other-withdraw" value="900"  min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-lifetime"  value="6"    min="0" step="1"  ></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-other-bonus"    value="50"   min="0" step="10" ></span></td>
+          <td class="ft-result" id="flt-other-result">$0</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -742,75 +877,129 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 <div class="tab-panel" id="tab6">
   <div class="hero fu fu1">
     <div class="hero-title">Revenue</div>
-    <div class="hero-sub">Standalone revenue line items. Each value is editable; calculations to be wired later.</div>
+    <div class="hero-sub">Total revenue at the top is the live sum of every revenue line below. Edit any box and the total updates instantly.</div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">Total</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">Total Revenue</div>
+      <div class="ci-note">Live sum of every revenue line on this page</div>
+      <div id="rev-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
+    </div>
   </div>
 
   <div class="divider fu fu2"><div class="divider-label">Book P&amp;L</div><div class="divider-line"></div></div>
-  <div class="costs-grid fu fu2">
-    <div class="ci">
-      <div class="ci-label">Win A Book</div>
-      <div class="ci-note">A-book client wins (broker passes to LP)</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-win-a" value="0" min="0" step="100"></div>
+
+  <div class="fu fu2" style="display:flex;flex-wrap:wrap;gap:1.75rem;align-items:flex-start">
+    <!-- A-Book column -->
+    <div style="flex:1 1 420px;min-width:0">
+      <div style="margin:0 0 .65rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="display:inline-block;padding:6px 14px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:rgba(31,168,118,0.15);color:var(--green);border:1px solid rgba(31,168,118,0.4)">A Book</span>
+        <span style="font-size:12px;color:var(--text-dim)">9 streams — hedged to LP, broker keeps markup &amp; fees</span>
+      </div>
+      <div class="costs-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="ci">
+          <div class="ci-label">Spread Revenue</div>
+          <div class="ci-note">Markup only over LP raw price (e.g., 0.5 pip of a 1.2 pip spread)</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-spread" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Commission Revenue</div>
+          <div class="ci-note">Full commission collected (e.g., $5/lot) minus LP per-lot fee</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-commission" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Swap Revenue</div>
+          <div class="ci-note">Markup over LP tom-next rate only</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-swap" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">FX Conversion Markup</div>
+          <div class="ci-note">Full markup (book-agnostic)</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-fx" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Interest on Deposits</div>
+          <div class="ci-note">Full yield (book-agnostic)</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-interest" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Inactivity Fees</div>
+          <div class="ci-note">Full fee (book-agnostic)</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-inactivity" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Withdrawal Fees</div>
+          <div class="ci-note">Net of PSP cost (book-agnostic)</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-withdrawal" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Slippage Revenue</div>
+          <div class="ci-note">Incidental — depends on LP fill quality</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-slippage" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">LP Volume Rebates</div>
+          <div class="ci-note">Earned — LP pays you back per volume tier</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-lp-rebate" value="0" min="0" step="100"></div>
+        </div>
+      </div>
     </div>
-    <div class="ci">
-      <div class="ci-label">Win B Book</div>
-      <div class="ci-note">B-book client wins (broker pays out)</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-win-b" value="0" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Loss A Book</div>
-      <div class="ci-note">A-book client losses (broker keeps share)</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-loss-a" value="0" min="0" step="100"></div>
+
+    <!-- B-Book column -->
+    <div style="flex:1 1 420px;min-width:0">
+      <div style="margin:0 0 .65rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="display:inline-block;padding:6px 14px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:var(--pu);color:#fff">B Book</span>
+        <span style="font-size:12px;color:var(--text-dim)">8 streams — broker keeps full client P&amp;L</span>
+      </div>
+      <div class="costs-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="ci">
+          <div class="ci-label">Spread Revenue</div>
+          <div class="ci-note">Full spread retained — no LP to share with</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-spread" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Commission Revenue</div>
+          <div class="ci-note">Full commission collected — no LP fee deducted</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-commission" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Swap Revenue</div>
+          <div class="ci-note">Full overnight financing charge retained</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-swap" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">FX Conversion Markup</div>
+          <div class="ci-note">Full markup (book-agnostic)</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-fx" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Interest on Deposits</div>
+          <div class="ci-note">Full yield (book-agnostic)</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-interest" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Inactivity Fees</div>
+          <div class="ci-note">Full fee (book-agnostic)</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-inactivity" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Withdrawal Fees</div>
+          <div class="ci-note">Net of PSP cost (book-agnostic)</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-withdrawal" value="0" min="0" step="100"></div>
+        </div>
+        <div class="ci">
+          <div class="ci-label">Slippage Revenue</div>
+          <div class="ci-note">By design — you control the fill</div>
+          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-slippage" value="0" min="0" step="100"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="divider fu fu2"><div class="divider-label">Trading Revenue Streams</div><div class="divider-line"></div></div>
+  <div class="divider fu fu2"><div class="divider-label">Other Revenue Streams</div><div class="divider-line"></div></div>
   <div class="costs-grid fu fu2">
-    <div class="ci">
-      <div class="ci-label">Spread Revenue</div>
-      <div class="ci-note">Markup on client spreads</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-spread" value="0" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Swaps Revenue</div>
-      <div class="ci-note">Overnight financing income</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-swaps" value="0" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Interest on Deposits</div>
-      <div class="ci-note">Yield on idle client funds</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-interest" value="0" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Commission Revenue</div>
-      <div class="ci-note">Per-lot or per-trade commission</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-commission" value="0" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">FX Conversion Rate</div>
-      <div class="ci-note">FX markup on deposits/withdrawals</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-fx" value="0" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Inactivity Revenue</div>
-      <div class="ci-note">Dormant account fees</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-inactivity" value="0" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Withdrawal Revenue</div>
-      <div class="ci-note">Withdrawal processing fees</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-withdrawal" value="0" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">LP Volume Rebate</div>
-      <div class="ci-note">Volume-tier rebates from LP</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-lp-rebate" value="0" min="0" step="100"></div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Slippage Revenue</div>
-      <div class="ci-note">Net positive slippage capture</div>
-      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-slippage" value="0" min="0" step="100"></div>
-    </div>
     <div class="ci">
       <div class="ci-label">B2B Tech / Data Licensing</div>
       <div class="ci-note">White-label, API, or data feed revenue</div>
@@ -820,6 +1009,16 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
       <div class="ci-label">Premium Subscription</div>
       <div class="ci-note">Pro tier / signal service subscriptions</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-premium" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Educational Content</div>
+      <div class="ci-note">Courses, webinars, paid masterclasses</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-educational" value="0" min="0" step="100"></div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Signals</div>
+      <div class="ci-note">Trading signal service / managed-signal subscriptions</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-signals" value="0" min="0" step="100"></div>
     </div>
   </div>
 </div>
@@ -835,6 +1034,11 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 
   <div class="divider fu fu2"><div class="divider-label">Book P&amp;L</div><div class="divider-line"></div></div>
   <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">Loss A Book</div>
+      <div class="ci-note">A-book client losses (broker keeps share — net cost to broker if hedged)</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-loss-a" value="0" min="0" step="100"></div>
+    </div>
     <div class="ci">
       <div class="ci-label">Loss B Book</div>
       <div class="ci-note">B-book client losses paid out by broker</div>
@@ -1067,7 +1271,6 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   <div class="container">
     <div class="inner">
       <span>© 2026 Milele Prime · Milele Group, Dubai · St. Lucia FSA</span>
-      <span>Projections only · Internal CFO use</span>
     </div>
   </div>
 </footer>
@@ -1081,7 +1284,12 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 
 <script>
 'use strict';
-document.getElementById('live-date').textContent = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+// live-date span was removed when the header was minimised; guard so the
+// rest of the script still runs if it's not in the DOM.
+{
+  const _liveDate = document.getElementById('live-date');
+  if (_liveDate) _liveDate.textContent = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+}
 
 // ─────────────────────────────────────────────────────────────────
 // CONSTANTS
@@ -1491,7 +1699,6 @@ function renderVC() {
   }
 
   const rows = [
-    {section:'Annual Cost'},
     {label:'Annual vendor cost',   a:fmtS(totalA),    b:fmtS(totalB),    d:diff(totalA,totalB,false)},
   ];
 
@@ -1627,7 +1834,7 @@ function profileHTML(p, tier) {
       +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(0,0,0,0.08);text-align:right">'
         +'<input type="number" value="'+a.rebate.toFixed(2)+'" step="0.10" min="0"'
         +' data-pid="'+p.id+'" data-tier="'+tier+'" data-aclass="'+a.label+'" oninput="ibSetRebate(this)"'
-        +' style="background:transparent;border:none;border-bottom:1px solid rgba(191,111,255,0.3);color:var(--pu);font-size:14px;font-weight:600;font-family:var(--font);outline:none;width:52px;text-align:right;padding:1px 0">'
+        +' style="background:transparent;border:none;border-bottom:1px solid rgba(191,111,255,0.3);color:var(--pu-text);font-size:14px;font-weight:600;font-family:var(--font);outline:none;width:52px;text-align:right;padding:1px 0">'
       +'</td>'
       +'<td style="padding:.45rem .75rem;border-bottom:1px solid rgba(0,0,0,0.08);text-align:right;font-size:15px;font-weight:700;color:'+(margin>=0?'var(--green)':'var(--red)')+'">$'+margin.toFixed(2)+'</td>'
     +'</tr>';
@@ -1685,7 +1892,7 @@ function profileHTML(p, tier) {
       +'<div class="ib-out-item"><div class="ib-out-label">CPA / mo</div><div class="ib-out-value">'+fmtM(pay.cpa)+'</div></div>'
       +'<div class="ib-out-item"><div class="ib-out-label">Rev share / mo</div><div class="ib-out-value">'+fmtM(pay.rs)+'</div></div>'
       +'<div class="ib-out-item"><div class="ib-out-label">Rebate / mo</div><div class="ib-out-value">'+fmtM(pay.rb)+'</div></div>'
-      +'<div class="ib-out-item" style="background:var(--pu-dim)"><div class="ib-out-label" style="color:rgba(191,111,255,0.8)">Total / mo</div><div class="ib-out-value" style="color:var(--pu)">'+fmtM(pay.total)+'</div></div>'
+      +'<div class="ib-out-item" style="background:var(--pu-dim)"><div class="ib-out-label" style="color:var(--pu-text)">Total / mo</div><div class="ib-out-value" style="color:var(--pu-text)">'+fmtM(pay.total)+'</div></div>'
     +'</div>'
     // Asset class margin table
     +'<div class="ib-asset-table">'
@@ -1699,7 +1906,7 @@ function profileHTML(p, tier) {
           +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Gross/lot</th>'
           +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--text);font-weight:700;text-transform:uppercase;letter-spacing:.08em">LP cost</th>'
           +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--text);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Net to broker</th>'
-          +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--pu);font-weight:700;text-transform:uppercase;letter-spacing:.08em">IB rebate ✎</th>'
+          +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--pu-text);font-weight:700;text-transform:uppercase;letter-spacing:.08em">IB rebate ✎</th>'
           +'<th style="padding:.45rem .75rem;text-align:right;font-size:12px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.08em">Net margin</th>'
         +'</tr></thead>'
         +'<tbody>'+assets.map(a=>assetRow(a)).join('')+'</tbody>'
@@ -2030,8 +2237,1713 @@ if(ibSliderEl) ibSliderEl.addEventListener('input', renderIB);
 document.addEventListener('input',  saveStateDebounced);
 document.addEventListener('change', saveStateDebounced);
 
-// Load from /api/data first, then render so the UI paints with the right values.
-loadState().then(renderAll);
+// Deposits + Trading Float — derived values. Per-section deposit volume = clients
+// × avg deposit; section subtotals + totals show on Deposits tab; the same volumes
+// feed the Trading Float tab (flt-*-volume cells + flt-volume-total). Each row's
+// Net Float = clients × (avg deposit + amount × redeposits − withdrawal − bonus).
+function recalcDepositsTotal() {
+  const num = id => {
+    const el = document.getElementById(id);
+    return el ? (+el.value || 0) : 0;
+  };
+  const fmt$ = n => (n<0?'-':'') + '$' + Math.round(Math.abs(n)).toLocaleString();
+  const sections = [
+    { key:'t1',    c:'dep-t1-clients',    v:'dep-t1-vol',    out:'dep-t1-subtotal'    },
+    { key:'t2',    c:'dep-t2-clients',    v:'dep-t2-vol',    out:'dep-t2-subtotal'    },
+    { key:'t3',    c:'dep-t3-clients',    v:'dep-t3-vol',    out:'dep-t3-subtotal'    },
+    { key:'other', c:'dep-other-clients', v:'dep-other-vol', out:'dep-other-subtotal' },
+  ];
+  let totalClients = 0, totalVolume = 0, totalNetFloat = 0;
+  sections.forEach(s => {
+    const clients  = num(s.c);
+    const avgDep   = num(s.v);
+    const sub      = clients * avgDep;
+    totalClients  += clients;
+    totalVolume   += sub;
+
+    // Deposits tab: per-section subtotal display
+    const sEl = document.getElementById(s.out);
+    if(sEl) sEl.textContent = fmt$(sub);
+
+    // Trading Float tab: live deposit volume cell
+    const fEl = document.getElementById('flt-' + s.key + '-volume');
+    if(fEl) fEl.textContent = fmt$(sub);
+
+    // Trading Float tab: per-row Net Float result, now expressed as NOTIONAL.
+    // active% scales the deposit portion (the share actually working as margin).
+    // leverage then converts the resulting cash margin into notional volume.
+    // Defaults: active=100%, leverage=100× → multiplies cash margin by 100.
+    const activePct = num('flt-' + s.key + '-active') / 100;
+    const leverage  = num('flt-' + s.key + '-leverage') || 1;
+    const amount    = num('flt-' + s.key + '-amount');
+    const redep     = num('flt-' + s.key + '-redep');
+    const withdraw  = num('flt-' + s.key + '-withdraw');
+    const bonus     = num('flt-' + s.key + '-bonus');
+    const netFloat  = clients * (avgDep * activePct + amount * redep - withdraw - bonus) * leverage;
+    totalNetFloat += netFloat;
+    const rEl = document.getElementById('flt-' + s.key + '-result');
+    if(rEl) rEl.textContent = fmt$(netFloat);
+  });
+  const cTot = document.getElementById('dep-clients-total');
+  const vTot = document.getElementById('dep-volume-total');
+  const fTot = document.getElementById('flt-volume-total');
+  const nTot = document.getElementById('flt-total');
+  if(cTot) cTot.textContent = totalClients.toLocaleString();
+  if(vTot) vTot.textContent = fmt$(totalVolume);
+  if(fTot) fTot.textContent = fmt$(totalVolume);
+  if(nTot) nTot.textContent = fmt$(totalNetFloat);
+}
+// Revenue tab: total revenue is the live sum of every rev-* input on the page.
+// Book P&L is split into B-book (9 streams, broker keeps full P&L) and A-book
+// (10 streams, broker keeps markups + earns LP volume rebates). Other Revenue
+// captures non-trading income (B2B, subscriptions, content).
+const REV_INPUT_IDS = [
+  // B Book
+  'rev-b-spread','rev-b-commission','rev-b-swap',
+  'rev-b-fx','rev-b-interest','rev-b-inactivity','rev-b-withdrawal','rev-b-slippage',
+  // A Book
+  'rev-a-spread','rev-a-commission','rev-a-swap',
+  'rev-a-fx','rev-a-interest','rev-a-inactivity','rev-a-withdrawal','rev-a-slippage','rev-a-lp-rebate',
+  // Other Revenue Streams
+  'rev-b2b','rev-premium','rev-educational','rev-signals',
+];
+function recalcRevenueTotal() {
+  const sum = REV_INPUT_IDS.reduce((acc, id) => {
+    const el = document.getElementById(id);
+    return acc + (el ? (+el.value || 0) : 0);
+  }, 0);
+  const out = document.getElementById('rev-total');
+  if(out) out.textContent = (sum<0?'-':'') + '$' + Math.round(Math.abs(sum)).toLocaleString();
+}
+REV_INPUT_IDS.forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', recalcRevenueTotal);
+});
+
+// ─────────────────────────────────────────────────────────────────
+// REVENUE FORMULA CALCULATORS
+// Each rev-* input gets a collapsible "Calculate" link that opens an inline
+// mini-form. User fills the variables → clicks Apply → result is written to
+// the main $-input and the panel collapses. Dispatching an `input` event makes
+// the existing recalcRevenueTotal + autosave fire automatically.
+// ─────────────────────────────────────────────────────────────────
+const REV_FORMULAS = {
+  // ── A-BOOK ──
+  'rev-a-spread': {
+    formula: 'A-book volume (lots) × Spread markup over LP raw (pips) × Dollar value per pip per lot',
+    inputs: [
+      {key:'V_A',       label:'A-book volume in lots'},
+      {key:'S_markup',  label:'Spread markup over LP raw price (pips)',     placeholder:'e.g. 0.5'},
+      {key:'pip_value', label:'Dollar value per pip per lot (e.g. $10 EURUSD std lot)', defaultValue:10},
+    ],
+    compute: v => v.V_A * v.S_markup * v.pip_value,
+  },
+  'rev-a-commission': {
+    formula: 'A-book volume (lots) × (Commission per lot per side − LP per-lot fee) × 2 sides',
+    inputs: [
+      {key:'V_A',    label:'A-book volume in lots'},
+      {key:'C',      label:'Commission per lot per side ($)',   placeholder:'e.g. 5'},
+      {key:'LP_fee', label:'LP per-lot fee you pay ($/lot)',    placeholder:'e.g. 3'},
+    ],
+    compute: v => v.V_A * (v.C - v.LP_fee) * 2,
+  },
+  'rev-a-swap': {
+    formula: 'A-book volume (lots) × (Swap charged to client − Tom-next paid to LP) × Nights held × Dollar per pip',
+    inputs: [
+      {key:'V_A',         label:'A-book volume in lots'},
+      {key:'swap_client', label:'Swap rate charged to client (pips per lot per night)'},
+      {key:'swap_LP',     label:'Tom-next rate paid to LP (pips per lot per night)'},
+      {key:'N_nights',    label:'Number of nights positions held open'},
+      {key:'pip_value',   label:'Dollar value per pip per lot', defaultValue:10},
+    ],
+    compute: v => v.V_A * (v.swap_client - v.swap_LP) * v.N_nights * v.pip_value,
+  },
+  'rev-a-fx': {
+    formula: 'Volume requiring conversion ($) × FX conversion markup %',
+    inputs: [
+      {key:'FX_vol', label:'Volume of deposits + withdrawals requiring currency conversion ($)'},
+      {key:'FX_pct', label:'Your FX conversion markup percentage', placeholder:'e.g. 1.5'},
+    ],
+    compute: v => v.FX_vol * (v.FX_pct / 100),
+  },
+  'rev-a-interest': {
+    formula: 'Average client balance × Annual interest rate × (Days in period ÷ 365)',
+    inputs: [
+      {key:'B_avg', label:'Average client balance held in period ($)'},
+      {key:'r',     label:'Annual interest rate earned on client balances (%)', placeholder:'e.g. 4.5'},
+      {key:'days',  label:'Days in period', defaultValue:30},
+    ],
+    compute: v => v.B_avg * (v.r / 100) * (v.days / 365),
+  },
+  'rev-a-inactivity': {
+    formula: 'Number of inactive accounts × Monthly inactivity fee × Months dormant',
+    inputs: [
+      {key:'N_inactive',      label:'Number of inactive accounts'},
+      {key:'fee_inactivity',  label:'Monthly inactivity fee per account ($)'},
+      {key:'months_inactive', label:'Average months each account has been dormant'},
+    ],
+    compute: v => v.N_inactive * v.fee_inactivity * v.months_inactive,
+  },
+  'rev-a-withdrawal': {
+    formula: 'Number of withdrawals × (Fee charged to client − PSP cost per withdrawal)',
+    inputs: [
+      {key:'N_withdrawals',  label:'Number of withdrawals in period'},
+      {key:'fee_withdrawal', label:'Fee charged to client per withdrawal ($)'},
+      {key:'PSP_cost',       label:'PSP fee per withdrawal ($)'},
+    ],
+    compute: v => v.N_withdrawals * (v.fee_withdrawal - v.PSP_cost),
+  },
+  'rev-a-slippage': {
+    formula: 'A-book volume (lots) × Average slippage captured (pips) × Dollar per pip',
+    inputs: [
+      {key:'V_A',       label:'A-book volume in lots'},
+      {key:'slip_avg',  label:'Average slippage captured per lot (pips)'},
+      {key:'pip_value', label:'Dollar value per pip per lot', defaultValue:10},
+    ],
+    compute: v => v.V_A * v.slip_avg * v.pip_value,
+  },
+  'rev-a-lp-rebate': {
+    formula: 'A-book volume (lots) × LP rebate paid back per lot',
+    inputs: [
+      {key:'V_A',            label:'A-book volume in lots'},
+      {key:'rebate_per_lot', label:'LP rebate paid back to you per A-book lot ($)', placeholder:'e.g. 1.00'},
+    ],
+    compute: v => v.V_A * v.rebate_per_lot,
+  },
+  // ── B-BOOK ──
+  'rev-b-spread': {
+    formula: 'B-book volume (lots) × Full spread quoted to client (pips) × Dollar per pip',
+    inputs: [
+      {key:'V_B',       label:'B-book volume in lots'},
+      {key:'S_full',    label:'Full spread quoted to client (pips)',    placeholder:'e.g. 1.2'},
+      {key:'pip_value', label:'Dollar value per pip per lot', defaultValue:10},
+    ],
+    compute: v => v.V_B * v.S_full * v.pip_value,
+  },
+  'rev-b-commission': {
+    formula: 'B-book volume (lots) × Commission per lot per side × 2 sides',
+    inputs: [
+      {key:'V_B', label:'B-book volume in lots'},
+      {key:'C',   label:'Commission per lot per side ($)'},
+    ],
+    compute: v => v.V_B * v.C * 2,
+  },
+  'rev-b-swap': {
+    formula: 'B-book volume (lots) × Swap charged to client (pips) × Nights held × Dollar per pip',
+    inputs: [
+      {key:'V_B',         label:'B-book volume in lots'},
+      {key:'swap_client', label:'Swap rate charged to client (pips per lot per night)'},
+      {key:'N_nights',    label:'Number of nights positions held open'},
+      {key:'pip_value',   label:'Dollar value per pip per lot', defaultValue:10},
+    ],
+    compute: v => v.V_B * v.swap_client * v.N_nights * v.pip_value,
+  },
+  'rev-b-fx': {
+    formula: 'Volume requiring conversion ($) × FX conversion markup %',
+    inputs: [
+      {key:'FX_vol', label:'Volume of deposits + withdrawals requiring currency conversion ($)'},
+      {key:'FX_pct', label:'Your FX conversion markup percentage', placeholder:'e.g. 1.5'},
+    ],
+    compute: v => v.FX_vol * (v.FX_pct / 100),
+  },
+  'rev-b-interest': {
+    formula: 'Average client balance × Annual interest rate × (Days in period ÷ 365)',
+    inputs: [
+      {key:'B_avg', label:'Average client balance held in period ($)'},
+      {key:'r',     label:'Annual interest rate earned on client balances (%)'},
+      {key:'days',  label:'Days in period', defaultValue:30},
+    ],
+    compute: v => v.B_avg * (v.r / 100) * (v.days / 365),
+  },
+  'rev-b-inactivity': {
+    formula: 'Number of inactive accounts × Monthly inactivity fee × Months dormant',
+    inputs: [
+      {key:'N_inactive',      label:'Number of inactive accounts'},
+      {key:'fee_inactivity',  label:'Monthly inactivity fee per account ($)'},
+      {key:'months_inactive', label:'Average months each account has been dormant'},
+    ],
+    compute: v => v.N_inactive * v.fee_inactivity * v.months_inactive,
+  },
+  'rev-b-withdrawal': {
+    formula: 'Number of withdrawals × (Fee charged to client − PSP cost per withdrawal)',
+    inputs: [
+      {key:'N_withdrawals',  label:'Number of withdrawals in period'},
+      {key:'fee_withdrawal', label:'Fee charged to client per withdrawal ($)'},
+      {key:'PSP_cost',       label:'PSP fee per withdrawal ($)'},
+    ],
+    compute: v => v.N_withdrawals * (v.fee_withdrawal - v.PSP_cost),
+  },
+  'rev-b-slippage': {
+    formula: 'B-book volume (lots) × Average slippage captured (pips) × Dollar per pip',
+    inputs: [
+      {key:'V_B',       label:'B-book volume in lots'},
+      {key:'slip_avg',  label:'Average slippage captured per lot (pips)'},
+      {key:'pip_value', label:'Dollar value per pip per lot', defaultValue:10},
+    ],
+    compute: v => v.V_B * v.slip_avg * v.pip_value,
+  },
+};
+
+function buildCalculator(targetId) {
+  const cfg = REV_FORMULAS[targetId];
+  if(!cfg) return;
+  const targetInput = document.getElementById(targetId);
+  if(!targetInput) return;
+  const wrap = targetInput.closest('.ci-input-wrap');
+  if(!wrap) return;
+  const card = wrap.parentElement;
+  if(!card || card.querySelector('.calc-toggle')) return; // already built
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'calc-toggle';
+  toggle.textContent = '↳ Calculate';
+
+  const panel = document.createElement('div');
+  panel.className = 'calc-panel';
+
+  const formulaLine = document.createElement('div');
+  formulaLine.className = 'calc-formula';
+  formulaLine.textContent = '= ' + cfg.formula;
+  panel.appendChild(formulaLine);
+
+  const inputElems = {};
+  cfg.inputs.forEach(spec => {
+    const row = document.createElement('div');
+    row.className = 'calc-input-row';
+    const label = document.createElement('label');
+    label.textContent = spec.label;
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.step = 'any';
+    if(spec.placeholder) input.placeholder = spec.placeholder;
+    if(spec.defaultValue != null) input.value = spec.defaultValue;
+    row.appendChild(label);
+    row.appendChild(input);
+    panel.appendChild(row);
+    inputElems[spec.key] = input;
+  });
+
+  const result = document.createElement('div');
+  result.className = 'calc-result';
+  result.textContent = '= $0';
+  panel.appendChild(result);
+
+  function compute() {
+    const vals = {};
+    Object.keys(inputElems).forEach(k => { vals[k] = +inputElems[k].value || 0; });
+    const out = cfg.compute(vals);
+    const safe = isFinite(out) ? out : 0;
+    result.textContent = '= $' + (Math.round(safe*100)/100).toLocaleString();
+    return safe;
+  }
+  Object.values(inputElems).forEach(el => el.addEventListener('input', compute));
+
+  const actions = document.createElement('div');
+  actions.className = 'calc-actions';
+  const applyBtn = document.createElement('button');
+  applyBtn.type = 'button';
+  applyBtn.className = 'calc-btn calc-btn-apply';
+  applyBtn.textContent = 'Apply';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'calc-btn calc-btn-cancel';
+  cancelBtn.textContent = 'Cancel';
+  actions.appendChild(applyBtn);
+  actions.appendChild(cancelBtn);
+  panel.appendChild(actions);
+
+  applyBtn.addEventListener('click', () => {
+    const out = compute();
+    targetInput.value = Math.round(out * 100) / 100;
+    targetInput.dispatchEvent(new Event('input', { bubbles: true }));  // fires recalcRevenueTotal + autosave
+    panel.classList.remove('open');
+    toggle.textContent = '↳ Calculate';
+  });
+  cancelBtn.addEventListener('click', () => {
+    panel.classList.remove('open');
+    toggle.textContent = '↳ Calculate';
+  });
+  toggle.addEventListener('click', () => {
+    const isOpen = panel.classList.toggle('open');
+    toggle.textContent = isOpen ? '× Close calculator' : '↳ Calculate';
+  });
+
+  card.appendChild(toggle);
+  card.appendChild(panel);
+}
+
+Object.keys(REV_FORMULAS).forEach(buildCalculator);
+
+// Trigger the recalc on any of the 8 deposit inputs OR any of the 20 trading-float
+// per-tier inputs. (Lifetime is collected as input but isn't part of the current
+// Net Float formula — drop or wire it in later if the model needs it.)
+[
+  'dep-t1-clients','dep-t1-vol','dep-t2-clients','dep-t2-vol',
+  'dep-t3-clients','dep-t3-vol','dep-other-clients','dep-other-vol',
+  'flt-t1-active','flt-t1-leverage','flt-t1-amount','flt-t1-redep','flt-t1-withdraw','flt-t1-lifetime','flt-t1-bonus',
+  'flt-t2-active','flt-t2-leverage','flt-t2-amount','flt-t2-redep','flt-t2-withdraw','flt-t2-lifetime','flt-t2-bonus',
+  'flt-t3-active','flt-t3-leverage','flt-t3-amount','flt-t3-redep','flt-t3-withdraw','flt-t3-lifetime','flt-t3-bonus',
+  'flt-other-active','flt-other-leverage','flt-other-amount','flt-other-redep','flt-other-withdraw','flt-other-lifetime','flt-other-bonus',
+].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', recalcDepositsTotal);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// REVENUE TAB — AUTO-DERIVATION FROM TRADING FLOAT + DEPOSITS
+// Adds Revenue Assumptions inputs, AUTO/MANUAL toggles per lot/deposit
+// card, the Net B-Book Client P&L card, and live derivation.
+// ═══════════════════════════════════════════════════════════════════
+
+// Per-card toggle state ('auto' | 'manual')
+const revToggleState = {};
+
+// Helper: build a standard .ci card via createElement (no innerHTML)
+function _revBuildCard(id, label, noteText, value, opts) {
+  opts = opts || {};
+  const card  = document.createElement('div');
+  card.className = 'ci';
+  const lbl   = document.createElement('div');
+  lbl.className = 'ci-label';
+  lbl.textContent = label;
+  const note  = document.createElement('div');
+  note.className = 'ci-note';
+  note.textContent = noteText;
+  const wrap  = document.createElement('div');
+  wrap.className = 'ci-input-wrap';
+  if(opts.prefix) {
+    const pre = document.createElement('span');
+    pre.className = 'ci-prefix';
+    pre.textContent = opts.prefix;
+    wrap.appendChild(pre);
+  }
+  const input = document.createElement('input');
+  input.className = 'ci-input';
+  input.type = 'number';
+  input.id = id;
+  input.value = value;
+  if(opts.min  != null) input.min  = opts.min;
+  if(opts.max  != null) input.max  = opts.max;
+  if(opts.step != null) input.step = opts.step;
+  wrap.appendChild(input);
+  if(opts.suffix) {
+    const suf = document.createElement('span');
+    suf.className = 'ci-prefix';
+    suf.textContent = opts.suffix;
+    wrap.appendChild(suf);
+  }
+  card.appendChild(lbl);
+  card.appendChild(note);
+  card.appendChild(wrap);
+  return card;
+}
+
+// ── STEP 1 + 5: Revenue Assumptions divider + 9-input grid ───────────
+(function injectAssumptions() {
+  const tab6 = document.getElementById('tab6');
+  if(!tab6) return;
+  const dividers = tab6.querySelectorAll('.divider');
+  let bookPLDivider = null;
+  for(let i = 0; i < dividers.length; i++) {
+    const lbl = dividers[i].querySelector('.divider-label');
+    if(lbl && lbl.textContent.trim() === 'Book P&L') { bookPLDivider = dividers[i]; break; }
+  }
+  if(!bookPLDivider) return;
+  if(document.getElementById('rev-abook-pct')) return; // already injected
+
+  const aDiv = document.createElement('div');
+  aDiv.className = 'divider fu fu2';
+  const dlbl = document.createElement('div'); dlbl.className = 'divider-label'; dlbl.textContent = 'Revenue Assumptions';
+  const dline = document.createElement('div'); dline.className = 'divider-line';
+  aDiv.appendChild(dlbl); aDiv.appendChild(dline);
+
+  const grid = document.createElement('div');
+  grid.className = 'costs-grid fu fu2';
+  grid.style.gridTemplateColumns = 'repeat(3,1fr)';
+
+  grid.appendChild(_revBuildCard('rev-abook-pct', 'A-Book Volume %',
+    '% of total trading float routed to LP (hedged). Remaining % is B-booked.',
+    20, { min:0, max:100, step:1, suffix:'%' }));
+  grid.appendChild(_revBuildCard('rev-lot-size', 'Standard Lot Size ($)',
+    'Used to convert notional float volume into lots. Standard lot = $100,000. Mini lot = $10,000. Micro lot = $1,000.',
+    100000, { min:1000, step:1000, prefix:'$' }));
+  grid.appendChild(_revBuildCard('rev-nights-held', 'Avg Nights Position Held Open',
+    'Average number of nights a client holds a position before closing. Drives swap revenue. Intraday-only traders = 0.',
+    2, { min:0, step:0.5 }));
+  grid.appendChild(_revBuildCard('rev-commission-per-lot', 'Commission per Lot per Side ($)',
+    'Used for commission revenue auto-calculation. Default ECN rate.',
+    5, { min:0, step:0.5, prefix:'$' }));
+  grid.appendChild(_revBuildCard('rev-swap-client-pips', 'Swap Charged to Client (pips/lot/night)',
+    'Average overnight swap rate charged across all open positions.',
+    1, { min:0, step:0.1 }));
+  grid.appendChild(_revBuildCard('rev-swap-lp-pips', 'Swap Paid to LP (pips/lot/night)',
+    'A-book only — tom-next rate paid to LP. B-book pays nothing.',
+    0.3, { min:0, step:0.1 }));
+  grid.appendChild(_revBuildCard('rev-slip-avg', 'Avg Slippage Captured (pips/lot)',
+    'A-book = incidental LP fill quality. B-book = by design (keep ≤ 3 pips).',
+    1.5, { min:0, step:0.1 }));
+  grid.appendChild(_revBuildCard('rev-rebate-per-lot', 'LP Rebate per A-Book Lot ($)',
+    'Tier-based kickback from LP. Typically $0.50–$2.00/lot at volume.',
+    1, { min:0, step:0.1, prefix:'$' }));
+  grid.appendChild(_revBuildCard('rev-client-loss-rate', 'B-Book Client Loss Rate (%)',
+    'Industry benchmark: 75–80% of retail clients lose. Used for Net P&L auto-calc.',
+    78, { min:0, max:100, step:1, suffix:'%' }));
+
+  bookPLDivider.parentNode.insertBefore(aDiv, bookPLDivider);
+  bookPLDivider.parentNode.insertBefore(grid, bookPLDivider);
+})();
+
+// ── STEP 3: rev-b-pnl card after rev-b-slippage ──────────────────────
+(function injectBPnl() {
+  if(document.getElementById('rev-b-pnl')) return;
+  const slipInput = document.getElementById('rev-b-slippage');
+  if(!slipInput) return;
+  const slipCard = slipInput.closest('.ci');
+  if(!slipCard || !slipCard.parentNode) return;
+  const card = _revBuildCard('rev-b-pnl', 'Net B-Book Client P&L',
+    'Expected client losses minus client wins — primary B-book engine',
+    0, { min:0, step:100, prefix:'$' });
+  card.style.gridColumn = '1 / -1';
+  slipCard.parentNode.appendChild(card);
+})();
+
+// Push to live-total array + attach listener (REV_INPUT_IDS already iterated)
+if(typeof REV_INPUT_IDS !== 'undefined' && REV_INPUT_IDS.indexOf('rev-b-pnl') === -1) {
+  REV_INPUT_IDS.push('rev-b-pnl');
+  const pnlEl = document.getElementById('rev-b-pnl');
+  if(pnlEl) pnlEl.addEventListener('input', recalcRevenueTotal);
+}
+
+// Calculator config for rev-b-pnl (deposit-based)
+if(typeof REV_FORMULAS !== 'undefined' && !REV_FORMULAS['rev-b-pnl']) {
+  REV_FORMULAS['rev-b-pnl'] = {
+    formula: 'Total client deposits × Client loss rate %',
+    inputs: [
+      {key:'total_deposits', label:'Total deposits ($) — pre-filled from Deposits tab'},
+      {key:'loss_rate',      label:'Client loss rate (%)', defaultValue:78},
+    ],
+    compute: v => v.total_deposits * (v.loss_rate / 100),
+  };
+  if(typeof buildCalculator === 'function') buildCalculator('rev-b-pnl');
+}
+
+// ── STEP 2: AUTO/MANUAL toggle pill on auto-able cards ────────────────
+const _REV_LOT_BASED     = ['rev-a-spread','rev-a-commission','rev-a-swap','rev-a-slippage','rev-a-lp-rebate',
+                            'rev-b-spread','rev-b-commission','rev-b-swap','rev-b-slippage'];
+const _REV_DEPOSIT_BASED = ['rev-b-pnl'];
+const _REV_AUTOABLE      = _REV_LOT_BASED.concat(_REV_DEPOSIT_BASED);
+
+_REV_AUTOABLE.forEach(id => { revToggleState[id] = 'auto'; });
+
+function applyToggleVisual(id) {
+  const btn   = document.getElementById(id + '-toggle');
+  const input = document.getElementById(id);
+  if(!btn || !input) return;
+  const state = revToggleState[id] || 'auto';
+  if(state === 'auto') {
+    btn.style.background = 'var(--green)';
+    btn.style.color      = '#fff';
+    btn.textContent      = '● AUTO';
+    input.disabled       = true;
+    input.style.opacity  = '0.4';
+    input.style.pointerEvents = 'none';
+  } else {
+    btn.style.background = 'var(--bg3)';
+    btn.style.color      = 'var(--text-dim)';
+    btn.textContent      = '○ MANUAL';
+    input.disabled       = false;
+    input.style.opacity  = '';
+    input.style.pointerEvents = '';
+  }
+  const src = document.getElementById(id + '-source');
+  if(src) src.style.display = state === 'auto' ? '' : 'none';
+}
+
+_REV_AUTOABLE.forEach(id => {
+  const input = document.getElementById(id);
+  if(!input) return;
+  const wrap = input.closest('.ci-input-wrap');
+  if(!wrap) return;
+  const card = wrap.parentNode;
+  if(document.getElementById(id + '-toggle')) return;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id   = id + '-toggle';
+  Object.assign(btn.style, {
+    display:'inline-flex', alignItems:'center', padding:'3px 10px',
+    borderRadius:'20px', fontSize:'11px', fontWeight:'700',
+    letterSpacing:'0.06em', border:'none', cursor:'pointer',
+    marginBottom:'6px', transition:'background 0.15s', fontFamily:'var(--font)',
+  });
+  btn.addEventListener('click', () => {
+    revToggleState[id] = revToggleState[id] === 'auto' ? 'manual' : 'auto';
+    applyToggleVisual(id);
+    if(revToggleState[id] === 'auto') recalcRevAutoFields();
+    // Fire change so autosave persists toggle flip
+    btn.dispatchEvent(new Event('change', { bubbles:true }));
+  });
+  card.insertBefore(btn, wrap);
+
+  // Source annotation (Step 8) — appears below the input wrap, above any existing calc-toggle
+  const src = document.createElement('div');
+  src.id    = id + '-source';
+  Object.assign(src.style, {
+    fontSize:'11px', color:'var(--text-mute)', marginTop:'4px', lineHeight:'1.3',
+  });
+  src.textContent = '';
+  card.insertBefore(src, wrap.nextSibling);
+
+  applyToggleVisual(id);
+});
+
+// ── STEP 4 + 8: recalcRevAutoFields ──────────────────────────────────
+function recalcRevAutoFields() {
+  const num = id => {
+    const el = document.getElementById(id);
+    if(!el) return 0;
+    if(el.tagName === 'INPUT') return +el.value || 0;
+    return parseFloat((el.textContent || '').replace(/[^0-9.\-]/g, '')) || 0;
+  };
+
+  const flt_total          = num('flt-total');
+  const abook_pct          = (num('rev-abook-pct') / 100) || 0;
+  const bbook_pct          = 1 - abook_pct;
+  const lot_size           = num('rev-lot-size');
+  const nights             = num('rev-nights-held');
+  const spread_pips        = num('sl-spread');
+  const lp_per_lot         = num('sl-lp');
+  const pip_value          = 10;
+  const commission_per_lot = num('rev-commission-per-lot');
+  const swap_client_pips   = num('rev-swap-client-pips');
+  const swap_lp_pips       = num('rev-swap-lp-pips');
+  const slip_avg_pips      = num('rev-slip-avg');
+  const rebate_per_lot     = num('rev-rebate-per-lot');
+  const total_deposits     = num('dep-volume-total');
+  const client_loss_rate   = num('rev-client-loss-rate');
+
+  const total_lots = lot_size > 0 ? flt_total / lot_size : 0;
+  const abook_lots = total_lots * abook_pct;
+  const bbook_lots = total_lots * bbook_pct;
+  // A-book markup = total spread − LP fee converted from $ to pips
+  const markup_pips = pip_value > 0 ? (spread_pips - (lp_per_lot / pip_value)) : 0;
+
+  const r2   = n => isFinite(n) ? Math.round(n * 100) / 100 : 0;
+  const fmtN = n => Math.round(n).toLocaleString();
+
+  function writeAuto(id, value, srcText) {
+    if(revToggleState[id] !== 'auto') return;
+    const el = document.getElementById(id);
+    if(!el) return;
+    const v = r2(value);
+    el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles:true }));
+    const src = document.getElementById(id + '-source');
+    if(src) src.textContent = srcText;
+  }
+
+  // A-book
+  writeAuto('rev-a-spread',
+    abook_lots * markup_pips * pip_value,
+    '↑ ' + fmtN(abook_lots) + ' A-book lots × ' + r2(markup_pips) + ' pip markup × $' + pip_value);
+  writeAuto('rev-a-commission',
+    abook_lots * (commission_per_lot - lp_per_lot) * 2,
+    '↑ ' + fmtN(abook_lots) + ' lots × $' + r2(commission_per_lot - lp_per_lot) + ' net × 2 sides');
+  writeAuto('rev-a-swap',
+    abook_lots * (swap_client_pips - swap_lp_pips) * nights * pip_value,
+    '↑ ' + fmtN(abook_lots) + ' lots × ' + r2(swap_client_pips - swap_lp_pips) + ' net swap pips × ' + nights + ' nights × $' + pip_value);
+  writeAuto('rev-a-slippage',
+    abook_lots * slip_avg_pips * pip_value,
+    '↑ ' + fmtN(abook_lots) + ' lots × ' + slip_avg_pips + ' pip slippage × $' + pip_value);
+  writeAuto('rev-a-lp-rebate',
+    abook_lots * rebate_per_lot,
+    '↑ ' + fmtN(abook_lots) + ' lots × $' + rebate_per_lot + ' rebate');
+
+  // B-book
+  writeAuto('rev-b-spread',
+    bbook_lots * spread_pips * pip_value,
+    '↑ ' + fmtN(bbook_lots) + ' B-book lots × ' + spread_pips + ' pip full spread × $' + pip_value);
+  writeAuto('rev-b-commission',
+    bbook_lots * commission_per_lot * 2,
+    '↑ ' + fmtN(bbook_lots) + ' lots × $' + commission_per_lot + ' commission × 2 sides');
+  writeAuto('rev-b-swap',
+    bbook_lots * swap_client_pips * nights * pip_value,
+    '↑ ' + fmtN(bbook_lots) + ' lots × ' + swap_client_pips + ' pips × ' + nights + ' nights × $' + pip_value);
+  writeAuto('rev-b-slippage',
+    bbook_lots * slip_avg_pips * pip_value,
+    '↑ ' + fmtN(bbook_lots) + ' lots × ' + slip_avg_pips + ' pip slippage × $' + pip_value);
+  writeAuto('rev-b-pnl',
+    total_deposits * (client_loss_rate / 100),
+    '↑ $' + fmtN(total_deposits) + ' total deposits × ' + client_loss_rate + '% loss rate');
+}
+
+// ── STEP 6: triggers ──────────────────────────────────────────────────
+[
+  'rev-abook-pct','rev-lot-size','rev-nights-held',
+  'rev-commission-per-lot','rev-swap-client-pips','rev-swap-lp-pips',
+  'rev-slip-avg','rev-rebate-per-lot','rev-client-loss-rate',
+  'sl-spread','sl-lp',
+].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', recalcRevAutoFields);
+});
+
+// flt-total and dep-volume-total are <div>s — observe text changes
+['flt-total','dep-volume-total'].forEach(id => {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const obs = new MutationObserver(() => recalcRevAutoFields());
+  obs.observe(el, { characterData:true, childList:true, subtree:true });
+});
+
+// Wrap recalcDepositsTotal so it also triggers revenue auto-derive
+const _origRecalcDepositsTotal_rev = recalcDepositsTotal;
+recalcDepositsTotal = function() {
+  _origRecalcDepositsTotal_rev.apply(this, arguments);
+  recalcRevAutoFields();
+};
+
+// ── STEP 7: persistence — extend collectState / applyState ────────────
+// New input <input id> values are auto-collected by the existing
+// `document.querySelectorAll('input[id]')`. We only need to round-trip
+// revToggleState (a JS object, not a DOM input).
+const _origCollectState_rev = collectState;
+collectState = function() {
+  const s = _origCollectState_rev();
+  s.revToggleState = Object.assign({}, revToggleState);
+  return s;
+};
+
+const _origApplyState_rev = applyState;
+applyState = function(s) {
+  _origApplyState_rev(s);
+  if(s && s.revToggleState && typeof s.revToggleState === 'object') {
+    Object.keys(s.revToggleState).forEach(id => {
+      revToggleState[id] = s.revToggleState[id];
+      applyToggleVisual(id);
+    });
+  }
+  recalcRevAutoFields();
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// LIQUIDATION ENGINE (Tab 6) — single source of volume + deposits
+// V_A, V_B, and Total_deposits feed every lot-based + B-book P&L card.
+// Replaces the old flt_total / lot_size derivation as the volume base.
+// ═══════════════════════════════════════════════════════════════════
+
+(function injectLiquidationEngine() {
+  const tab6 = document.getElementById('tab6');
+  if(!tab6) return;
+  if(document.getElementById('rev-eng-lots-per-day')) return;
+
+  // Find Book P&L divider — engine + summary go right above it
+  const dividers = tab6.querySelectorAll('.divider');
+  let bookPL = null;
+  for(let i = 0; i < dividers.length; i++) {
+    const lbl = dividers[i].querySelector('.divider-label');
+    if(lbl && lbl.textContent.trim() === 'Book P&L') { bookPL = dividers[i]; break; }
+  }
+  if(!bookPL) return;
+
+  // ── Liquidation Engine inputs section ────────────────────────────
+  const engDivider = document.createElement('div');
+  engDivider.className = 'divider fu fu2';
+  const eL = document.createElement('div'); eL.className = 'divider-label'; eL.textContent = 'Liquidation Engine';
+  const eLine = document.createElement('div'); eLine.className = 'divider-line';
+  engDivider.appendChild(eL); engDivider.appendChild(eLine);
+
+  const engGrid = document.createElement('div');
+  engGrid.className = 'costs-grid fu fu2';
+  engGrid.style.gridTemplateColumns = 'repeat(3,1fr)';
+
+  engGrid.appendChild(_revBuildCard('rev-eng-lots-per-day', 'Avg Lots / Day (broker-wide)',
+    'Total daily lot volume across all active clients. Drives V_A and V_B.',
+    100, { min:0, step:1 }));
+  engGrid.appendChild(_revBuildCard('rev-eng-days-stopout', 'Days to Stop-out',
+    'Average trading days before a client account hits stop-out.',
+    60, { min:0, step:1 }));
+  engGrid.appendChild(_revBuildCard('rev-eng-reload-rate', 'Reload Rate',
+    'Probability that a liquidated client reloads and continues trading.',
+    50, { min:0, max:100, step:1, suffix:'%' }));
+  engGrid.appendChild(_revBuildCard('rev-eng-liquidations', 'Liquidations / Lifetime',
+    'Number of times an average client liquidates over their lifetime.',
+    3, { min:1, step:1 }));
+  engGrid.appendChild(_revBuildCard('rev-eng-ftd', 'First-Time Deposits (broker-wide)',
+    'Aggregate first-time deposits across all clients. Drives Total Lifetime Deposits.',
+    5000000, { min:0, step:10000, prefix:'$' }));
+  engGrid.appendChild(_revBuildCard('rev-eng-reload-amount', 'Reload Amount (% of FTD)',
+    'Each reload deposit as % of the original first-time deposit.',
+    80, { min:0, max:100, step:1, suffix:'%' }));
+
+  bookPL.parentNode.insertBefore(engDivider, bookPL);
+  bookPL.parentNode.insertBefore(engGrid, bookPL);
+
+  // ── Volume Engine — Live Outputs (read-only summary) ─────────────
+  const volDivider = document.createElement('div');
+  volDivider.className = 'divider fu fu2';
+  const vL = document.createElement('div'); vL.className = 'divider-label'; vL.textContent = 'Volume Engine — Live Outputs';
+  const vLine = document.createElement('div'); vLine.className = 'divider-line';
+  volDivider.appendChild(vL); volDivider.appendChild(vLine);
+
+  const volGrid = document.createElement('div');
+  volGrid.className = 'costs-grid fu fu2';
+  volGrid.style.gridTemplateColumns = 'repeat(5,1fr)';
+
+  function makeReadout(id, label, note) {
+    const card = document.createElement('div');
+    card.className = 'ci';
+    const lbl = document.createElement('div');  lbl.className = 'ci-label';  lbl.textContent = label;
+    const nt  = document.createElement('div');  nt.className  = 'ci-note';   nt.textContent  = note;
+    const v   = document.createElement('div');
+    v.id = id;
+    Object.assign(v.style, {
+      fontSize:'22px', fontWeight:'300', color:'var(--pu-text)',
+      paddingTop:'6px', lineHeight:'1.1',
+    });
+    v.textContent = '0';
+    card.appendChild(lbl); card.appendChild(nt); card.appendChild(v);
+    return card;
+  }
+  volGrid.appendChild(makeReadout('rev-eng-out-va',       'V_A (A-book lots)',        'Lifetime A-book volume — feeds A-book lot revenue'));
+  volGrid.appendChild(makeReadout('rev-eng-out-vb',       'V_B (B-book lots)',        'Lifetime B-book volume — feeds B-book lot revenue'));
+  volGrid.appendChild(makeReadout('rev-eng-out-deposits', 'Total Lifetime Deposits',  'FTD + reload deposits across the lifecycle'));
+  volGrid.appendChild(makeReadout('rev-eng-out-days',     'Trading Days Alive',       'days_to_stopout × (1 + reload_rate × (liquidations − 1))'));
+  volGrid.appendChild(makeReadout('rev-eng-out-liqs',     'Total Liquidations',       'Per-client lifetime liquidation count'));
+
+  bookPL.parentNode.insertBefore(volDivider, bookPL);
+  bookPL.parentNode.insertBefore(volGrid, bookPL);
+})();
+
+// Override recalcRevAutoFields to use the engine as the volume + deposits source
+recalcRevAutoFields = function() {
+  const num = id => {
+    const el = document.getElementById(id);
+    if(!el) return 0;
+    if(el.tagName === 'INPUT') return +el.value || 0;
+    return parseFloat((el.textContent || '').replace(/[^0-9.\-]/g, '')) || 0;
+  };
+
+  // Liquidation Engine inputs
+  const lots_per_day      = num('rev-eng-lots-per-day');
+  const days_to_stopout   = num('rev-eng-days-stopout');
+  const reload_rate       = (num('rev-eng-reload-rate') / 100) || 0;
+  const liquidations      = Math.max(num('rev-eng-liquidations'), 1);
+  const ftd               = num('rev-eng-ftd');
+  const reload_amount_pct = (num('rev-eng-reload-amount') / 100) || 0;
+
+  // Per-card assumption inputs (existing)
+  const abook_pct          = (num('rev-abook-pct') / 100) || 0;
+  const bbook_pct          = 1 - abook_pct;
+  const nights             = num('rev-nights-held');
+  const spread_pips        = num('sl-spread');
+  const lp_per_lot         = num('sl-lp');
+  const pip_value          = 10;
+  const commission_per_lot = num('rev-commission-per-lot');
+  const swap_client_pips   = num('rev-swap-client-pips');
+  const swap_lp_pips       = num('rev-swap-lp-pips');
+  const slip_avg_pips      = num('rev-slip-avg');
+  const rebate_per_lot     = num('rev-rebate-per-lot');
+  const client_loss_rate   = num('rev-client-loss-rate');
+
+  // Engine derived values
+  const reload_multiplier  = 1 + reload_rate * (liquidations - 1);
+  const trading_days_alive = days_to_stopout * reload_multiplier;
+  const V_A                = lots_per_day * days_to_stopout * abook_pct * reload_multiplier;
+  const V_B                = lots_per_day * days_to_stopout * bbook_pct * reload_multiplier;
+  const Total_deposits     = ftd + (ftd * reload_amount_pct * reload_rate * (liquidations - 1));
+  const markup_pips        = pip_value > 0 ? (spread_pips - (lp_per_lot / pip_value)) : 0;
+
+  // Helpers
+  const r2   = n => isFinite(n) ? Math.round(n * 100) / 100 : 0;
+  const fmtN = n => Math.round(n).toLocaleString();
+  const fmt$ = n => '$' + fmtN(n);
+
+  // Update Volume Engine readouts
+  const setOut = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
+  setOut('rev-eng-out-va',       fmtN(V_A) + ' lots');
+  setOut('rev-eng-out-vb',       fmtN(V_B) + ' lots');
+  setOut('rev-eng-out-deposits', fmt$(Total_deposits));
+  setOut('rev-eng-out-days',     fmtN(trading_days_alive) + ' days');
+  setOut('rev-eng-out-liqs',     fmtN(liquidations));
+
+  function writeAuto(id, value, srcText) {
+    if(revToggleState[id] !== 'auto') return;
+    const el = document.getElementById(id);
+    if(!el) return;
+    const v = r2(value);
+    el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles:true }));
+    const src = document.getElementById(id + '-source');
+    if(src) src.textContent = srcText;
+  }
+
+  // ── A-book — uses V_A ───────────────────────────────────────────
+  writeAuto('rev-a-spread',
+    V_A * markup_pips * pip_value,
+    '↑ V_A = ' + fmtN(V_A) + ' lots × ' + r2(markup_pips) + ' pip markup × $' + pip_value);
+  writeAuto('rev-a-commission',
+    V_A * (commission_per_lot - lp_per_lot) * 2,
+    '↑ V_A = ' + fmtN(V_A) + ' lots × $' + r2(commission_per_lot - lp_per_lot) + ' net × 2 sides');
+  writeAuto('rev-a-swap',
+    V_A * (swap_client_pips - swap_lp_pips) * nights * pip_value,
+    '↑ V_A = ' + fmtN(V_A) + ' lots × ' + r2(swap_client_pips - swap_lp_pips) + ' pip net swap × ' + nights + ' nights × $' + pip_value);
+  writeAuto('rev-a-slippage',
+    V_A * slip_avg_pips * pip_value,
+    '↑ V_A = ' + fmtN(V_A) + ' lots × ' + slip_avg_pips + ' pip slippage × $' + pip_value);
+  writeAuto('rev-a-lp-rebate',
+    V_A * rebate_per_lot,
+    '↑ V_A = ' + fmtN(V_A) + ' lots × $' + rebate_per_lot + ' rebate');
+
+  // ── B-book — uses V_B ───────────────────────────────────────────
+  writeAuto('rev-b-spread',
+    V_B * spread_pips * pip_value,
+    '↑ V_B = ' + fmtN(V_B) + ' lots × ' + spread_pips + ' pip full spread × $' + pip_value);
+  writeAuto('rev-b-commission',
+    V_B * commission_per_lot * 2,
+    '↑ V_B = ' + fmtN(V_B) + ' lots × $' + commission_per_lot + ' commission × 2 sides');
+  writeAuto('rev-b-swap',
+    V_B * swap_client_pips * nights * pip_value,
+    '↑ V_B = ' + fmtN(V_B) + ' lots × ' + swap_client_pips + ' pips × ' + nights + ' nights × $' + pip_value);
+  writeAuto('rev-b-slippage',
+    V_B * slip_avg_pips * pip_value,
+    '↑ V_B = ' + fmtN(V_B) + ' lots × ' + slip_avg_pips + ' pip slippage × $' + pip_value);
+
+  // ── B-book P&L — uses Total_deposits from engine ────────────────
+  writeAuto('rev-b-pnl',
+    Total_deposits * (client_loss_rate / 100),
+    '↑ Total deposits = ' + fmt$(Total_deposits) + ' × ' + client_loss_rate + '% loss rate');
+};
+
+// Wire engine inputs (and leverage cascade) to the recalc
+[
+  'rev-eng-lots-per-day','rev-eng-days-stopout','rev-eng-reload-rate',
+  'rev-eng-liquidations','rev-eng-ftd','rev-eng-reload-amount',
+  // Trading Float leverage inputs cascade into revenue too
+  'flt-t1-leverage','flt-t2-leverage','flt-t3-leverage','flt-other-leverage',
+].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', recalcRevAutoFields);
+});
+
+// Load from Supabase first, then render and recalc derived values so the UI
+// paints with the right totals straight away.
+loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(); recalcRevAutoFields(); });
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// BROKERAGE ADD-ONS — IB Network tab + Enhanced Trading Revenue cards
+// + Other Revenue Streams expansion. Self-contained, no edits to existing
+// script. New <input id> elements round-trip through existing collectState.
+// ═══════════════════════════════════════════════════════════════════════
+(function addBrokerageNewSections() {
+  if (document.getElementById('tab-ib')) return; // idempotent
+
+  // ── Helpers ─────────────────────────────────────────────────────
+  const elem = (tag, cls, txt) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt != null) e.textContent = txt;
+    return e;
+  };
+
+  function buildCard(id, label, noteText, value, opts) {
+    opts = opts || {};
+    const card = elem('div', 'ci');
+    card.appendChild(elem('div', 'ci-label', label));
+    card.appendChild(elem('div', 'ci-note', noteText));
+    const wrap = elem('div', 'ci-input-wrap');
+    if (opts.prefix) wrap.appendChild(elem('span', 'ci-prefix', opts.prefix));
+    const input = document.createElement('input');
+    input.className = 'ci-input';
+    input.type = 'number';
+    input.id = id;
+    input.value = value;
+    if (opts.min  != null) input.min  = opts.min;
+    if (opts.max  != null) input.max  = opts.max;
+    if (opts.step != null) input.step = opts.step;
+    if (opts.disabled) {
+      input.disabled = true;
+      input.style.opacity = '0.6';
+      input.style.pointerEvents = 'none';
+    }
+    wrap.appendChild(input);
+    if (opts.suffix) wrap.appendChild(elem('span', 'ci-prefix', opts.suffix));
+    card.appendChild(wrap);
+    return card;
+  }
+
+  function buildReadout(id, label, noteText) {
+    const card = elem('div', 'ci');
+    card.appendChild(elem('div', 'ci-label', label));
+    card.appendChild(elem('div', 'ci-note', noteText));
+    const out = elem('div', null, '$0');
+    out.id = id;
+    Object.assign(out.style, {
+      fontSize:'24px', fontWeight:'300', color:'var(--pu-text)',
+      paddingTop:'6px', lineHeight:'1.1',
+    });
+    card.appendChild(out);
+    return card;
+  }
+
+  const numFromEl = el => {
+    if (!el) return 0;
+    if (el.tagName === 'INPUT') return +el.value || 0;
+    return parseFloat((el.textContent || '').replace(/[^0-9.\-]/g, '')) || 0;
+  };
+  const num   = id => numFromEl(document.getElementById(id));
+  const fmtN  = n  => Math.round(n).toLocaleString();
+  const fmt$  = n  => (n<0?'-':'') + '$' + fmtN(Math.abs(n));
+
+  // ═════════════════════════════════════════════════════════════════
+  // ADDITION 1 — IB NETWORK TAB
+  // ═════════════════════════════════════════════════════════════════
+
+  const tabsInner = document.querySelector('.page-tabs-inner');
+  const revBtn    = tabsInner ? tabsInner.querySelector('button[data-tab="tab6"]') : null;
+  let ibBtn = null;
+  if (tabsInner && revBtn) {
+    ibBtn = elem('button', 'page-tab');
+    ibBtn.setAttribute('data-tab', 'tab-ib');
+    ibBtn.textContent = 'IB Network';
+    tabsInner.insertBefore(ibBtn, revBtn);
+  }
+
+  const revPanel = document.getElementById('tab6');
+  let ibPanel = null;
+  if (revPanel && revPanel.parentNode) {
+    ibPanel = elem('div', 'tab-panel');
+    ibPanel.id = 'tab-ib';
+    revPanel.parentNode.insertBefore(ibPanel, revPanel);
+  }
+
+  if (ibBtn && ibPanel) {
+    ibBtn.addEventListener('click', () => {
+      document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      ibBtn.classList.add('active');
+      ibPanel.classList.add('active');
+      if (typeof saveState === 'function') saveState();
+      recalcIB();
+    });
+  }
+
+  if (!ibPanel) return;
+
+  // Hero
+  const hero = elem('div', 'hero fu fu1');
+  hero.appendChild(elem('div', 'hero-title', 'IB Network'));
+  hero.appendChild(elem('div', 'hero-sub',
+    '2-level IB tree (Master IB → Sub-IB). Per-lot rates determine payouts; net broker revenue retained shown below.'));
+  ibPanel.appendChild(hero);
+
+  // SECTION A — Volume Distribution + Tree
+  const splitDiv = elem('div', 'divider fu fu2');
+  splitDiv.appendChild(elem('div', 'divider-label', 'Volume Distribution'));
+  splitDiv.appendChild(elem('div', 'divider-line'));
+  ibPanel.appendChild(splitDiv);
+
+  const splitGrid = elem('div', 'costs-grid fu fu2');
+  splitGrid.style.gridTemplateColumns = 'repeat(3,1fr)';
+  splitGrid.appendChild(buildCard('ib-pct-master', '% Volume from Master IBs',
+    'Volume referred directly by Master IBs. Master earns base rate.',
+    50, { min:0, max:100, step:1, suffix:'%' }));
+  splitGrid.appendChild(buildCard('ib-pct-sub', '% Volume from Sub-IBs',
+    'Volume referred by Sub-IBs. Master earns override on this volume.',
+    30, { min:0, max:100, step:1, suffix:'%' }));
+  splitGrid.appendChild(buildCard('ib-pct-direct', '% Direct Volume (no IB)',
+    'Auto-derived = 100% − Master% − Sub%. Broker keeps full revenue.',
+    20, { min:0, max:100, step:1, suffix:'%', disabled:true }));
+  ibPanel.appendChild(splitGrid);
+
+  const treeDiv = elem('div', 'divider fu fu2');
+  treeDiv.appendChild(elem('div', 'divider-label', 'IB Tier Structure'));
+  treeDiv.appendChild(elem('div', 'divider-line'));
+  ibPanel.appendChild(treeDiv);
+
+  const treeWrap = elem('div', 'fu fu2');
+  Object.assign(treeWrap.style, {
+    display:'flex', flexDirection:'column', alignItems:'center',
+    padding:'2rem 1rem', background:'var(--bg2)',
+    border:'1px solid var(--border)', margin:'0 0 1.25rem',
+  });
+
+  function makeNode(role, accent, dashed) {
+    const node = elem('div');
+    Object.assign(node.style, {
+      width:'100%', maxWidth:'520px', background:'var(--bg2)',
+      border:'1px solid var(--border)',
+      borderTop:'4px ' + (dashed ? 'dashed' : 'solid') + ' ' + accent,
+      padding:'1rem 1.25rem',
+    });
+    const lbl = elem('div', null, role);
+    Object.assign(lbl.style, {
+      fontSize:'10px', fontWeight:'700', letterSpacing:'.14em',
+      textTransform:'uppercase', color:accent, marginBottom:'10px',
+    });
+    node.appendChild(lbl);
+    return node;
+  }
+  const makeConnector = () => {
+    const c = elem('div');
+    Object.assign(c.style, { width:'2px', height:'36px', background:'var(--pu)' });
+    return c;
+  };
+  function makeStatRow(label, valueId) {
+    const row = elem('div');
+    row.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:6px 0;border-top:1px solid var(--border-dim)';
+    const l = elem('div', null, label);
+    l.style.cssText = 'font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600';
+    const v = elem('div', null, '0');
+    v.id = valueId;
+    v.style.cssText = 'font-size:16px;font-weight:600;color:var(--pu-text);text-align:right';
+    row.appendChild(l); row.appendChild(v);
+    return row;
+  }
+  function makeInputRow(label, id, value, opts) {
+    opts = opts || {};
+    const row = elem('div');
+    row.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:6px 0;border-top:1px solid var(--border-dim)';
+    const l = elem('div', null, label);
+    l.style.cssText = 'font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600';
+    const wrap = elem('div');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border-dim);min-width:120px;justify-content:flex-end';
+    if (opts.prefix) {
+      const p = elem('span', null, opts.prefix);
+      p.style.cssText = 'font-size:13px;color:var(--text-dim)';
+      wrap.appendChild(p);
+    }
+    const inp = document.createElement('input');
+    inp.type = 'number'; inp.id = id; inp.value = value;
+    if (opts.min  != null) inp.min  = opts.min;
+    if (opts.step != null) inp.step = opts.step;
+    inp.style.cssText = 'background:transparent;border:none;color:var(--text);font-size:15px;font-weight:600;font-family:var(--font);width:90px;outline:none;text-align:right;padding:2px 0';
+    wrap.appendChild(inp);
+    if (opts.suffix) {
+      const s = elem('span', null, opts.suffix);
+      s.style.cssText = 'font-size:13px;color:var(--text-dim)';
+      wrap.appendChild(s);
+    }
+    row.appendChild(l); row.appendChild(wrap);
+    return row;
+  }
+
+  // Broker (green) → Master IB (purple) → Sub-IB (dim, dashed)
+  const brokerNode = makeNode('Milele Prime — Broker', 'var(--green)');
+  const bDesc = elem('div', null, 'Origin of all client revenue. Pays IB rates per lot, retains direct-volume revenue.');
+  bDesc.style.cssText = 'font-size:12px;color:var(--text-dim);margin-bottom:8px';
+  brokerNode.appendChild(bDesc);
+  brokerNode.appendChild(makeStatRow('V_total (lots)',     'ib-out-vtotal'));
+  brokerNode.appendChild(makeStatRow('Total IB Payout',    'ib-out-total-payout'));
+  treeWrap.appendChild(brokerNode);
+  treeWrap.appendChild(makeConnector());
+
+  const masterNode = makeNode('Master IB', 'var(--pu)');
+  const mDesc = elem('div', null, 'Earns rate on direct volume + override on Sub-IB volume.');
+  mDesc.style.cssText = 'font-size:12px;color:var(--text-dim);margin-bottom:8px';
+  masterNode.appendChild(mDesc);
+  masterNode.appendChild(makeInputRow('Rate per lot',          'ib-master-rate', 5, { prefix:'$', min:0, step:0.5 }));
+  masterNode.appendChild(makeStatRow ('Override / lot (auto)', 'ib-out-master-override'));
+  masterNode.appendChild(makeStatRow ('Direct volume',         'ib-out-master-vol'));
+  masterNode.appendChild(makeStatRow ('Sub-IB override volume','ib-out-sub-vol-master'));
+  masterNode.appendChild(makeStatRow ('Master IB earnings',    'ib-out-master-earnings'));
+  treeWrap.appendChild(masterNode);
+  treeWrap.appendChild(makeConnector());
+
+  const subNode = makeNode('Sub-IB', 'var(--text-dim)', true);
+  const sDesc = elem('div', null, '1 level only — no deeper nesting.');
+  sDesc.style.cssText = 'font-size:12px;color:var(--text-dim);margin-bottom:8px';
+  subNode.appendChild(sDesc);
+  subNode.appendChild(makeInputRow('Rate per lot',     'ib-sub-rate', 3, { prefix:'$', min:0, step:0.5 }));
+  subNode.appendChild(makeStatRow ('Sub-IB volume',    'ib-out-sub-vol'));
+  subNode.appendChild(makeStatRow ('Sub-IB earnings',  'ib-out-sub-earnings'));
+  treeWrap.appendChild(subNode);
+
+  ibPanel.appendChild(treeWrap);
+
+  // SECTION B — Read-only revenue cards
+  const bDiv = elem('div', 'divider fu fu2');
+  bDiv.appendChild(elem('div', 'divider-label', 'IB Revenue Retained by Broker'));
+  bDiv.appendChild(elem('div', 'divider-line'));
+  ibPanel.appendChild(bDiv);
+
+  const bGrid = elem('div', 'costs-grid fu fu2');
+  bGrid.style.gridTemplateColumns = 'repeat(2,1fr)';
+  bGrid.appendChild(buildReadout('ib-out-direct-revenue', 'Revenue on Direct Volume',
+    'V_direct × full spread (pips) × pip value — broker keeps 100%'));
+  bGrid.appendChild(buildReadout('ib-out-net-revenue', 'Net Revenue After IB Payouts',
+    'Total Revenue − (Master IB earnings + Sub-IB earnings)'));
+  ibPanel.appendChild(bGrid);
+
+  // ═════════════════════════════════════════════════════════════════
+  // ADDITION 2 — Enhanced Trading Revenue (in tab6, before Other Revenue)
+  // ═════════════════════════════════════════════════════════════════
+
+  const tab6 = document.getElementById('tab6');
+  let otherDivider = null;
+  if (tab6) {
+    const dividers = tab6.querySelectorAll('.divider');
+    for (let i = 0; i < dividers.length; i++) {
+      const lbl = dividers[i].querySelector('.divider-label');
+      if (lbl && lbl.textContent.trim() === 'Other Revenue Streams') { otherDivider = dividers[i]; break; }
+    }
+  }
+
+  if (otherDivider) {
+    const enhDiv = elem('div', 'divider fu fu2');
+    enhDiv.appendChild(elem('div', 'divider-label', 'Enhanced Trading Revenue'));
+    enhDiv.appendChild(elem('div', 'divider-line'));
+
+    const enhGrid = elem('div', 'costs-grid fu fu2');
+    enhGrid.appendChild(buildCard('rev-bonus-clawback', 'Bonus Clawback Revenue',
+      'Unclaimed bonuses from clients who bust before meeting volume withdrawal threshold',
+      0, { min:0, step:100, prefix:'$' }));
+    enhGrid.appendChild(buildCard('rev-news-spread', 'News/Volatility Spread Widening',
+      'Additional spread revenue during high-impact news events above normal markup',
+      0, { min:0, step:100, prefix:'$' }));
+    enhGrid.appendChild(buildCard('rev-crypto-financing', 'Crypto CFD Financing Fee',
+      'Daily % financing on leveraged crypto CFD positions held overnight',
+      0, { min:0, step:100, prefix:'$' }));
+
+    otherDivider.parentNode.insertBefore(enhDiv,  otherDivider);
+    otherDivider.parentNode.insertBefore(enhGrid, otherDivider);
+  }
+
+  // ═════════════════════════════════════════════════════════════════
+  // ADDITION 3 — Expand Other Revenue Streams (3 new cards into existing grid)
+  // ═════════════════════════════════════════════════════════════════
+
+  let otherGrid = null;
+  if (otherDivider) {
+    let n = otherDivider.nextElementSibling;
+    while (n && !n.classList.contains('costs-grid')) n = n.nextElementSibling;
+    otherGrid = n;
+  }
+  if (otherGrid) {
+    otherGrid.appendChild(buildCard('rev-deposit-fee', 'Deposit Fee Revenue',
+      'Fee charged on crypto or PSP deposits above processing cost',
+      0, { min:0, step:100, prefix:'$' }));
+    otherGrid.appendChild(buildCard('rev-copy-trading', 'Copy Trading / PAMM Fee',
+      'Platform fee per lot on copy trading volume plus performance fee split',
+      0, { min:0, step:100, prefix:'$' }));
+    otherGrid.appendChild(buildCard('rev-tournament', 'Tournament / Contest Entry Fee',
+      'Net revenue from trading competitions after prize pool. Negative result clamped to 0 — treat overage as marketing cost.',
+      0, { min:0, step:100, prefix:'$' }));
+  }
+
+  // ═════════════════════════════════════════════════════════════════
+  // REGISTER NEW REVENUE IDS + FORMULA CALCULATORS
+  // ═════════════════════════════════════════════════════════════════
+
+  const newRevIds = [
+    'rev-bonus-clawback','rev-news-spread','rev-crypto-financing',
+    'rev-deposit-fee','rev-copy-trading','rev-tournament',
+  ];
+  if (typeof REV_INPUT_IDS !== 'undefined') {
+    newRevIds.forEach(id => {
+      if (REV_INPUT_IDS.indexOf(id) === -1) REV_INPUT_IDS.push(id);
+      const el = document.getElementById(id);
+      if (el && typeof recalcRevenueTotal === 'function') {
+        el.addEventListener('input', recalcRevenueTotal);
+      }
+    });
+  }
+
+  if (typeof REV_FORMULAS !== 'undefined' && typeof buildCalculator === 'function') {
+    REV_FORMULAS['rev-bonus-clawback'] = {
+      formula: 'N_bonus_clients × bonus_amount × (1 − completion_rate%)',
+      inputs: [
+        { key:'N_bonus_clients', label:'Number of clients who received a bonus' },
+        { key:'bonus_amount',    label:'Average bonus per client ($)', placeholder:'e.g. 50' },
+        { key:'completion_rate', label:'% who meet volume threshold before busting', placeholder:'e.g. 30' },
+      ],
+      compute: v => v.N_bonus_clients * v.bonus_amount * (1 - v.completion_rate / 100),
+    };
+    REV_FORMULAS['rev-news-spread'] = {
+      formula: 'V_news × (S_widened − S_normal) × pip_value × N_news_events',
+      inputs: [
+        { key:'V_news',        label:'Volume traded during news windows (lots)' },
+        { key:'S_widened',     label:'Spread during news (pips)', placeholder:'e.g. 5.0' },
+        { key:'S_normal',      label:'Normal spread (pips)',      placeholder:'e.g. 1.2' },
+        { key:'pip_value',     label:'Dollar value per pip per lot', defaultValue:10 },
+        { key:'N_news_events', label:'High-impact events per month', placeholder:'e.g. 10' },
+      ],
+      compute: v => v.V_news * (v.S_widened - v.S_normal) * v.pip_value * v.N_news_events,
+    };
+    REV_FORMULAS['rev-crypto-financing'] = {
+      formula: 'notional_value × (daily_rate% ÷ 100) × N_days',
+      inputs: [
+        { key:'notional_value', label:'Total notional value of open crypto positions ($)' },
+        { key:'daily_rate',     label:'Daily financing rate (%)', placeholder:'e.g. 0.075' },
+        { key:'N_days',         label:'Average days positions held' },
+      ],
+      compute: v => v.notional_value * (v.daily_rate / 100) * v.N_days,
+    };
+    REV_FORMULAS['rev-deposit-fee'] = {
+      formula: 'N_deposits × (fee_charged − PSP_deposit_cost)',
+      inputs: [
+        { key:'N_deposits',       label:'Number of deposits in period' },
+        { key:'fee_charged',      label:'Fee charged to client per deposit ($)' },
+        { key:'PSP_deposit_cost', label:'Your PSP cost per deposit ($)' },
+      ],
+      compute: v => v.N_deposits * (v.fee_charged - v.PSP_deposit_cost),
+    };
+    REV_FORMULAS['rev-copy-trading'] = {
+      formula: '(V_copy × platform_fee_per_lot) + (total_strategy_profit × performance_fee_split%)',
+      inputs: [
+        { key:'V_copy',                 label:'Total copy trading volume (lots)' },
+        { key:'platform_fee_per_lot',   label:'Platform fee per lot ($)', placeholder:'e.g. 1.50' },
+        { key:'performance_fee_split',  label:"Broker's share of strategy provider performance fee (%)", placeholder:'e.g. 20' },
+        { key:'total_strategy_profit', label:'Total profit generated by strategy providers ($)' },
+      ],
+      compute: v => (v.V_copy * v.platform_fee_per_lot) + (v.total_strategy_profit * v.performance_fee_split / 100),
+    };
+    REV_FORMULAS['rev-tournament'] = {
+      formula: '(N_entries × entry_fee) − prize_pool   (clamped ≥ 0)',
+      inputs: [
+        { key:'N_entries',  label:'Number of paid entries' },
+        { key:'entry_fee',  label:'Fee per entry ($)', placeholder:'e.g. 10' },
+        { key:'prize_pool', label:'Total prizes paid out ($)' },
+      ],
+      compute: v => {
+        const raw = (v.N_entries * v.entry_fee) - v.prize_pool;
+        const w = document.getElementById('rev-tournament-warning');
+        if (w) w.style.display = raw < 0 ? '' : 'none';
+        return Math.max(raw, 0);
+      },
+    };
+
+    // Build calculators for all new cards
+    newRevIds.forEach(id => buildCalculator(id));
+
+    // Inject the tournament warning element inside its calc panel
+    const tCard  = document.getElementById('rev-tournament');
+    const tPanel = tCard ? tCard.closest('.ci').querySelector('.calc-panel') : null;
+    if (tPanel && !document.getElementById('rev-tournament-warning')) {
+      const w = elem('div', null, '⚠ Prize pool exceeds entry fees — treat remainder as marketing cost');
+      w.id = 'rev-tournament-warning';
+      w.style.cssText = 'font-size:11px;color:var(--red);margin-top:8px;padding:6px 8px;background:var(--red-bg);border-left:2px solid var(--red);display:none';
+      tPanel.appendChild(w);
+    }
+  }
+
+  // ═════════════════════════════════════════════════════════════════
+  // IB NETWORK RECALC
+  // ═════════════════════════════════════════════════════════════════
+
+  function recalcIB() {
+    const v_a = num('rev-eng-out-va');
+    const v_b = num('rev-eng-out-vb');
+    const V_total = v_a + v_b;
+
+    const pct_master = Math.min(num('ib-pct-master') / 100, 1);
+    const pct_sub    = Math.min(num('ib-pct-sub') / 100, 1);
+    const pct_direct = Math.max(1 - pct_master - pct_sub, 0);
+    const pctDirEl   = document.getElementById('ib-pct-direct');
+    if (pctDirEl) pctDirEl.value = Math.round(pct_direct * 100);
+
+    const master_rate     = num('ib-master-rate');
+    const sub_rate        = num('ib-sub-rate');
+    const master_override = master_rate - sub_rate;
+
+    const V_master_direct = V_total * pct_master;
+    const V_sub           = V_total * pct_sub;
+    const V_direct        = V_total * pct_direct;
+
+    const master_earnings = V_master_direct * master_rate + V_sub * master_override;
+    const sub_earnings    = V_sub * sub_rate;
+    const total_payout    = master_earnings + sub_earnings;
+
+    // Direct revenue — broker keeps 100% of full spread
+    const spread_pips         = num('sl-spread');
+    const pip_value           = 10;
+    const full_spread_per_lot = spread_pips * pip_value;
+    const direct_revenue      = V_direct * full_spread_per_lot;
+
+    const total_trading_revenue = num('rev-total');
+    const net_revenue           = total_trading_revenue - total_payout;
+
+    const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setText('ib-out-vtotal',          fmtN(V_total) + ' lots');
+    setText('ib-out-total-payout',    fmt$(total_payout));
+    setText('ib-out-master-override', fmt$(master_override) + ' / lot');
+    setText('ib-out-master-vol',      fmtN(V_master_direct) + ' lots');
+    setText('ib-out-sub-vol-master',  fmtN(V_sub) + ' lots');
+    setText('ib-out-master-earnings', fmt$(master_earnings));
+    setText('ib-out-sub-vol',         fmtN(V_sub) + ' lots');
+    setText('ib-out-sub-earnings',    fmt$(sub_earnings));
+    setText('ib-out-direct-revenue',  fmt$(direct_revenue));
+    setText('ib-out-net-revenue',     fmt$(net_revenue));
+  }
+
+  // Wire IB inputs + observers for upstream values (V_A, V_B, rev-total)
+  ['ib-master-rate','ib-sub-rate','ib-pct-master','ib-pct-sub','sl-spread'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', recalcIB);
+  });
+  ['rev-eng-out-va','rev-eng-out-vb','rev-total'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    new MutationObserver(() => recalcIB()).observe(el, { characterData:true, childList:true, subtree:true });
+  });
+
+  // Initial paint (after a microtask so the existing init has settled first)
+  Promise.resolve().then(() => {
+    if (typeof recalcRevenueTotal === 'function') recalcRevenueTotal();
+    recalcIB();
+  });
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// IB NETWORK — 3-TIER PARALLEL TREES (supersedes single-tree IB tab)
+// Three independent IB tiers (Beginner / Intermediate / Expert), each with
+// its own Broker → Master IB → Sub-IB tree, percentages, and rates. Pulls
+// V_total from the Liquidation Engine and full_spread_per_lot from sl-spread.
+// ═══════════════════════════════════════════════════════════════════════
+(function buildTieredIBTab() {
+  // Idempotent guard for the new 3-tier version
+  const existingPanel = document.getElementById('tab-ib');
+  if (existingPanel && existingPanel.dataset.tieredVersion === '3') return;
+
+  // Tear down the previous single-tree tab-ib (button + panel) so we can
+  // rebuild cleanly. Old listeners/observers in the previous IIFE silently
+  // no-op against removed elements.
+  if (existingPanel) {
+    const oldBtn = document.querySelector('.page-tab[data-tab="tab-ib"]');
+    if (oldBtn) oldBtn.remove();
+    existingPanel.remove();
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────
+  const elem = (tag, cls, txt) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt != null) e.textContent = txt;
+    return e;
+  };
+  const num = id => {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    if (el.tagName === 'INPUT') return +el.value || 0;
+    return parseFloat((el.textContent || '').replace(/[^0-9.\-]/g, '')) || 0;
+  };
+  const fmtN    = n => Math.round(n).toLocaleString();
+  const fmt$    = n => (n<0?'-':'') + '$' + fmtN(Math.abs(n));
+  const fmt$dec = n => (n<0?'-':'') + '$' + (Math.round(Math.abs(n)*100)/100).toLocaleString();
+  const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+  // ── Inject tab button before Revenue ────────────────────────────────
+  const tabsInner = document.querySelector('.page-tabs-inner');
+  const revBtn    = tabsInner ? tabsInner.querySelector('button[data-tab="tab6"]') : null;
+  let ibBtn = null;
+  if (tabsInner && revBtn) {
+    ibBtn = elem('button', 'page-tab');
+    ibBtn.setAttribute('data-tab', 'tab-ib');
+    ibBtn.textContent = 'IB Network';
+    tabsInner.insertBefore(ibBtn, revBtn);
+  }
+
+  // ── Inject tab panel before tab6 ────────────────────────────────────
+  const revPanel = document.getElementById('tab6');
+  if (!revPanel || !revPanel.parentNode) return;
+  const ibPanel = elem('div', 'tab-panel');
+  ibPanel.id = 'tab-ib';
+  ibPanel.dataset.tieredVersion = '3';
+  revPanel.parentNode.insertBefore(ibPanel, revPanel);
+
+  if (ibBtn) {
+    ibBtn.addEventListener('click', () => {
+      document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      ibBtn.classList.add('active');
+      ibPanel.classList.add('active');
+      if (typeof saveState === 'function') saveState();
+      recalcAllTiers();
+    });
+  }
+
+  // Hero
+  const hero = elem('div', 'hero fu fu1');
+  hero.appendChild(elem('div', 'hero-title', 'IB Network'));
+  hero.appendChild(elem('div', 'hero-sub',
+    'Each tier shares the same 2-level structure. Differentiation is by expertise level and rate per lot assigned.'));
+  ibPanel.appendChild(hero);
+
+  // ── SECTION A — Tier explanation header (3 badges in a row) ────────
+  const aDiv = elem('div', 'divider fu fu2');
+  aDiv.appendChild(elem('div', 'divider-label', 'IB Tiers'));
+  aDiv.appendChild(elem('div', 'divider-line'));
+  ibPanel.appendChild(aDiv);
+
+  const badgeRow = elem('div', 'fu fu2');
+  Object.assign(badgeRow.style, {
+    display:'flex', flexWrap:'wrap', gap:'1rem',
+    justifyContent:'center', margin:'0 0 1.25rem',
+  });
+  function tierBadge(text, style) {
+    const b = elem('span', null, text);
+    let bgRule = '';
+    if (style === 'dim')    bgRule = 'background:var(--bg3);color:var(--text-dim);border:1px solid var(--border-dim)';
+    if (style === 'filled') bgRule = 'background:var(--pu);color:#fff';
+    if (style === 'green')  bgRule = 'background:var(--green);color:#fff';
+    b.style.cssText = 'display:inline-block;padding:8px 18px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;' + bgRule;
+    return b;
+  }
+  badgeRow.appendChild(tierBadge('Tier 1 — Beginner IB', 'dim'));
+  badgeRow.appendChild(tierBadge('Tier 2 — Intermediate IB', 'filled'));
+  badgeRow.appendChild(tierBadge('Tier 3 — Expert IB', 'green'));
+  ibPanel.appendChild(badgeRow);
+
+  // ── SECTION B — Three parallel trees (flex row) ────────────────────
+  const bDiv = elem('div', 'divider fu fu2');
+  bDiv.appendChild(elem('div', 'divider-label', 'Three Independent Tier Trees'));
+  bDiv.appendChild(elem('div', 'divider-line'));
+  ibPanel.appendChild(bDiv);
+
+  const treesRow = elem('div', 'fu fu2');
+  Object.assign(treesRow.style, {
+    display:'flex', flexWrap:'wrap', gap:'1rem', alignItems:'stretch',
+    margin:'0 0 1.25rem',
+  });
+
+  function buildTree(prefix, badgeText, tagline, badgeStyle, tierAccent, defs) {
+    const card = elem('div');
+    Object.assign(card.style, {
+      flex:'1 1 300px', minWidth:'0',
+      background:'var(--bg2)', border:'1px solid var(--border)',
+      padding:'1.25rem', display:'flex', flexDirection:'column',
+      alignItems:'stretch', gap:'8px',
+    });
+
+    // Tier badge at top of tree card
+    const headerWrap = elem('div');
+    headerWrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:8px';
+    headerWrap.appendChild(tierBadge(badgeText, badgeStyle));
+    if (tagline) {
+      const tl = elem('div', null, tagline);
+      tl.style.cssText = 'font-size:11px;color:var(--text-dim);font-weight:500';
+      headerWrap.appendChild(tl);
+    }
+    card.appendChild(headerWrap);
+
+    function makeNode(label, accent, dashed) {
+      const node = elem('div');
+      Object.assign(node.style, {
+        background:'var(--bg2)', border:'1px solid var(--border)',
+        borderTop:'4px ' + (dashed ? 'dashed' : 'solid') + ' ' + accent,
+        padding:'.85rem .9rem',
+      });
+      const lbl = elem('div', null, label);
+      Object.assign(lbl.style, {
+        fontSize:'10px', fontWeight:'700', letterSpacing:'.12em',
+        textTransform:'uppercase', color:accent, marginBottom:'8px',
+      });
+      node.appendChild(lbl);
+      return node;
+    }
+    function makeConnector() {
+      const c = elem('div');
+      Object.assign(c.style, {
+        width:'2px', height:'24px', background:'var(--pu)',
+        alignSelf:'center',
+      });
+      return c;
+    }
+    function rowInput(label, id, value, opts) {
+      opts = opts || {};
+      const row = elem('div');
+      row.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:5px 0;border-top:1px solid var(--border-dim)';
+      const l = elem('div', null, label);
+      l.style.cssText = 'font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600';
+      const wrap = elem('div');
+      wrap.style.cssText = 'display:flex;align-items:center;gap:3px;border-bottom:1px solid var(--border-dim);min-width:90px;justify-content:flex-end';
+      if (opts.prefix) {
+        const p = elem('span', null, opts.prefix);
+        p.style.cssText = 'font-size:12px;color:var(--text-dim)';
+        wrap.appendChild(p);
+      }
+      const inp = document.createElement('input');
+      inp.type = 'number'; inp.id = id; inp.value = value;
+      if (opts.min  != null) inp.min  = opts.min;
+      if (opts.max  != null) inp.max  = opts.max;
+      if (opts.step != null) inp.step = opts.step;
+      inp.style.cssText = 'background:transparent;border:none;color:var(--text);font-size:13px;font-weight:600;font-family:var(--font);width:60px;outline:none;text-align:right;padding:2px 0';
+      wrap.appendChild(inp);
+      if (opts.suffix) {
+        const s = elem('span', null, opts.suffix);
+        s.style.cssText = 'font-size:12px;color:var(--text-dim)';
+        wrap.appendChild(s);
+      }
+      row.appendChild(l); row.appendChild(wrap);
+      return row;
+    }
+    function rowCalc(label, valueId) {
+      const row = elem('div');
+      row.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:5px 6px;background:var(--pu-dim);border-radius:2px;margin-top:4px';
+      const lt = elem('span', null, label);
+      lt.style.cssText = 'font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600';
+      const v = elem('div', null, '0');
+      v.id = valueId;
+      v.style.cssText = 'font-size:13px;font-weight:700;color:var(--pu-text);text-align:right';
+      row.appendChild(lt); row.appendChild(v);
+      return row;
+    }
+
+    // Broker node — always purple border (per spec)
+    const brokerNode = makeNode('Broker — Milele Prime', 'var(--pu)');
+    brokerNode.appendChild(rowCalc('Direct volume retained',     prefix + '-out-direct-volume'));
+    brokerNode.appendChild(rowCalc('Net retained after payouts', prefix + '-out-net-retained'));
+    card.appendChild(brokerNode);
+    card.appendChild(makeConnector());
+
+    // Master IB node — filled accent matching tier
+    const masterNode = makeNode('Master IB', tierAccent);
+    masterNode.appendChild(rowInput('% from Master IBs', prefix + '-pct-master',  defs.pctMaster, { min:0, max:100, step:1, suffix:'%' }));
+    masterNode.appendChild(rowInput('Rate per lot',      prefix + '-master-rate', defs.masterRate, { prefix:'$', min:0, step:0.5 }));
+    masterNode.appendChild(rowCalc ('Override / lot',    prefix + '-out-master-override'));
+    masterNode.appendChild(rowCalc ('Volume allocated',  prefix + '-out-master-volume'));
+    masterNode.appendChild(rowCalc ('Master payout',     prefix + '-out-master-payout'));
+    card.appendChild(masterNode);
+    card.appendChild(makeConnector());
+
+    // Sub-IB node — outlined / lighter (dashed border-top)
+    const subNode = makeNode('Sub-IB', tierAccent, true);
+    subNode.appendChild(rowInput('% from Sub-IBs',  prefix + '-pct-sub',  defs.pctSub,  { min:0, max:100, step:1, suffix:'%' }));
+    subNode.appendChild(rowInput('Rate per lot',    prefix + '-sub-rate', defs.subRate, { prefix:'$', min:0, step:0.5 }));
+    subNode.appendChild(rowCalc ('Volume allocated',prefix + '-out-sub-volume'));
+    subNode.appendChild(rowCalc ('Sub payout',      prefix + '-out-sub-payout'));
+    card.appendChild(subNode);
+
+    return card;
+  }
+
+  treesRow.appendChild(buildTree('t1', 'Tier 1 — Beginner IB', 'Entry-level rates',
+    'dim',    'var(--text-dim)', { pctMaster:20, pctSub:10, masterRate:3,   subRate:1.5 }));
+  treesRow.appendChild(buildTree('t2', 'Tier 2 — Intermediate IB', 'Mid-tier rates',
+    'filled', 'var(--pu)',       { pctMaster:25, pctSub:15, masterRate:5,   subRate:3   }));
+  treesRow.appendChild(buildTree('t3', 'Tier 3 — Expert IB', 'Top-tier rates',
+    'green',  'var(--green)',    { pctMaster:20, pctSub:20, masterRate:7,   subRate:4.5 }));
+
+  ibPanel.appendChild(treesRow);
+
+  // ── SECTION C — Consolidated IB Summary (4 read-only cards) ────────
+  const cDiv = elem('div', 'divider fu fu2');
+  cDiv.appendChild(elem('div', 'divider-label', 'Consolidated IB Summary'));
+  cDiv.appendChild(elem('div', 'divider-line'));
+  ibPanel.appendChild(cDiv);
+
+  function buildSummaryCard(id, label, note) {
+    const card = elem('div', 'ci');
+    card.appendChild(elem('div', 'ci-label', label));
+    card.appendChild(elem('div', 'ci-note', note));
+    const out = elem('div', null, '$0');
+    out.id = id;
+    Object.assign(out.style, {
+      fontSize:'24px', fontWeight:'300', color:'var(--pu-text)',
+      paddingTop:'6px', lineHeight:'1.1',
+    });
+    card.appendChild(out);
+    return card;
+  }
+  const sumGrid = elem('div', 'costs-grid fu fu2');
+  sumGrid.style.gridTemplateColumns = 'repeat(4,1fr)';
+  sumGrid.appendChild(buildSummaryCard('ib-sum-payouts', 'Total IB Payouts (All Tiers)',
+    'Sum of master + sub payouts across T1, T2, T3'));
+  sumGrid.appendChild(buildSummaryCard('ib-sum-vol-ibs', 'Total Volume via IBs (All Tiers)',
+    '(T1 master + sub) + (T2 master + sub) + (T3 master + sub)'));
+  sumGrid.appendChild(buildSummaryCard('ib-sum-direct',  'Direct Volume (No IB)',
+    'V_total − Total Volume via IBs (broker keeps full revenue)'));
+  sumGrid.appendChild(buildSummaryCard('ib-sum-blended', 'Blended IB Rate per Lot',
+    'Total Payouts ÷ Total Volume via IBs'));
+  ibPanel.appendChild(sumGrid);
+
+  // ── Recalc per-tier + consolidated ─────────────────────────────────
+  function recalcOneTier(prefix) {
+    const v_a = num('rev-eng-out-va');
+    const v_b = num('rev-eng-out-vb');
+    const V_total = v_a + v_b;
+
+    const pct_master      = Math.min(num(prefix + '-pct-master') / 100, 1);
+    const pct_sub         = Math.min(num(prefix + '-pct-sub')    / 100, 1);
+    const master_rate     = num(prefix + '-master-rate');
+    const sub_rate        = num(prefix + '-sub-rate');
+    const master_override = master_rate - sub_rate;
+
+    const V_master = V_total * pct_master;
+    const V_sub    = V_total * pct_sub;
+    const V_direct = Math.max(V_total * (1 - pct_master - pct_sub), 0);
+
+    const master_payout = V_master * master_rate;
+    const sub_payout    = V_sub    * sub_rate;
+
+    // full_spread_per_lot from Liquidation Engine context (sl-spread × pip_value)
+    const spread_pips         = num('sl-spread');
+    const pip_value           = 10;
+    const full_spread_per_lot = spread_pips * pip_value;
+    const tier_revenue        = V_total * full_spread_per_lot;
+    const net_retained        = tier_revenue - master_payout - sub_payout;
+
+    setText(prefix + '-out-direct-volume',   fmtN(V_direct) + ' lots');
+    setText(prefix + '-out-net-retained',    fmt$(net_retained));
+    setText(prefix + '-out-master-override', fmt$dec(master_override) + ' / lot');
+    setText(prefix + '-out-master-volume',   fmtN(V_master) + ' lots');
+    setText(prefix + '-out-master-payout',   fmt$(master_payout));
+    setText(prefix + '-out-sub-volume',      fmtN(V_sub) + ' lots');
+    setText(prefix + '-out-sub-payout',      fmt$(sub_payout));
+
+    return { V_master, V_sub, master_payout, sub_payout };
+  }
+
+  function recalcAllTiers() {
+    const t1 = recalcOneTier('t1');
+    const t2 = recalcOneTier('t2');
+    const t3 = recalcOneTier('t3');
+
+    const V_total = num('rev-eng-out-va') + num('rev-eng-out-vb');
+
+    const total_payouts = t1.master_payout + t1.sub_payout +
+                          t2.master_payout + t2.sub_payout +
+                          t3.master_payout + t3.sub_payout;
+    const total_ib_vol  = t1.V_master + t1.V_sub +
+                          t2.V_master + t2.V_sub +
+                          t3.V_master + t3.V_sub;
+    const direct_vol    = Math.max(V_total - total_ib_vol, 0);
+    const blended_rate  = total_ib_vol > 0 ? total_payouts / total_ib_vol : 0;
+
+    setText('ib-sum-payouts', fmt$(total_payouts));
+    setText('ib-sum-vol-ibs', fmtN(total_ib_vol) + ' lots');
+    setText('ib-sum-direct',  fmtN(direct_vol)   + ' lots');
+    setText('ib-sum-blended', fmt$dec(blended_rate) + ' / lot');
+  }
+
+  // ── Wire input + observer triggers ──────────────────────────────────
+  ['t1','t2','t3'].forEach(prefix => {
+    [prefix + '-pct-master', prefix + '-pct-sub', prefix + '-master-rate', prefix + '-sub-rate']
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', recalcAllTiers);
+      });
+  });
+  const slSpreadEl = document.getElementById('sl-spread');
+  if (slSpreadEl) slSpreadEl.addEventListener('input', recalcAllTiers);
+
+  // V_total comes from Liquidation Engine output divs — observe changes
+  ['rev-eng-out-va','rev-eng-out-vb'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    new MutationObserver(() => recalcAllTiers()).observe(el, {
+      characterData:true, childList:true, subtree:true,
+    });
+  });
+
+  // Initial paint after a microtask so the existing init has settled
+  Promise.resolve().then(recalcAllTiers);
+})();
 </script>
 </body>
 </html>
