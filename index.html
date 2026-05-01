@@ -727,7 +727,9 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   <div class="costs-grid fu fu2" style="grid-template-columns:repeat(3,1fr)">
     <div class="ci">
       <div class="ci-label" style="color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="tier-badge t1">Tier 1</span><span style="color:var(--text-dim);text-transform:none;letter-spacing:.02em;font-weight:600">Top IBs</span></div>
-      <div class="ci-note" style="margin-top:8px">Clients count</div>
+      <div class="ci-note" style="margin-top:8px">IB count</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t1-ibs" value="1" min="1" step="1"></div>
+      <div class="ci-note" style="margin-top:.85rem">Clients per IB</div>
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t1-clients" value="400" min="0" step="1"></div>
       <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t1-vol" value="10000" min="0" step="100"></div>
@@ -738,7 +740,9 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
     </div>
     <div class="ci">
       <div class="ci-label" style="color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="tier-badge t2">Tier 2</span><span style="color:var(--text-dim);text-transform:none;letter-spacing:.02em;font-weight:600">Experienced IBs</span></div>
-      <div class="ci-note" style="margin-top:8px">Clients count</div>
+      <div class="ci-note" style="margin-top:8px">IB count</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t2-ibs" value="1" min="1" step="1"></div>
+      <div class="ci-note" style="margin-top:.85rem">Clients per IB</div>
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t2-clients" value="1200" min="0" step="1"></div>
       <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t2-vol" value="5000" min="0" step="100"></div>
@@ -749,7 +753,9 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
     </div>
     <div class="ci">
       <div class="ci-label" style="color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="tier-badge t3">Tier 3</span><span style="color:var(--text-dim);text-transform:none;letter-spacing:.02em;font-weight:600">New / Converted IBs</span></div>
-      <div class="ci-note" style="margin-top:8px">Clients count</div>
+      <div class="ci-note" style="margin-top:8px">IB count</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t3-ibs" value="1" min="1" step="1"></div>
+      <div class="ci-note" style="margin-top:.85rem">Clients per IB</div>
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t3-clients" value="400" min="0" step="1"></div>
       <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t3-vol" value="2500" min="0" step="100"></div>
@@ -2248,14 +2254,15 @@ function recalcDepositsTotal() {
   };
   const fmt$ = n => (n<0?'-':'') + '$' + Math.round(Math.abs(n)).toLocaleString();
   const sections = [
-    { key:'t1',    c:'dep-t1-clients',    v:'dep-t1-vol',    out:'dep-t1-subtotal'    },
-    { key:'t2',    c:'dep-t2-clients',    v:'dep-t2-vol',    out:'dep-t2-subtotal'    },
-    { key:'t3',    c:'dep-t3-clients',    v:'dep-t3-vol',    out:'dep-t3-subtotal'    },
+    { key:'t1',    c:'dep-t1-clients',    v:'dep-t1-vol',    out:'dep-t1-subtotal',    ibs:'dep-t1-ibs' },
+    { key:'t2',    c:'dep-t2-clients',    v:'dep-t2-vol',    out:'dep-t2-subtotal',    ibs:'dep-t2-ibs' },
+    { key:'t3',    c:'dep-t3-clients',    v:'dep-t3-vol',    out:'dep-t3-subtotal',    ibs:'dep-t3-ibs' },
     { key:'other', c:'dep-other-clients', v:'dep-other-vol', out:'dep-other-subtotal' },
   ];
   let totalClients = 0, totalVolume = 0, totalNetFloat = 0;
   sections.forEach(s => {
-    const clients  = num(s.c);
+    const ibs      = s.ibs ? Math.max(num(s.ibs) || 1, 1) : 1;
+    const clients  = num(s.c) * ibs;
     const avgDep   = num(s.v);
     const sub      = clients * avgDep;
     totalClients  += clients;
@@ -2579,6 +2586,7 @@ Object.keys(REV_FORMULAS).forEach(buildCalculator);
 // per-tier inputs. (Lifetime is collected as input but isn't part of the current
 // Net Float formula — drop or wire it in later if the model needs it.)
 [
+  'dep-t1-ibs','dep-t2-ibs','dep-t3-ibs',
   'dep-t1-clients','dep-t1-vol','dep-t2-clients','dep-t2-vol',
   'dep-t3-clients','dep-t3-vol','dep-other-clients','dep-other-vol',
   'flt-t1-active','flt-t1-leverage','flt-t1-amount','flt-t1-redep','flt-t1-withdraw','flt-t1-lifetime','flt-t1-bonus',
@@ -3126,6 +3134,742 @@ recalcRevAutoFields = function() {
   const el = document.getElementById(id);
   if(el) el.addEventListener('input', recalcRevAutoFields);
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// TF → REVENUE HANDOFF FIX
+// Tab 5 (Trading Float) outputs flt-total ($, notional capital deployed).
+// Tab 6 (Revenue) applies rev-turnover-pct to convert $ → lots/day, which
+// drives rev-eng-lots-per-day (Liquidation Engine). AUTO mode writes the
+// derived value; MANUAL mode lets the user override.
+// ═══════════════════════════════════════════════════════════════════
+(function fixTFtoRevenueHandoff() {
+  if (window.__tfRevenueHandoffFixed) return;
+  window.__tfRevenueHandoffFixed = true;
+
+  window._engLotsAutoMode = window._engLotsAutoMode || 'auto';
+  const DAYS = 22;
+
+  // ── CHANGE 1 — inject rev-turnover-pct into Revenue Assumptions grid ──
+  (function injectTurnoverInput() {
+    if (document.getElementById('rev-turnover-pct')) return;
+    const anchor = document.getElementById('rev-abook-pct');
+    if (!anchor) return;
+    const grid = anchor.closest('.costs-grid');
+    if (!grid) return;
+    grid.appendChild(_revBuildCard(
+      'rev-turnover-pct',
+      'Daily Float Turnover %',
+      'What % of the total trading float is turned over as traded volume per day. Retail CFD benchmark: 80–150%. High-frequency scalper books: 300–500%. Conservative swing trader books: 20–50%. Applied to flt-total to derive broker-wide lots/day.',
+      100,
+      { min:1, max:1000, step:10, suffix:'%' }
+    ));
+  })();
+
+  // ── helpers used by card builder + applyState patch ─────────────────
+  function applyEngLotsToggleVisual() {
+    const btn   = document.getElementById('eng-lots-auto-toggle');
+    const input = document.getElementById('rev-eng-lots-per-day');
+    if (!btn || !input) return;
+    if (window._engLotsAutoMode === 'auto') {
+      btn.style.background      = 'var(--green)';
+      btn.style.color           = '#fff';
+      btn.textContent           = '● AUTO';
+      input.disabled            = true;
+      input.style.opacity       = '0.4';
+      input.style.pointerEvents = 'none';
+    } else {
+      btn.style.background      = 'var(--bg3)';
+      btn.style.color           = 'var(--text-dim)';
+      btn.textContent           = '○ MANUAL';
+      input.disabled            = false;
+      input.style.opacity       = '';
+      input.style.pointerEvents = '';
+    }
+  }
+
+  function recalcEngLotsAuto() {
+    function parseM(id) {
+      const el = document.getElementById(id);
+      if (!el) return 0;
+      const t = (el.textContent || el.value || '').trim().replace(/[$,\s]/g,'');
+      if (t.endsWith('M')) return parseFloat(t) * 1000000;
+      if (t.endsWith('k')) return parseFloat(t) * 1000;
+      return parseFloat(t) || 0;
+    }
+    const numLocal = id => {
+      const el = document.getElementById(id);
+      if (!el) return 0;
+      if (el.tagName === 'INPUT') return +el.value || 0;
+      return parseFloat((el.textContent||'').replace(/[^0-9.\-]/g,''))||0;
+    };
+
+    const flt_total    = parseM('flt-total');
+    const lot_size     = numLocal('rev-lot-size')     || 100000;
+    const turnover_pct = numLocal('rev-turnover-pct') || 100;
+
+    const derived = lot_size > 0
+      ? Math.round(flt_total / lot_size / DAYS * (turnover_pct / 100))
+      : 0;
+
+    const display = document.getElementById('eng-lots-auto-display');
+    if (display) display.textContent = derived.toLocaleString() + ' lots / day';
+
+    const src = document.getElementById('eng-lots-auto-source');
+    if (src) {
+      const fltFmt = flt_total >= 1e6
+        ? '$' + (flt_total/1e6).toFixed(1) + 'M'
+        : '$' + Math.round(flt_total).toLocaleString();
+      src.textContent = '↑ ' + fltFmt
+        + ' float ÷ $' + lot_size.toLocaleString()
+        + ' lot size ÷ ' + DAYS + ' days'
+        + ' × ' + turnover_pct + '% turnover';
+    }
+
+    if (window._engLotsAutoMode === 'auto') {
+      const input = document.getElementById('rev-eng-lots-per-day');
+      if (input && +input.value !== derived) {
+        input.value = derived;
+        input.dispatchEvent(new Event('input', { bubbles:true }));
+      }
+    }
+  }
+
+  // ── CHANGE 2 — inject "Lots per Day — Auto-Derived" card above engGrid ──
+  (function injectAutoCard() {
+    if (document.getElementById('eng-lots-auto-wrap')) return;
+    const lotsInput = document.getElementById('rev-eng-lots-per-day');
+    if (!lotsInput) return;
+    const engGrid = lotsInput.closest('.costs-grid');
+    if (!engGrid) return;
+
+    const wrapGrid = document.createElement('div');
+    wrapGrid.className = 'costs-grid fu fu2';
+    wrapGrid.style.gridTemplateColumns = '1fr';
+    wrapGrid.id = 'eng-lots-auto-wrap';
+
+    const card = document.createElement('div');
+    card.className = 'ci';
+    card.id = 'eng-lots-auto-card';
+
+    const lbl  = document.createElement('div');
+    lbl.className = 'ci-label';
+    lbl.textContent = 'LOTS PER DAY — AUTO-DERIVED FROM TRADING FLOAT';
+
+    const note = document.createElement('div');
+    note.className = 'ci-note';
+    note.textContent = 'Auto-calculated from Trading Float tab: total notional float ÷ lot size ÷ 22 trading days × daily turnover %. Switch to MANUAL to override with a custom value.';
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.id   = 'eng-lots-auto-toggle';
+    Object.assign(toggleBtn.style, {
+      display:'inline-flex', alignItems:'center', padding:'3px 10px',
+      borderRadius:'20px', fontSize:'11px', fontWeight:'700',
+      letterSpacing:'0.06em', border:'none', cursor:'pointer',
+      marginBottom:'6px', transition:'background 0.15s', fontFamily:'var(--font)',
+    });
+    toggleBtn.style.background = 'var(--green)';
+    toggleBtn.style.color      = '#fff';
+    toggleBtn.textContent      = '● AUTO';
+
+    const display = document.createElement('div');
+    display.id = 'eng-lots-auto-display';
+    Object.assign(display.style, {
+      fontSize:'22px', fontWeight:'300', color:'var(--pu-text)',
+      lineHeight:'1.1', paddingTop:'6px',
+    });
+    display.textContent = '0 lots / day';
+
+    const source = document.createElement('div');
+    source.id = 'eng-lots-auto-source';
+    Object.assign(source.style, {
+      fontSize:'11px', color:'var(--text-mute)', marginTop:'4px', lineHeight:'1.3',
+    });
+    source.textContent = '';
+
+    card.appendChild(lbl);
+    card.appendChild(note);
+    card.appendChild(toggleBtn);
+    card.appendChild(display);
+    card.appendChild(source);
+    wrapGrid.appendChild(card);
+    engGrid.parentNode.insertBefore(wrapGrid, engGrid);
+
+    toggleBtn.addEventListener('click', () => {
+      window._engLotsAutoMode = window._engLotsAutoMode === 'auto' ? 'manual' : 'auto';
+      applyEngLotsToggleVisual();
+      if (window._engLotsAutoMode === 'auto') recalcEngLotsAuto();
+      toggleBtn.dispatchEvent(new Event('change', { bubbles:true }));
+    });
+  })();
+
+  // ── CHANGE 3 — wire triggers ────────────────────────────────────────
+  const fltEl = document.getElementById('flt-total');
+  if (fltEl) {
+    new MutationObserver(() => recalcEngLotsAuto())
+      .observe(fltEl, { characterData:true, childList:true, subtree:true });
+  }
+  const lotEl = document.getElementById('rev-lot-size');
+  if (lotEl) lotEl.addEventListener('input', recalcEngLotsAuto);
+  const trnEl = document.getElementById('rev-turnover-pct');
+  if (trnEl) trnEl.addEventListener('input', recalcEngLotsAuto);
+
+  // ── Persistence — patch collectState / applyState ───────────────────
+  const _origCollect_engLots = collectState;
+  collectState = function() {
+    const s = _origCollect_engLots();
+    s.engLotsAutoMode = window._engLotsAutoMode;
+    return s;
+  };
+  const _origApply_engLots = applyState;
+  applyState = function(s) {
+    _origApply_engLots(s);
+    if (s && s.engLotsAutoMode) {
+      window._engLotsAutoMode = s.engLotsAutoMode;
+    }
+    applyEngLotsToggleVisual();
+    recalcEngLotsAuto();
+  };
+
+  // ── Initial paint after upstream tabs settle ────────────────────────
+  setTimeout(() => {
+    applyEngLotsToggleVisual();
+    recalcEngLotsAuto();
+  }, 130);
+})();
+
+// ═══════════════════════════════════════════════════════════════════
+// REVENUE RATE-CARD MODEL (tab6 restructure)
+// Pricing (rate card) is set independently of volume. Volume comes from
+// the TF → Revenue handoff (lots/day → engine → V_A, V_B). Revenue =
+// volume × pricing, split by book. B-book P&L is lot-based (V_B × edge
+// pips × $/pip), not deposit-based.
+// ═══════════════════════════════════════════════════════════════════
+(function fixRevRateCard() {
+  if (window.__revRateCardFixed) return;
+  window.__revRateCardFixed = true;
+
+  // ── Local helper for read-only display cards ──────────────────────
+  function buildDisplayCard(id, label, noteText, initialText, color) {
+    const card = document.createElement('div');
+    card.className = 'ci';
+    const lbl  = document.createElement('div'); lbl.className  = 'ci-label'; lbl.textContent  = label;
+    const note = document.createElement('div'); note.className = 'ci-note';  note.textContent = noteText;
+    const val  = document.createElement('div'); val.id = id;
+    Object.assign(val.style, {
+      fontSize:'22px', fontWeight:'300', color: color || 'var(--pu-text)',
+      paddingTop:'6px', lineHeight:'1.1',
+    });
+    val.textContent = initialText;
+    card.appendChild(lbl); card.appendChild(note); card.appendChild(val);
+    return card;
+  }
+
+  // ── STEP 1 — locate Rate Card grid + rename divider ───────────────
+  const lotSizeAnchor = document.getElementById('rev-lot-size');
+  const rateCardGrid  = lotSizeAnchor ? lotSizeAnchor.closest('.costs-grid') : null;
+  if (!rateCardGrid) return;
+
+  const tab6 = document.getElementById('tab6');
+  if (tab6) {
+    tab6.querySelectorAll('.divider .divider-label').forEach(d => {
+      if (d.textContent.trim() === 'Revenue Assumptions') {
+        d.textContent = 'Rate Card — Your Pricing';
+      }
+    });
+  }
+
+  function addCard(id, builder) {
+    if (document.getElementById(id)) return;
+    rateCardGrid.appendChild(builder());
+  }
+
+  addCard('rev-spread-fx', () => _revBuildCard(
+    'rev-spread-fx', 'Spread Markup — FX Majors (pips)',
+    'Pips above raw LP price for FX major pairs (EURUSD, GBPUSD etc). Typical retail: 0.8–2.5 pips. This is YOUR commercial decision — not a function of your float size.',
+    1.2, { min:0.1, max:20, step:0.1 }
+  ));
+  addCard('rev-spread-commodities', () => _revBuildCard(
+    'rev-spread-commodities', 'Spread Markup — Commodities (pips)',
+    'Gold (XAU/USD), Oil, Silver. Wider spreads reflect higher LP cost. Typical retail: 3–8 pips equiv.',
+    5, { min:0, max:50, step:0.5 }
+  ));
+  addCard('rev-spread-crypto', () => _revBuildCard(
+    'rev-spread-crypto', 'Spread Markup — Crypto CFDs (pips)',
+    'BTC/USD, ETH/USD as CFDs. Retail standard: 50–150 pips equivalent. High volatility = wide spreads.',
+    80, { min:0, max:500, step:5 }
+  ));
+  addCard('rev-vol-fx-pct', () => _revBuildCard(
+    'rev-vol-fx-pct', 'Volume Mix — FX %',
+    '% of total lots that are FX major/minor pairs. Drives blended spread calculation.',
+    70, { min:0, max:100, step:5, suffix:'%' }
+  ));
+  addCard('rev-vol-commodity-pct', () => _revBuildCard(
+    'rev-vol-commodity-pct', 'Volume Mix — Commodities %',
+    '% of total lots that are commodity CFDs. Auto-derives crypto % (100 - FX% - Commodities%).',
+    20, { min:0, max:100, step:5, suffix:'%' }
+  ));
+  addCard('rev-blended-spread', () => buildDisplayCard(
+    'rev-blended-spread', 'Blended Spread Markup (pips) — AUTO',
+    'Weighted avg: (FX% × FX pips) + (Commod% × Commod pips) + (Crypto% × Crypto pips). Drives all lot-based revenue.',
+    '0.00 pips', 'var(--pu-text)'
+  ));
+  addCard('rev-lp-fee-per-lot', () => _revBuildCard(
+    'rev-lp-fee-per-lot', 'LP Fee per Lot (A-Book cost)',
+    'What you pay the LP per executed A-book lot. Typically $2–$5. Shown here so net margin per lot is visible alongside your pricing. Flows to Variable Costs as A-book LP cost.',
+    3, { min:0, step:0.5, prefix:'$' }
+  ));
+  addCard('rev-net-margin-per-lot', () => buildDisplayCard(
+    'rev-net-margin-per-lot', 'Net Margin per Lot (A-Book) — AUTO',
+    'Blended spread revenue per lot minus LP cost per lot. Broker keeps this on every A-book trade. B-book keeps full spread plus client P&L edge.',
+    '$0.00 / lot', 'var(--green)'
+  ));
+  addCard('rev-bbook-edge-pips', () => _revBuildCard(
+    'rev-bbook-edge-pips', 'B-Book Edge (avg pips lost per lot by client)',
+    'How many pips on average a retail client loses per lot traded. Your B-book profit driver. South Asian retail benchmark: 8–15 pips per lot. At $10/pip = $80–$150 profit per lot before your spread (which is additive). Set conservatively.',
+    10, { min:0, max:100, step:1 }
+  ));
+  addCard('rev-inactivity-fee', () => _revBuildCard(
+    'rev-inactivity-fee', 'Inactivity Fee per Account / Month',
+    'Monthly fee charged on accounts with no trades for 90+ days. Typical: $10–$30/month.',
+    15, { min:0, step:5, prefix:'$' }
+  ));
+  addCard('rev-dormant-pct', () => _revBuildCard(
+    'rev-dormant-pct', 'Dormant Account % of Client Base',
+    '% of total client base that goes inactive at any time. Industry benchmark: 20–40% of funded accounts.',
+    25, { min:0, max:100, step:5, suffix:'%' }
+  ));
+
+  // Hide legacy cards (preserved in DOM so persisted state still round-trips)
+  ['rev-client-loss-rate', 'rev-swap-lp-pips'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const card = el.closest('.ci');
+    if (card) card.style.display = 'none';
+  });
+
+  // ── STEP 2 — Book Routing section before Liquidation Engine ───────
+  (function injectBookRouting() {
+    if (document.getElementById('rev-book-routing-grid')) return;
+    if (!tab6) return;
+
+    let engDivider = null;
+    tab6.querySelectorAll('.divider').forEach(d => {
+      const lbl = d.querySelector('.divider-label');
+      if (lbl && lbl.textContent.trim() === 'Liquidation Engine') engDivider = d;
+    });
+    if (!engDivider) return;
+
+    const brDivider = document.createElement('div');
+    brDivider.className = 'divider fu fu2';
+    const brLbl  = document.createElement('div'); brLbl.className  = 'divider-label'; brLbl.textContent = 'Book Routing';
+    const brLine = document.createElement('div'); brLine.className = 'divider-line';
+    brDivider.appendChild(brLbl); brDivider.appendChild(brLine);
+
+    const brGrid = document.createElement('div');
+    brGrid.id = 'rev-book-routing-grid';
+    brGrid.className = 'costs-grid fu fu2';
+    brGrid.style.gridTemplateColumns = 'repeat(3,1fr)';
+
+    // MOVE rev-abook-pct card from Rate Card into Book Routing
+    const abookInput = document.getElementById('rev-abook-pct');
+    if (abookInput) {
+      const abookCard = abookInput.closest('.ci');
+      if (abookCard && abookCard.parentNode) {
+        const lblEl = abookCard.querySelector('.ci-label');
+        if (lblEl) lblEl.textContent = 'A-Book Volume %';
+        const noteEl = abookCard.querySelector('.ci-note');
+        if (noteEl) noteEl.textContent = '% of total lots routed to LP and hedged. Remaining % is B-booked (internalized). A-book = safer, lower margin per lot. B-book = higher margin but broker takes market risk. Typical early-stage South Asian broker: 20–40% A-book.';
+        abookCard.parentNode.removeChild(abookCard);
+        brGrid.appendChild(abookCard);
+      }
+    }
+
+    brGrid.appendChild(buildDisplayCard(
+      'rev-bbook-pct-display', 'B-Book Volume % — AUTO',
+      '100% minus A-Book %. All client P&L on B-book volume stays with the broker.',
+      '0%', 'var(--pu-text)'
+    ));
+
+    // Amber explainer card (full width)
+    const amber = document.createElement('div');
+    amber.className = 'ci';
+    Object.assign(amber.style, {
+      gridColumn: '1 / -1',
+      background: 'var(--amber-bg)',
+      border: '1px solid var(--amber)',
+    });
+    const amberLbl = document.createElement('div');
+    amberLbl.className = 'ci-label';
+    amberLbl.style.color = 'var(--amber)';
+    amberLbl.textContent = 'A-Book vs B-Book — what this means';
+    const amberBody = document.createElement('div');
+    amberBody.className = 'ci-note';
+    Object.assign(amberBody.style, { lineHeight:'1.5', color:'var(--text)' });
+    function appendLine(parent, strong, rest) {
+      const p = document.createElement('div');
+      p.style.marginBottom = '8px';
+      const s = document.createElement('strong');
+      s.textContent = strong;
+      p.appendChild(s);
+      p.appendChild(document.createTextNode(' ' + rest));
+      parent.appendChild(p);
+    }
+    appendLine(amberBody, 'A-Book:',
+      'every trade is hedged with your LP. You earn only your markup (spread minus LP cost) + commissions. Zero market risk. Suitable for profitable, large-account clients.');
+    appendLine(amberBody, 'B-Book:',
+      'trades are internalized. You earn the full spread PLUS the client’s loss when they lose. Higher margin but you carry the risk of client wins. Suitable for retail flow from new clients with low win rates.');
+    const tail = document.createElement('div');
+    tail.textContent = 'Most South Asian retail brokers run 20–30% A-book in Year 1, scaling up as they identify profitable clients.';
+    amberBody.appendChild(tail);
+    amber.appendChild(amberLbl);
+    amber.appendChild(amberBody);
+    brGrid.appendChild(amber);
+
+    engDivider.parentNode.insertBefore(brDivider, engDivider);
+    engDivider.parentNode.insertBefore(brGrid, engDivider);
+  })();
+
+  // ── STEP 3 — Replace recalcRevAutoFields with new rate-card engine ──
+  recalcRevAutoFields = function recalcRevEngine() {
+    const get = id => {
+      const el = document.getElementById(id);
+      if (!el) return 0;
+      if (el.tagName === 'INPUT') return +el.value || 0;
+      return parseFloat((el.textContent || '').replace(/[^0-9.\-]/g, '')) || 0;
+    };
+
+    // Engine inputs (volume source)
+    const lots_per_day      = get('rev-eng-lots-per-day');
+    const days_to_stopout   = get('rev-eng-days-stopout');
+    const reload_rate       = (get('rev-eng-reload-rate') / 100) || 0;
+    const liquidations      = Math.max(get('rev-eng-liquidations'), 1);
+    const ftd               = get('rev-eng-ftd');
+    const reload_amount_pct = (get('rev-eng-reload-amount') / 100) || 0;
+
+    // Book routing
+    const abook_pct = (get('rev-abook-pct') / 100) || 0;
+    const bbook_pct = 1 - abook_pct;
+
+    // Rate-card pricing
+    const pip_value          = 10;
+    const nights             = get('rev-nights-held');
+    const commission_per_lot = get('rev-commission-per-lot');
+    const swap_client_pips   = get('rev-swap-client-pips');
+    const slip_avg_pips      = get('rev-slip-avg');
+    const rebate_per_lot     = get('rev-rebate-per-lot');
+
+    const spread_fx        = get('rev-spread-fx')         || 1.2;
+    const spread_commod    = get('rev-spread-commodities') || 5;
+    const spread_crypto    = get('rev-spread-crypto')      || 80;
+    const vol_fx_pct       = (get('rev-vol-fx-pct')        || 70) / 100;
+    const vol_commod_pct   = (get('rev-vol-commodity-pct') || 20) / 100;
+    const vol_crypto_pct   = Math.max(0, 1 - vol_fx_pct - vol_commod_pct);
+    const blended_spread   = spread_fx * vol_fx_pct
+                           + spread_commod * vol_commod_pct
+                           + spread_crypto * vol_crypto_pct;
+
+    const lp_fee          = get('rev-lp-fee-per-lot') || 3;
+    const net_margin      = (blended_spread * pip_value) - lp_fee;
+    const bbook_edge_pips = get('rev-bbook-edge-pips') || 10;
+
+    // Inactivity (book-agnostic)
+    const total_clients  = get('dep-clients-total');
+    const dormant_pct    = (get('rev-dormant-pct') / 100) || 0.25;
+    const inactivity_fee = get('rev-inactivity-fee') || 15;
+    const inactivity_rev = total_clients * dormant_pct * inactivity_fee;
+
+    // Engine derivations (V_A / V_B unchanged)
+    const reload_multiplier  = 1 + reload_rate * (liquidations - 1);
+    const trading_days_alive = days_to_stopout * reload_multiplier;
+    const V_A                = lots_per_day * days_to_stopout * abook_pct * reload_multiplier;
+    const V_B                = lots_per_day * days_to_stopout * bbook_pct * reload_multiplier;
+    const Total_deposits     = ftd + (ftd * reload_amount_pct * reload_rate * (liquidations - 1));
+
+    const r2   = n => isFinite(n) ? Math.round(n * 100) / 100 : 0;
+    const fmtN = n => Math.round(n).toLocaleString();
+    const fmt$ = n => '$' + fmtN(n);
+
+    // Rate-card display cards
+    const bsEl = document.getElementById('rev-blended-spread');
+    if (bsEl) bsEl.textContent = blended_spread.toFixed(2) + ' pips';
+
+    const nmEl = document.getElementById('rev-net-margin-per-lot');
+    if (nmEl) {
+      nmEl.textContent = '$' + net_margin.toFixed(2) + ' / lot';
+      nmEl.style.color = net_margin >= 0 ? 'var(--green)' : 'var(--red)';
+    }
+
+    const bbEl = document.getElementById('rev-bbook-pct-display');
+    if (bbEl) bbEl.textContent = Math.round(bbook_pct * 100) + '%';
+
+    // Volume Engine readouts
+    const setOut = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setOut('rev-eng-out-va',       fmtN(V_A) + ' lots');
+    setOut('rev-eng-out-vb',       fmtN(V_B) + ' lots');
+    setOut('rev-eng-out-deposits', fmt$(Total_deposits));
+    setOut('rev-eng-out-days',     fmtN(trading_days_alive) + ' days');
+    setOut('rev-eng-out-liqs',     fmtN(liquidations));
+
+    function writeAuto(id, value, srcText) {
+      if (typeof revToggleState !== 'undefined' && revToggleState[id] === 'manual') return;
+      const el = document.getElementById(id);
+      if (!el) return;
+      const v = r2(value);
+      if (+el.value !== v) {
+        el.value = v;
+        el.dispatchEvent(new Event('input', { bubbles:true }));
+      }
+      const src = document.getElementById(id + '-source');
+      if (src) src.textContent = srcText;
+    }
+
+    // ── A-book streams (gross — LP fee is a Variable Cost) ──────────
+    writeAuto('rev-a-spread',
+      V_A * blended_spread * pip_value,
+      '↑ V_A = ' + fmtN(V_A) + ' lots × ' + r2(blended_spread) + ' pip blended spread × $' + pip_value);
+    writeAuto('rev-a-commission',
+      V_A * commission_per_lot * 2,
+      '↑ V_A = ' + fmtN(V_A) + ' lots × $' + commission_per_lot + ' commission × 2 sides');
+    writeAuto('rev-a-swap',
+      V_A * swap_client_pips * nights * pip_value,
+      '↑ V_A = ' + fmtN(V_A) + ' lots × ' + swap_client_pips + ' pip swap × ' + nights + ' nights × $' + pip_value);
+    writeAuto('rev-a-slippage',
+      V_A * slip_avg_pips * pip_value,
+      '↑ V_A = ' + fmtN(V_A) + ' lots × ' + slip_avg_pips + ' pip slippage × $' + pip_value);
+    writeAuto('rev-a-lp-rebate',
+      V_A * rebate_per_lot,
+      '↑ V_A = ' + fmtN(V_A) + ' lots × $' + rebate_per_lot + ' rebate');
+
+    // ── B-book streams ──────────────────────────────────────────────
+    writeAuto('rev-b-spread',
+      V_B * blended_spread * pip_value,
+      '↑ V_B = ' + fmtN(V_B) + ' lots × ' + r2(blended_spread) + ' pip blended spread × $' + pip_value);
+    writeAuto('rev-b-commission',
+      V_B * commission_per_lot * 2,
+      '↑ V_B = ' + fmtN(V_B) + ' lots × $' + commission_per_lot + ' commission × 2 sides');
+    writeAuto('rev-b-swap',
+      V_B * swap_client_pips * nights * pip_value,
+      '↑ V_B = ' + fmtN(V_B) + ' lots × ' + swap_client_pips + ' pip swap × ' + nights + ' nights × $' + pip_value);
+    writeAuto('rev-b-slippage',
+      V_B * slip_avg_pips * pip_value,
+      '↑ V_B = ' + fmtN(V_B) + ' lots × ' + slip_avg_pips + ' pip slippage × $' + pip_value);
+    writeAuto('rev-b-pnl',
+      V_B * bbook_edge_pips * pip_value,
+      '↑ V_B = ' + fmtN(V_B) + ' lots × ' + bbook_edge_pips + ' pip edge × $' + pip_value);
+
+    // ── Inactivity (book-agnostic) ──────────────────────────────────
+    writeAuto('rev-a-inactivity',
+      inactivity_rev,
+      '↑ ' + fmtN(total_clients) + ' clients × ' + Math.round(dormant_pct * 100) + '% dormant × $' + inactivity_fee + ' fee');
+  };
+
+  // Default rev-a-inactivity into the AUTO toggle map so writeAuto fires
+  if (typeof revToggleState !== 'undefined' && revToggleState['rev-a-inactivity'] === undefined) {
+    revToggleState['rev-a-inactivity'] = 'auto';
+  }
+
+  // ── STEP 4 — Wire triggers (new function fires last so it wins) ────
+  // Includes legacy inputs (rev-abook-pct, rev-lot-size, sl-spread, sl-lp …)
+  // because their original listeners still call the pre-engine recalc; our
+  // listener is registered after, so it overwrites with correct values.
+  [
+    // New rate-card inputs
+    'rev-spread-fx', 'rev-spread-commodities', 'rev-spread-crypto',
+    'rev-vol-fx-pct', 'rev-vol-commodity-pct',
+    'rev-lp-fee-per-lot', 'rev-bbook-edge-pips',
+    'rev-inactivity-fee', 'rev-dormant-pct',
+    // Existing rate-card + book routing inputs
+    'rev-abook-pct', 'rev-lot-size', 'rev-nights-held',
+    'rev-commission-per-lot', 'rev-swap-client-pips',
+    'rev-slip-avg', 'rev-rebate-per-lot', 'rev-turnover-pct',
+    // Engine inputs
+    'rev-eng-lots-per-day', 'rev-eng-days-stopout', 'rev-eng-reload-rate',
+    'rev-eng-liquidations', 'rev-eng-ftd', 'rev-eng-reload-amount',
+    // Legacy sliders — defensive rebind so legacy listener output gets overwritten
+    'sl-spread', 'sl-lp',
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', recalcRevAutoFields);
+  });
+
+  // dep-clients-total is a div — observe text changes for inactivity revenue
+  const depClientsEl = document.getElementById('dep-clients-total');
+  if (depClientsEl) {
+    new MutationObserver(() => recalcRevAutoFields())
+      .observe(depClientsEl, { characterData:true, childList:true, subtree:true });
+  }
+
+  // ── Initial paint after rate-card inputs settle ───────────────────
+  setTimeout(() => recalcRevAutoFields(), 140);
+})();
+
+// ═══════════════════════════════════════════════════════════════════
+// REVENUE TAB CLEANUP — structural simplification (no formula changes)
+// Renames dividers, hides duplicated/low-value cards, collapses the
+// auto-derived lots card into the lots-per-day input, and converts
+// fully-derived Book P&L cards to read-only displays. AUTO inputs
+// remain in the DOM (still summed by recalcRevenueTotal); their
+// .ci-input-wrap is hidden and a sibling display div mirrors the value.
+// ═══════════════════════════════════════════════════════════════════
+(function cleanupRevTab() {
+  if (window.__revTabCleaned) return;
+  window.__revTabCleaned = true;
+
+  const AUTO_DISPLAY_IDS = [
+    'rev-a-spread', 'rev-a-commission', 'rev-a-swap', 'rev-a-slippage',
+    'rev-a-lp-rebate', 'rev-a-inactivity',
+    'rev-b-spread', 'rev-b-commission', 'rev-b-swap', 'rev-b-slippage',
+    'rev-b-pnl',
+  ];
+
+  function fmtMoney(n) {
+    return (n < 0 ? '-' : '') + '$' + Math.round(Math.abs(n)).toLocaleString();
+  }
+
+  // Run DOM mutations after TF handoff (130ms) and rate-card paint (140ms)
+  // have fully settled so the toggle button + source div exist where expected.
+  setTimeout(() => {
+    const tab6 = document.getElementById('tab6');
+
+    // ── CHANGE 1 — rename "Rate Card — Your Pricing" → "Pricing Assumptions"
+    if (tab6) {
+      tab6.querySelectorAll('.divider .divider-label').forEach(d => {
+        if (d.textContent.trim() === 'Rate Card — Your Pricing') {
+          d.textContent = 'Pricing Assumptions';
+        }
+      });
+    }
+
+    // ── CHANGE 2 — hide FTD inputs + deposits readout ────────────────
+    ['rev-eng-ftd', 'rev-eng-reload-amount', 'rev-eng-out-deposits'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const card = el.closest('.ci');
+      if (card) card.style.display = 'none';
+    });
+
+    // ── CHANGE 3 — hide low-value Volume Engine outputs ──────────────
+    ['rev-eng-out-days', 'rev-eng-out-liqs'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const card = el.closest('.ci');
+      if (card) card.style.display = 'none';
+    });
+    // Recolumn Volume Engine grid to 2 cols
+    const vaEl = document.getElementById('rev-eng-out-va');
+    if (vaEl) {
+      const volGrid = vaEl.closest('.costs-grid');
+      if (volGrid) volGrid.style.gridTemplateColumns = 'repeat(2,1fr)';
+    }
+
+    // ── CHANGE 4 — collapse eng-lots-auto-wrap into rev-eng-lots-per-day
+    const autoWrap   = document.getElementById('eng-lots-auto-wrap');
+    const lotsInput  = document.getElementById('rev-eng-lots-per-day');
+    const toggleBtn  = document.getElementById('eng-lots-auto-toggle');
+    const sourceDiv  = document.getElementById('eng-lots-auto-source');
+    const autoDisp   = document.getElementById('eng-lots-auto-display');
+    if (lotsInput) {
+      const lotsCard = lotsInput.closest('.ci');
+      if (lotsCard) {
+        const lotsNote = lotsCard.querySelector('.ci-note');
+        if (lotsNote) {
+          lotsNote.textContent = 'Auto-derived from Trading Float tab: total notional float ÷ lot size ÷ 22 trading days × daily turnover %. Switch to MANUAL above to override.';
+        }
+        const lotsWrap = lotsCard.querySelector('.ci-input-wrap');
+        if (lotsWrap) {
+          if (toggleBtn)             lotsCard.insertBefore(toggleBtn, lotsWrap);
+          if (autoDisp)              autoDisp.style.display = 'none';
+          if (sourceDiv)             lotsCard.insertBefore(sourceDiv, lotsWrap.nextSibling);
+        }
+      }
+    }
+    if (autoWrap) autoWrap.style.display = 'none';
+
+    // ── CHANGE 5 — hide rev-bbook-pct-display card ───────────────────
+    const bbDisp = document.getElementById('rev-bbook-pct-display');
+    if (bbDisp) {
+      const bbCard = bbDisp.closest('.ci');
+      if (bbCard) bbCard.style.display = 'none';
+    }
+
+    // ── CHANGE 6 — convert AUTO Book P&L cards to read-only displays ─
+    AUTO_DISPLAY_IDS.forEach(id => {
+      const input = document.getElementById(id);
+      if (!input) return;
+      const card = input.closest('.ci');
+      if (!card) return;
+
+      // Hide AUTO/MANUAL toggle
+      const tog = document.getElementById(id + '-toggle');
+      if (tog) tog.style.display = 'none';
+
+      // Hide the editable input wrap
+      const wrap = card.querySelector('.ci-input-wrap');
+      if (wrap) wrap.style.display = 'none';
+
+      // Hide calculator toggle + any opened panel
+      const calc      = card.querySelector('.calc-toggle');
+      if (calc)      calc.style.display = 'none';
+      const calcPanel = card.querySelector('.calc-panel');
+      if (calcPanel) calcPanel.style.display = 'none';
+
+      // Build read-only display div if not already present
+      let display = document.getElementById(id + '-display');
+      if (!display) {
+        display = document.createElement('div');
+        display.id = id + '-display';
+        Object.assign(display.style, {
+          fontSize:'22px', fontWeight:'300', color:'var(--pu-text)',
+          paddingTop:'6px', lineHeight:'1.1',
+        });
+        const initialVal = +input.value || 0;
+        display.textContent = fmtMoney(initialVal);
+
+        const note = card.querySelector('.ci-note');
+        if (note && note.parentNode === card) {
+          card.insertBefore(display, note.nextSibling);
+        } else {
+          card.appendChild(display);
+        }
+      }
+
+      // Ensure source annotation appears below the display
+      const source = document.getElementById(id + '-source');
+      if (source && source.parentNode === card) {
+        card.insertBefore(source, display.nextSibling);
+      }
+
+      // Sync display whenever the input value changes (writeAuto dispatches input)
+      input.addEventListener('input', () => {
+        const d = document.getElementById(id + '-display');
+        if (!d) return;
+        d.textContent = fmtMoney(+input.value || 0);
+      });
+    });
+
+    // ── CHANGE 8 — rename Book P&L divider + book subtitle text ──────
+    if (tab6) {
+      tab6.querySelectorAll('.divider .divider-label').forEach(d => {
+        if (d.textContent.trim() === 'Book P&L') {
+          d.textContent = 'Revenue Breakdown — Live Outputs';
+        }
+      });
+      // Subtitle spans next to the A Book / B Book badges
+      tab6.querySelectorAll('span').forEach(s => {
+        const t = (s.textContent || '').trim();
+        if (t.startsWith('9 streams') && t.indexOf('hedged to LP') !== -1) {
+          s.textContent = 'hedged to LP — spread markup + fees, fully derived';
+        } else if (t.startsWith('8 streams') && t.indexOf('client P&L') !== -1) {
+          s.textContent = 'internalized — full spread + client P&L, fully derived';
+        }
+      });
+    }
+
+    // Repaint so initial display values reflect the current input values
+    if (typeof recalcRevAutoFields === 'function') recalcRevAutoFields();
+  }, 160);
+})();
 
 // Load from Supabase first, then render and recalc derived values so the UI
 // paints with the right totals straight away.
@@ -6563,18 +7307,18 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   // (2) DEPOSITS — scale tier client count, recompute totals + Trading Float
   // ═══════════════════════════════════════════════════════════════
   function applyTierCountsToDeposits() {
-    const counts = { t1: getCount(1), t2: getCount(2), t3: getCount(3), other: 1 };
     const sections = [
-      { key:'t1',    c:'dep-t1-clients',    v:'dep-t1-vol',    out:'dep-t1-subtotal'    },
-      { key:'t2',    c:'dep-t2-clients',    v:'dep-t2-vol',    out:'dep-t2-subtotal'    },
-      { key:'t3',    c:'dep-t3-clients',    v:'dep-t3-vol',    out:'dep-t3-subtotal'    },
+      { key:'t1',    c:'dep-t1-clients',    v:'dep-t1-vol',    out:'dep-t1-subtotal',    ibs:'dep-t1-ibs' },
+      { key:'t2',    c:'dep-t2-clients',    v:'dep-t2-vol',    out:'dep-t2-subtotal',    ibs:'dep-t2-ibs' },
+      { key:'t3',    c:'dep-t3-clients',    v:'dep-t3-vol',    out:'dep-t3-subtotal',    ibs:'dep-t3-ibs' },
       { key:'other', c:'dep-other-clients', v:'dep-other-vol', out:'dep-other-subtotal' },
     ];
 
     let totalClients = 0, totalVolume = 0, totalNetFloat = 0;
 
     sections.forEach(s => {
-      const clients  = num(s.c) * counts[s.key];   // ← multiplied for tiers, ×1 for organic
+      const ibs      = s.ibs ? Math.max(num(s.ibs) || 1, 1) : 1;
+      const clients  = num(s.c) * ibs;             // ← multiplied for tiers, ×1 for organic
       const avgDep   = num(s.v);
       const sub      = clients * avgDep;
       totalClients  += clients;
@@ -6622,6 +7366,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   // Listeners attached here run AFTER the originals (attachment order), so they
   // overwrite the displays with scaled values. Same trick for ib-count-tX.
   const depWatchIds = [
+    'dep-t1-ibs','dep-t2-ibs','dep-t3-ibs',
     'dep-t1-clients','dep-t1-vol','dep-t2-clients','dep-t2-vol',
     'dep-t3-clients','dep-t3-vol','dep-other-clients','dep-other-vol',
     'flt-t1-active','flt-t1-leverage','flt-t1-amount','flt-t1-redep','flt-t1-withdraw','flt-t1-bonus',
@@ -6652,6 +7397,1065 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     else applyTierCountsToIBNetwork();
     applyTierCountsToDeposits();
   }, 280);
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// REVENUE TAB — pastel zone wrappers
+// Visual grouping only: wraps the Pricing/Routing, Volume Engine, and
+// Revenue Outputs sections into three pastel-colored containers. No
+// formulas, IDs, listeners, or recalc logic touched.
+// ═══════════════════════════════════════════════════════════════════
+(function injectRevZones() {
+  if (window.__revZonesInjected) return;
+  window.__revZonesInjected = true;
+
+  // ── Inject zone CSS into <head> before any DOM moves happen ──────
+  if (!document.getElementById('rev-zones-style')) {
+    const style = document.createElement('style');
+    style.id = 'rev-zones-style';
+    style.textContent = `
+:root {
+  --zone1-bg:      #EEF3FB;
+  --zone1-border:  #C5D5EE;
+  --zone1-accent:  #4A6FA5;
+  --zone2-bg:      #EFEcF8;
+  --zone2-border:  #C8BEE8;
+  --zone2-accent:  #5B4A8A;
+  --zone3-bg:      #EAF4EE;
+  --zone3-border:  #B8D9C2;
+  --zone3-accent:  #2E7D52;
+}
+.rev-zone {
+  border-radius: 6px;
+  border: 1.5px solid;
+  padding: 0 0 1.5rem 0;
+  margin: 1.5rem 0;
+}
+.rev-zone-1 { background: var(--zone1-bg); border-color: var(--zone1-border); }
+.rev-zone-2 { background: var(--zone2-bg); border-color: var(--zone2-border); }
+.rev-zone-3 { background: var(--zone3-bg); border-color: var(--zone3-border); }
+.rev-zone-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: .85rem 1.25rem;
+  border-radius: 4px 4px 0 0;
+  margin-bottom: 1rem;
+  border-bottom: 1.5px solid;
+}
+.rev-zone-1 .rev-zone-header { background: var(--zone1-border); border-color: var(--zone1-border); }
+.rev-zone-2 .rev-zone-header { background: var(--zone2-border); border-color: var(--zone2-border); }
+.rev-zone-3 .rev-zone-header { background: var(--zone3-border); border-color: var(--zone3-border); }
+.rev-zone-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.rev-zone-1 .rev-zone-badge { background: var(--zone1-accent); color: #fff; }
+.rev-zone-2 .rev-zone-badge { background: var(--zone2-accent); color: #fff; }
+.rev-zone-3 .rev-zone-badge { background: var(--zone3-accent); color: #fff; }
+.rev-zone-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--text);
+}
+.rev-zone-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+.rev-zone .ci { background: transparent; }
+.rev-zone .ci.total { background: var(--pu); }
+.rev-zone-separator {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin: 1rem 1.25rem .75rem;
+}
+.rev-zone-separator-line {
+  flex: 1;
+  height: 1px;
+  background: var(--zone2-border);
+}
+.rev-zone-separator-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--zone2-accent);
+  white-space: nowrap;
+}
+.rev-zone-2 .rev-zone-outputs .ci {
+  background: rgba(255,255,255,0.55);
+  border: 1px solid var(--zone2-border);
+}
+.rev-zone-3 .ci { background: rgba(255,255,255,0.5); }
+.rev-zone-body { padding: 0 1.25rem; }
+.rev-zone .costs-grid {
+  border: none;
+  background: transparent;
+  gap: 1px;
+}
+.rev-zone .costs-grid .ci { border: 1px solid rgba(0,0,0,0.07); }
+.rev-zone .divider { margin: 1.25rem 0 .75rem; }
+.rev-zone .divider .divider-line { background: rgba(0,0,0,0.10); }
+`;
+    document.head.appendChild(style);
+  }
+
+  // Run after all previous IIFEs have settled (cleanupRevTab fires at 160ms)
+  setTimeout(() => {
+    const tab6 = document.getElementById('tab6');
+    if (!tab6) return;
+
+    function makeZone(num, badge, title, desc) {
+      const zone = document.createElement('div');
+      zone.className = 'rev-zone rev-zone-' + num;
+
+      const header = document.createElement('div');
+      header.className = 'rev-zone-header';
+
+      const badgeEl = document.createElement('span');
+      badgeEl.className = 'rev-zone-badge';
+      badgeEl.textContent = badge;
+
+      const titleEl = document.createElement('span');
+      titleEl.className = 'rev-zone-title';
+      titleEl.textContent = title;
+
+      const descEl = document.createElement('span');
+      descEl.className = 'rev-zone-desc';
+      descEl.textContent = desc;
+
+      header.appendChild(badgeEl);
+      header.appendChild(titleEl);
+      header.appendChild(descEl);
+      zone.appendChild(header);
+
+      const body = document.createElement('div');
+      body.className = 'rev-zone-body';
+      zone.appendChild(body);
+
+      return { zone, body };
+    }
+
+    function findDivider(label) {
+      const dvs = tab6.querySelectorAll('.divider');
+      for (const d of dvs) {
+        const lbl = d.querySelector('.divider-label');
+        if (lbl && lbl.textContent.trim() === label) return d;
+      }
+      return null;
+    }
+
+    function collectNodes(start, end) {
+      const nodes = [];
+      let n = start;
+      while (n && n !== end) {
+        nodes.push(n);
+        n = n.nextElementSibling;
+      }
+      return nodes;
+    }
+
+    function moveInto(nodes, container) {
+      nodes.forEach(n => container.appendChild(n));
+    }
+
+    const pricingDiv  = findDivider('Pricing Assumptions');
+    const engDiv      = findDivider('Liquidation Engine');
+    const revBreakDiv = findDivider('Revenue Breakdown — Live Outputs');
+
+    if (!pricingDiv || !engDiv || !revBreakDiv) {
+      console.warn('injectRevZones: could not find all zone boundary dividers');
+      return;
+    }
+
+    // ── ZONE 1 — Pricing Assumptions + Book Routing ──────────────
+    const z1 = makeZone(1,
+      'Zone 1',
+      'Your Pricing & Routing Assumptions',
+      'What you charge · How you split A-book vs B-book'
+    );
+    const zone1Nodes = collectNodes(pricingDiv, engDiv);
+    pricingDiv.parentNode.insertBefore(z1.zone, pricingDiv);
+    moveInto(zone1Nodes, z1.body);
+
+    // ── ZONE 2 — Liquidation Engine + Volume Engine ──────────────
+    const z2 = makeZone(2,
+      'Zone 2',
+      'Volume Engine',
+      'Auto-calculated from your assumptions above'
+    );
+    const zone2Nodes = collectNodes(engDiv, revBreakDiv);
+    engDiv.parentNode.insertBefore(z2.zone, engDiv);
+    moveInto(zone2Nodes, z2.body);
+
+    // Inner separator + outputs wrapper inside Zone 2
+    const innerDividers = z2.body.querySelectorAll('.divider');
+    if (innerDividers.length >= 2) {
+      const sep = document.createElement('div');
+      sep.className = 'rev-zone-separator';
+      const line1 = document.createElement('div');
+      line1.className = 'rev-zone-separator-line';
+      const lbl = document.createElement('span');
+      lbl.className = 'rev-zone-separator-label';
+      lbl.textContent = '↓ outputs';
+      const line2 = document.createElement('div');
+      line2.className = 'rev-zone-separator-line';
+      sep.appendChild(line1);
+      sep.appendChild(lbl);
+      sep.appendChild(line2);
+      z2.body.insertBefore(sep, innerDividers[1]);
+
+      const outputsWrap = document.createElement('div');
+      outputsWrap.className = 'rev-zone-outputs';
+      const outputGrid = innerDividers[1].nextElementSibling;
+      if (outputGrid) {
+        z2.body.insertBefore(outputsWrap, innerDividers[1]);
+        outputsWrap.appendChild(innerDividers[1]);
+        outputsWrap.appendChild(outputGrid);
+      }
+    }
+
+    // ── ZONE 3 — Revenue Breakdown + Enhanced + Other ────────────
+    const z3 = makeZone(3,
+      'Zone 3',
+      'Revenue Outputs',
+      'Calculated from Zones 1 & 2 · Manual items editable'
+    );
+    const zone3Nodes = collectNodes(revBreakDiv, null);
+    revBreakDiv.parentNode.insertBefore(z3.zone, revBreakDiv);
+    moveInto(zone3Nodes, z3.body);
+
+    // AUTO pills on read-only display cards in Zone 3
+    tab6.querySelectorAll('.rev-zone-3 .ci-label').forEach(lbl => {
+      if (lbl.querySelector('.auto-pill')) return;
+      const card = lbl.closest('.ci');
+      if (!card) return;
+      const wrap = card.querySelector('.ci-input-wrap');
+      if (wrap && wrap.style.display === 'none') {
+        const pill = document.createElement('span');
+        pill.className = 'auto-pill';
+        Object.assign(pill.style, {
+          display: 'inline-block',
+          marginLeft: '6px',
+          padding: '1px 6px',
+          borderRadius: '3px',
+          fontSize: '9px',
+          fontWeight: '700',
+          letterSpacing: '.08em',
+          textTransform: 'uppercase',
+          background: 'var(--zone3-border)',
+          color: 'var(--zone3-accent)',
+          verticalAlign: 'middle',
+        });
+        pill.textContent = 'AUTO';
+        lbl.appendChild(pill);
+      }
+    });
+
+    // MANUAL pills on editable Book P&L cards (A/B flex container only)
+    tab6.querySelectorAll('.rev-zone-3 .ci').forEach(card => {
+      const wrap = card.querySelector('.ci-input-wrap');
+      if (!wrap || wrap.style.display === 'none') return;
+      const lbl = card.querySelector('.ci-label');
+      if (!lbl || lbl.querySelector('.manual-pill')) return;
+      const closestFlex = card.closest('[style*="flex"]');
+      if (!closestFlex) return;
+      const pill = document.createElement('span');
+      pill.className = 'manual-pill';
+      Object.assign(pill.style, {
+        display: 'inline-block',
+        marginLeft: '6px',
+        padding: '1px 6px',
+        borderRadius: '3px',
+        fontSize: '9px',
+        fontWeight: '700',
+        letterSpacing: '.08em',
+        textTransform: 'uppercase',
+        background: '#E8E4C0',
+        color: '#7A6A1A',
+        verticalAlign: 'middle',
+      });
+      pill.textContent = 'MANUAL';
+      lbl.appendChild(pill);
+    });
+  }, 200);
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// REVENUE TAB — static formula expression under every calculated field.
+// Purely descriptive — no listeners, no live values. Live formula
+// provenance is still shown by the existing -source annotation divs.
+// ═══════════════════════════════════════════════════════════════════
+(function showRevFormulas() {
+  if (window.__revFormulasShown) return;
+  window.__revFormulasShown = true;
+
+  if (!document.getElementById('rev-formulas-style')) {
+    const style = document.createElement('style');
+    style.id = 'rev-formulas-style';
+    style.textContent = `
+.ci-formula {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 11px;
+  color: var(--pu-text);
+  background: rgba(191,111,255,0.06);
+  border-left: 2px solid var(--pu-mid);
+  padding: 5px 9px;
+  margin-top: 8px;
+  line-height: 1.45;
+  border-radius: 0 3px 3px 0;
+  word-break: break-word;
+}
+.ci-formula::before {
+  content: 'ƒ ';
+  font-weight: 700;
+  color: var(--pu);
+  margin-right: 2px;
+}
+`;
+    document.head.appendChild(style);
+  }
+
+  // anchor element ID → static formula expression (using human-readable card titles)
+  const FORMULAS = {
+    // Pricing Assumptions (Zone 1)
+    'rev-blended-spread':     '(Volume Mix FX % × FX Spread Markup) + (Volume Mix Commodities % × Commodities Spread Markup) + (Volume Mix Crypto % × Crypto Spread Markup)',
+    'rev-net-margin-per-lot': '(Blended Spread Markup × $10 per pip) − LP Fee per Lot',
+    // Book Routing
+    'rev-bbook-pct-display':  '100% − A-Book Volume %',
+    // Liquidation Engine (Zone 2)
+    'rev-eng-lots-per-day':   'Total Trading Float ÷ Standard Lot Size ÷ 22 trading days × Daily Float Turnover %',
+    // Volume Engine outputs
+    'rev-eng-out-va':         'Avg Lots / Day × Days to Stop-out × A-Book Volume % × (1 + Reload Rate × (Liquidations / Lifetime − 1))',
+    'rev-eng-out-vb':         'Avg Lots / Day × Days to Stop-out × B-Book Volume % × (1 + Reload Rate × (Liquidations / Lifetime − 1))',
+    // A-Book derived streams (Zone 3)
+    'rev-a-spread':           'A-Book Lifetime Volume × Blended Spread Markup × $10 per pip',
+    'rev-a-commission':       'A-Book Lifetime Volume × Commission per Lot per Side × 2 sides',
+    'rev-a-swap':             'A-Book Lifetime Volume × Swap Charged to Client × Avg Nights Held × $10 per pip',
+    'rev-a-slippage':         'A-Book Lifetime Volume × Avg Slippage Captured × $10 per pip',
+    'rev-a-lp-rebate':        'A-Book Lifetime Volume × LP Rebate per A-Book Lot',
+    'rev-a-inactivity':       'Total Clients × Dormant Account % × Inactivity Fee per Account',
+    // B-Book derived streams
+    'rev-b-spread':           'B-Book Lifetime Volume × Blended Spread Markup × $10 per pip',
+    'rev-b-commission':       'B-Book Lifetime Volume × Commission per Lot per Side × 2 sides',
+    'rev-b-swap':             'B-Book Lifetime Volume × Swap Charged to Client × Avg Nights Held × $10 per pip',
+    'rev-b-slippage':         'B-Book Lifetime Volume × Avg Slippage Captured × $10 per pip',
+    'rev-b-pnl':              'B-Book Lifetime Volume × B-Book Edge × $10 per pip',
+    // Total
+    'rev-total':              'Sum of every revenue line item on this page',
+  };
+
+  // Run after injectRevZones (200ms) so cards are inside their zone bodies
+  setTimeout(() => {
+    Object.keys(FORMULAS).forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const card = el.closest('.ci');
+      if (!card) return;
+      if (card.querySelector('.ci-formula[data-for="' + id + '"]')) return;
+
+      const f = document.createElement('div');
+      f.className = 'ci-formula';
+      f.setAttribute('data-for', id);
+      f.textContent = FORMULAS[id];
+      card.appendChild(f);
+    });
+  }, 260);
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// CROSS-TAB CALCULATED-FIELD FORMULAS — descriptive only, no listeners.
+// Reuses the .ci-formula style injected by showRevFormulas. Each formula
+// is attached to the closest .ci card (or parent if no .ci wrapper).
+// ═══════════════════════════════════════════════════════════════════
+(function showAppFormulas() {
+  if (window.__appFormulasShown) return;
+  window.__appFormulasShown = true;
+
+  const FORMULAS = {
+    // ─────────── tab2 — Vendor Cost Comparison ───────────
+    'vca-annual':              'Vendor A Q1 Cost + Q2 Cost + Q3 Cost + Q4 Cost',
+    'vcb-annual':              'Vendor B Q1 Cost + Q2 Cost + Q3 Cost + Q4 Cost',
+
+    // ─────────── tab3 — IB Network (per-tier outputs) ────
+    't1-clients':              'Tier 1 Clients per IB × Tier 1 Active IBs',
+    't1-payout':               'Tier 1 CPA + Tier 1 Rev Share + Tier 1 Rebate',
+    't1-out-master-volume':    'Total Volume × Tier 1 Master Routing %',
+    't1-out-master-payout':    'Tier 1 Master Volume × Tier 1 Master Rate per Lot',
+    't1-out-master-override':  'Tier 1 Master Rate − Tier 1 Sub Rate (per lot)',
+    't1-out-sub-volume':       'Total Volume × Tier 1 Sub Routing %',
+    't1-out-sub-payout':       'Tier 1 Sub Volume × Tier 1 Sub Rate per Lot',
+    't1-out-direct-volume':    'Total Volume × (1 − Tier 1 Master Routing % − Tier 1 Sub Routing %)',
+    't1-out-net-retained':     '(Total Volume × Spread per Lot) − Tier 1 Master Payout − Tier 1 Sub Payout',
+
+    't2-clients':              'Tier 2 Clients per IB × Tier 2 Active IBs',
+    't2-payout':               'Tier 2 CPA + Tier 2 Rev Share + Tier 2 Rebate',
+    't2-out-master-volume':    'Total Volume × Tier 2 Master Routing %',
+    't2-out-master-payout':    'Tier 2 Master Volume × Tier 2 Master Rate per Lot',
+    't2-out-master-override':  'Tier 2 Master Rate − Tier 2 Sub Rate (per lot)',
+    't2-out-sub-volume':       'Total Volume × Tier 2 Sub Routing %',
+    't2-out-sub-payout':       'Tier 2 Sub Volume × Tier 2 Sub Rate per Lot',
+    't2-out-direct-volume':    'Total Volume × (1 − Tier 2 Master Routing % − Tier 2 Sub Routing %)',
+    't2-out-net-retained':     '(Total Volume × Spread per Lot) − Tier 2 Master Payout − Tier 2 Sub Payout',
+
+    't3-clients':              'Tier 3 Clients per IB × Tier 3 Active IBs',
+    't3-payout':               'Tier 3 CPA + Tier 3 Rev Share + Tier 3 Rebate',
+    't3-out-master-volume':    'Total Volume × Tier 3 Master Routing %',
+    't3-out-master-payout':    'Tier 3 Master Volume × Tier 3 Master Rate per Lot',
+    't3-out-master-override':  'Tier 3 Master Rate − Tier 3 Sub Rate (per lot)',
+    't3-out-sub-volume':       'Total Volume × Tier 3 Sub Routing %',
+    't3-out-sub-payout':       'Tier 3 Sub Volume × Tier 3 Sub Rate per Lot',
+    't3-out-direct-volume':    'Total Volume × (1 − Tier 3 Master Routing % − Tier 3 Sub Routing %)',
+    't3-out-net-retained':     '(Total Volume × Spread per Lot) − Tier 3 Master Payout − Tier 3 Sub Payout',
+
+    'ibt-clients':             'Tier 1 Clients + Tier 2 Clients + Tier 3 Clients',
+    'ibt-ibs':                 'Tier 1 Active IBs + Tier 2 Active IBs + Tier 3 Active IBs',
+    'ibt-cpa':                 'Tier 1 CPA + Tier 2 CPA + Tier 3 CPA',
+    'ibt-revshare':            'Tier 1 Rev Share + Tier 2 Rev Share + Tier 3 Rev Share',
+    'ibt-rebate':              'Tier 1 Rebate + Tier 2 Rebate + Tier 3 Rebate',
+    'ibt-total':               'Total CPA + Total Rev Share + Total Rebate',
+    'ib-total-clients':        'Tier 1 Clients + Tier 2 Clients + Tier 3 Clients',
+    'ib-total-ibs':            'Tier 1 Active IBs + Tier 2 Active IBs + Tier 3 Active IBs',
+    'ib-total-payout':         'Sum of monthly IB payouts across all tiers',
+    'ib-payout-pct':           '(Total IB Payouts ÷ Gross Revenue) × 100%',
+    'ib-sum-payouts':          'Sum of Master Payouts + Sub Payouts across all tiers',
+    'ib-sum-vol-ibs':          'Sum of volume routed through IBs across all tiers',
+    'ib-sum-direct':           'Total Volume − IB-Routed Volume',
+    'ib-sum-blended':          'Total IB Payouts ÷ Total IB Volume (per lot)',
+
+    // ─────────── tab4 — Deposits ─────────────────────────
+    'dep-clients-total':       '(T1 Clients × T1 IBs) + (T2 Clients × T2 IBs) + (T3 Clients × T3 IBs) + Other Direct Clients',
+    'dep-volume-total':        '(T1 Clients × T1 IBs × T1 Avg Deposit) + (T2 Clients × T2 IBs × T2 Avg Deposit) + (T3 Clients × T3 IBs × T3 Avg Deposit) + (Other Clients × Other Avg Deposit)',
+    'dep-t1-subtotal':         'T1 Clients × T1 IBs × T1 Avg Deposit',
+    'dep-t2-subtotal':         'T2 Clients × T2 IBs × T2 Avg Deposit',
+    'dep-t3-subtotal':         'T3 Clients × T3 IBs × T3 Avg Deposit',
+    'dep-other-subtotal':      'Other Direct Clients × Other Avg Deposit',
+
+    // ─────────── tab5 — Trading Float ────────────────────
+    'flt-volume-total':        'Mirrors Total Deposits from the Deposits tab',
+    'flt-total':               'Sum of T1 Net Float + T2 Net Float + T3 Net Float + Other Net Float (each tier × Tier Leverage × Active %)',
+    'flt-t1-result':           'T1 Clients × ((T1 Avg Deposit × Active % + T1 Redeposit Amount × Redeposits − Withdrawals − Bonus) × T1 Leverage)',
+    'flt-t2-result':           'T2 Clients × ((T2 Avg Deposit × Active % + T2 Redeposit Amount × Redeposits − Withdrawals − Bonus) × T2 Leverage)',
+    'flt-t3-result':           'T3 Clients × ((T3 Avg Deposit × Active % + T3 Redeposit Amount × Redeposits − Withdrawals − Bonus) × T3 Leverage)',
+    'flt-other-result':        'Other Clients × ((Other Avg Deposit × Active % + Other Redeposit Amount × Redeposits − Withdrawals − Bonus) × Other Leverage)',
+
+    // ─────────── tab7 — Variable Costs ───────────────────
+    'vrc-total-display':       'Sum of every variable cost line + Sub-IB Override Cost',
+    'vrc-sub-ib-override':     'Sum of (Tier Sub Volume × (Tier Master Rate − Tier Sub Rate)) across all tiers',
+    'vrc-ib-cpa-live':         'Mirror of Total CPA from the IB Network tab',
+    'vrc-ib-revshare-live':    'Mirror of Total Rev Share from the IB Network tab',
+    'vrc-ib-rebate-live':      'Mirror of Total Rebate from the IB Network tab',
+    'vrc-ib-total-live':       'Mirror of Total IB Payouts from the IB Network tab',
+
+    // ─────────── tab8 — Fixed Costs ──────────────────────
+    'fxc-total-display':       'Sum of every fixed cost line',
+
+    // ─────────── Financial Model ─────────────────────────
+    'fm-kpi-breakeven-year':   'First year where Cumulative Net Profit is ≥ 0',
+    'fm-kpi-5yr-revenue':      'Sum of (Year 1 Revenue × (1 + Growth Rate)^(year − 1)) for years 1 through 5',
+    'fm-kpi-5yr-net':          'Year 5 Cumulative Net Profit',
+    'fm-kpi-best-gp-margin':   'Maximum of (Gross Profit ÷ Revenue × 100%) across all 5 years',
+  };
+
+  function attachFormula(id, formula) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const card = el.closest('.ci') || el.parentElement;
+    if (!card) return;
+    if (card.querySelector('.ci-formula[data-for="' + id + '"]')) return;
+    const f = document.createElement('div');
+    f.className = 'ci-formula';
+    f.setAttribute('data-for', id);
+    f.textContent = formula;
+    card.appendChild(f);
+  }
+
+  // Run after IB Network render (280ms) so dynamically-injected output IDs exist
+  setTimeout(() => {
+    Object.keys(FORMULAS).forEach(id => attachFormula(id, FORMULAS[id]));
+  }, 320);
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// COST FORMULA FIXES — reconcile Variable Costs ↔ Financial Model
+//   Fix 1: sync ib-sum-payouts ← ibt-total (single IB source of truth)
+//   Fix 2: hide dead vrc-t* tier-rate inputs; annotate live summary
+//   Fix 3: neutralise stale recalcVariableTotal (race condition)
+// ═══════════════════════════════════════════════════════════════════
+(function fixCostFormulas() {
+  if (window.__costFormulaFixed) return;
+  window.__costFormulaFixed = true;
+
+  // ── FIX 3 — neutralise the stale recalcVariableTotal first ──
+  // Note: function is declared inside an IIFE so it's not globally
+  // reachable. typeof check is safe (returns 'undefined' without
+  // throwing); the assignment is a no-op when out of scope.
+  if (typeof recalcVariableTotal === 'function') {
+    recalcVariableTotal = function() {};
+  }
+
+  // ── FIX 2 — remove dead vrc-t* inputs from tab7 ──
+  (function removeDeadIBInputs() {
+    const ttGrid = document.querySelector('#tab7 .tt-grid');
+    if (ttGrid) ttGrid.style.display = 'none';
+
+    const tab7 = document.getElementById('tab7');
+    if (tab7) {
+      tab7.querySelectorAll('.divider').forEach(d => {
+        const lbl = d.querySelector('.divider-label');
+        if (lbl && lbl.textContent.trim() === 'IB Payouts by Tier') {
+          d.remove();
+        }
+      });
+    }
+
+    if (!document.getElementById('vrc-ib-rate-annotation')) {
+      const cpaLive  = document.getElementById('vrc-ib-cpa-live');
+      const liveGrid = cpaLive ? cpaLive.closest('.costs-grid') : null;
+      if (liveGrid && liveGrid.parentNode) {
+        const annot = document.createElement('div');
+        annot.id = 'vrc-ib-rate-annotation';
+        annot.style.cssText =
+          'font-size:12px;color:var(--text-dim);padding:.5rem .75rem;' +
+          'border-left:3px solid var(--border-dim);margin:.5rem 0 1rem';
+        annot.textContent =
+          'IB payout rates (CPA, Rev Share, Rebate) and client counts ' +
+          'are set in the IB Network tab. This section shows the live ' +
+          'calculated total pulled from those inputs.';
+        liveGrid.parentNode.insertBefore(annot, liveGrid.nextSibling);
+      }
+    }
+  })();
+
+  // ── FIX 1 — keep ib-sum-payouts mirrored to ibt-total ──
+  // Run after wireIBTierCounts (280ms) and any other late init.
+  setTimeout(function() {
+    const ibtTotalEl     = document.getElementById('ibt-total');
+    const ibSumPayoutsEl = document.getElementById('ib-sum-payouts');
+
+    function syncIBSumPayouts() {
+      if (!ibtTotalEl || !ibSumPayoutsEl) return;
+      // Equality guard prevents the FM observer from re-firing forever.
+      if (ibSumPayoutsEl.textContent !== ibtTotalEl.textContent) {
+        ibSumPayoutsEl.textContent = ibtTotalEl.textContent;
+      }
+    }
+
+    if (ibtTotalEl) {
+      new MutationObserver(syncIBSumPayouts)
+        .observe(ibtTotalEl, {
+          characterData: true, childList: true, subtree: true
+        });
+    }
+
+    // Initial sync brings FM into line with the current ibt-total.
+    syncIBSumPayouts();
+
+    // Belt-and-suspenders repaint of the Financial Model.
+    const fmTrigger = document.getElementById('fm-growth-revenue');
+    if (fmTrigger) {
+      fmTrigger.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }, 320);
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// NET FLOAT cell formulas — render the formula inside each per-tier
+// "= Net Float" td (flt-{t1,t2,t3,other}-result). The recalc at
+// recalcDepositsTotal sets textContent on these cells which wipes any
+// child elements, so a MutationObserver re-applies the structure.
+// ═══════════════════════════════════════════════════════════════════
+(function injectNetFloatCellFormulas() {
+  if (window.__netFloatCellFormulas) return;
+  window.__netFloatCellFormulas = true;
+
+  const TIER_IDS = [
+    'flt-t1-result',
+    'flt-t2-result',
+    'flt-t3-result',
+    'flt-other-result',
+  ];
+
+  const FORMULA_TEXT =
+    'ƒ Clients × ((Avg Deposit × Active % + Redeposit Amount × Redeposits − Withdrawal − Bonus) × Leverage)';
+
+  function applyStructure(cell) {
+    if (!cell) return;
+    if (cell.querySelector('.flt-result-formula')) return; // already structured
+
+    const value = (cell.textContent || '').trim();
+
+    // Allow the cell to wrap onto multiple lines
+    cell.style.whiteSpace = 'normal';
+    cell.style.verticalAlign = 'top';
+    cell.innerHTML = '';
+
+    const valueDiv = document.createElement('div');
+    valueDiv.className = 'flt-result-value';
+    valueDiv.textContent = value;
+    valueDiv.style.cssText =
+      'font-weight:700;font-size:15px;text-align:right;color:var(--pu-text);' +
+      'line-height:1.2';
+
+    const formulaDiv = document.createElement('div');
+    formulaDiv.className = 'flt-result-formula';
+    formulaDiv.textContent = FORMULA_TEXT;
+    formulaDiv.style.cssText =
+      'font-family:SFMono-Regular,Consolas,Menlo,monospace;' +
+      'font-size:9.5px;font-weight:400;color:var(--pu-text);opacity:.75;' +
+      'text-align:left;margin-top:5px;padding-top:5px;line-height:1.35;' +
+      'border-top:1px dashed rgba(191,111,255,0.30);white-space:normal;' +
+      'word-break:break-word';
+
+    cell.appendChild(valueDiv);
+    cell.appendChild(formulaDiv);
+  }
+
+  // Run after showAppFormulas (320ms) so we can clean up the orphan
+  // .ci-formula div it appended to the <tr> parent.
+  setTimeout(() => {
+    TIER_IDS.forEach(id => {
+      const cell = document.getElementById(id);
+      if (!cell) return;
+
+      // Remove any orphan formula div previously appended to the row by
+      // showAppFormulas (its .ci fallback walked up to the <tr> parent).
+      const row = cell.closest('tr');
+      if (row) {
+        row.querySelectorAll('.ci-formula[data-for="' + id + '"]')
+          .forEach(n => { if (n.parentNode === row) n.remove(); });
+      }
+
+      applyStructure(cell);
+
+      // When recalcDepositsTotal sets textContent on the cell, every
+      // child element is wiped. Re-apply structure on the next mutation.
+      new MutationObserver(() => {
+        if (cell.querySelector('.flt-result-formula')) return;
+        applyStructure(cell);
+      }).observe(cell, { childList: true, characterData: true, subtree: true });
+    });
+  }, 360);
+})();
+</script>
+
+<script>
+// Tracker tab shell — appended after Financial Model.
+// Paste tracker content into trPanel.innerHTML and inject styles into <head>.
+(function buildTrackerTab() {
+  if (window.__trackerTabBuilt) return;
+  const fmBtn   = document.querySelector('.page-tab[data-tab="tab-fm"]');
+  const fmPanel = document.getElementById('tab-fm');
+  if (!fmBtn || !fmPanel) { setTimeout(buildTrackerTab, 100); return; }
+  window.__trackerTabBuilt = true;
+
+  const trBtn = document.createElement('button');
+  trBtn.className = 'page-tab';
+  trBtn.setAttribute('data-tab', 'tab-tracker');
+  trBtn.textContent = 'Tracker';
+  fmBtn.parentNode.insertBefore(trBtn, fmBtn.nextSibling);
+
+  const trPanel = document.createElement('div');
+  trPanel.className = 'tab-panel';
+  trPanel.id = 'tab-tracker';
+  fmPanel.parentNode.insertBefore(trPanel, fmPanel.nextSibling);
+
+  trBtn.addEventListener('click', () => {
+    document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    trBtn.classList.add('active');
+    trPanel.classList.add('active');
+    if (typeof saveState === 'function') saveState();
+  });
+
+  // ─── TRACKER CONTENT ─────────────────────────────────────────────
+  trPanel.innerHTML = `
+<style>
+  #tab-tracker {
+    --bg: #fafafa; --panel: #ffffff; --panel-2: #f5f5f4;
+    --border: #e5e5e3; --border-strong: #d4d4d2;
+    --text: #1a1a1a; --muted: #6b7280; --muted-2: #9ca3af;
+    --accent: #6F2BCF; --accent-soft: rgba(191,111,255,0.10);
+    --green: #15803d; --green-soft: #dcfce7;
+    --amber: #b45309; --amber-soft: #fef3c7;
+    --red: #b91c1c; --red-soft: #fee2e2;
+    --blue: #1d4ed8; --blue-soft: #dbeafe;
+    --purple: #6d28d9; --purple-soft: #ede9fe;
+    --grey: #6b7280; --grey-soft: #f3f4f6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+    padding: 24px; border-radius: 6px;
+  }
+  #tab-tracker * { box-sizing: border-box; }
+  #tab-tracker header { margin-bottom: 28px; border-bottom: 1px solid var(--border); padding-bottom: 18px; background: transparent; padding-top: 0; }
+  #tab-tracker h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+  #tab-tracker h1 .accent { color: var(--accent); }
+  #tab-tracker .subtitle { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  #tab-tracker h2 { font-size: 18px; font-weight: 600; margin-bottom: 14px; letter-spacing: -0.01em; }
+  #tab-tracker h2 .count { color: var(--muted); font-weight: 400; font-size: 14px; margin-left: 8px; }
+  #tab-tracker .tr-tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+  #tab-tracker .tr-tab { padding: 10px 18px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; font-size: 14px; font-weight: 500; transition: all 0.15s; user-select:none; }
+  #tab-tracker .tr-tab:hover { color: var(--text); }
+  #tab-tracker .tr-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  #tab-tracker .tr-view { display: none; }
+  #tab-tracker .tr-view.active { display: block; }
+  #tab-tracker .alert { background: var(--red-soft); border: 1px solid rgba(185,28,28,0.2); border-left: 3px solid var(--red); padding: 14px 18px; border-radius: 6px; margin-bottom: 14px; font-size: 13px; color: #5a1717; }
+  #tab-tracker .alert strong { color: var(--red); }
+  #tab-tracker .alert.warn { background: var(--amber-soft); border-color: rgba(180,83,9,0.2); border-left-color: var(--amber); color: #5a3409; }
+  #tab-tracker .alert.warn strong { color: var(--amber); }
+  #tab-tracker .alert.info { background: var(--blue-soft); border-color: rgba(29,78,216,0.2); border-left-color: var(--blue); color: #1e2a5a; }
+  #tab-tracker .alert.info strong { color: var(--blue); }
+  #tab-tracker .alert.brand { background: var(--purple-soft); border-color: rgba(109,40,217,0.2); border-left-color: var(--purple); color: #3c1d6b; }
+  #tab-tracker .alert.brand strong { color: var(--purple); }
+  #tab-tracker .timeline-wrapper { overflow-x: auto; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); }
+  #tab-tracker .timeline-grid { display: grid; grid-template-columns: 240px repeat(61, minmax(20px, 1fr)); gap: 1px; background: var(--border); font-size: 10px; min-width: 1500px; }
+  #tab-tracker .timeline-grid > div { background: var(--panel); padding: 4px 6px; }
+  #tab-tracker .th { background: var(--panel-2) !important; font-weight: 600; color: var(--muted); text-align: center; }
+  #tab-tracker .th-task { text-align: left; padding-left: 12px !important; font-size: 11px; }
+  #tab-tracker .month-marker { background: var(--accent-soft) !important; color: var(--accent); font-weight: 700; text-align: center; font-size: 11px; }
+  #tab-tracker .week-marker { background: var(--panel-2) !important; color: var(--accent); font-weight: 600; text-align: center; }
+  #tab-tracker .stream-divider { grid-column: 1 / -1; background: var(--accent-soft) !important; color: var(--accent); font-weight: 700; font-size: 11px; padding: 6px 12px !important; text-transform: uppercase; letter-spacing: 0.06em; }
+  #tab-tracker .task-name { font-weight: 500; padding-left: 12px !important; font-size: 12px; display: flex; align-items: center; gap: 6px; color: var(--text); }
+  #tab-tracker .owner-tag { font-size: 9px; color: var(--muted); background: var(--grey-soft); padding: 1px 5px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+  #tab-tracker .bar { position: relative; height: 100%; min-height: 22px; }
+  #tab-tracker .bar.fill-critical { background: var(--red); }
+  #tab-tracker .bar.fill-high { background: var(--accent); }
+  #tab-tracker .bar.fill-med { background: var(--blue); }
+  #tab-tracker .bar.fill-low { background: var(--grey); }
+  #tab-tracker .bar.fill-brand { background: var(--purple); }
+  #tab-tracker .bar.fill-done { background: var(--green); opacity: 0.65; }
+  #tab-tracker .bar.fill-blocked { background: repeating-linear-gradient(45deg, var(--red), var(--red) 4px, transparent 4px, transparent 8px); opacity: 0.6; }
+  #tab-tracker .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  #tab-tracker .column { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; min-height: 200px; }
+  #tab-tracker .column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  #tab-tracker .col-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  #tab-tracker .col-count { background: var(--grey-soft); color: var(--muted); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  #tab-tracker .blocked .col-title { color: var(--red); }
+  #tab-tracker .progress .col-title { color: var(--amber); }
+  #tab-tracker .review .col-title { color: var(--blue); }
+  #tab-tracker .done .col-title { color: var(--green); }
+  #tab-tracker .card { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--grey); border-radius: 6px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+  #tab-tracker .card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+  #tab-tracker .card.priority-critical { border-left-color: var(--red); }
+  #tab-tracker .card.priority-high { border-left-color: var(--accent); }
+  #tab-tracker .card.priority-med { border-left-color: var(--blue); }
+  #tab-tracker .card.priority-low { border-left-color: var(--grey); }
+  #tab-tracker .card.priority-brand { border-left-color: var(--purple); }
+  #tab-tracker .card-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  #tab-tracker .card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 10px; }
+  #tab-tracker .meta-pill { background: var(--grey-soft); color: var(--muted); padding: 2px 7px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  #tab-tracker .meta-pill.owner { background: var(--accent-soft); color: var(--accent); }
+  #tab-tracker .meta-pill.deadline { background: var(--amber-soft); color: var(--amber); }
+  #tab-tracker .meta-pill.deadline.urgent { background: var(--red-soft); color: var(--red); }
+  #tab-tracker .workstream-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  #tab-tracker .ws-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+  #tab-tracker .ws-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  #tab-tracker .ws-title { font-size: 15px; font-weight: 600; }
+  #tab-tracker .ws-status { font-size: 10px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+  #tab-tracker .status-onTrack { background: var(--green-soft); color: var(--green); }
+  #tab-tracker .status-atRisk { background: var(--amber-soft); color: var(--amber); }
+  #tab-tracker .status-blocked { background: var(--red-soft); color: var(--red); }
+  #tab-tracker .status-notStarted { background: var(--grey-soft); color: var(--grey); }
+  #tab-tracker .ws-body { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.6; }
+  #tab-tracker .ws-body strong { color: var(--text); }
+  #tab-tracker .ws-tasks { font-size: 12px; }
+  #tab-tracker .ws-task { padding: 7px 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  #tab-tracker .ws-task-name { color: var(--text); }
+  #tab-tracker .ws-task-owner { color: var(--accent); font-size: 11px; font-weight: 600; }
+  #tab-tracker .milestones-list { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+  #tab-tracker .ms-row { display: grid; grid-template-columns: 90px 1fr 160px 140px; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; }
+  #tab-tracker .ms-row:last-child { border-bottom: none; }
+  #tab-tracker .ms-date { color: var(--accent); font-weight: 700; font-size: 13px; }
+  #tab-tracker .ms-name { font-size: 13px; font-weight: 500; }
+  #tab-tracker .ms-name small { display: block; color: var(--muted); font-size: 11px; font-weight: 400; margin-top: 2px; }
+  #tab-tracker .ms-owner { color: var(--accent); font-size: 12px; font-weight: 600; }
+  #tab-tracker .ms-deps { color: var(--muted); font-size: 11px; }
+  #tab-tracker .ms-row.launch-row { background: var(--accent-soft); }
+  #tab-tracker .ms-row.launch-row .ms-name { font-weight: 700; color: var(--accent); }
+  #tab-tracker .ms-row.brand-row { background: var(--purple-soft); }
+  #tab-tracker .ms-row.brand-row .ms-date, #tab-tracker .ms-row.brand-row .ms-owner { color: var(--purple); }
+  #tab-tracker .legend { display: flex; gap: 18px; margin: 14px 0 16px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
+  #tab-tracker .legend-item { display: flex; align-items: center; gap: 6px; }
+  #tab-tracker .legend-swatch { width: 14px; height: 10px; border-radius: 2px; }
+  #tab-tracker .owner-legend { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; font-size: 12px; }
+  #tab-tracker .owner-legend-item strong { color: var(--accent); display: block; margin-bottom: 2px; }
+  #tab-tracker .owner-legend-item span { color: var(--muted); font-size: 11px; }
+  @media (max-width: 1100px) {
+    #tab-tracker .kanban { grid-template-columns: repeat(2, 1fr); }
+    #tab-tracker .workstream-grid { grid-template-columns: 1fr; }
+    #tab-tracker .owner-legend { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+<header>
+  <h1>Milele <span class="accent">Prime</span> — Launch Tracker</h1>
+  <div class="subtitle">Soft launch target: <strong style="color:var(--accent)">30 June 2026</strong> &nbsp;·&nbsp; Updated 1 May 2026 &nbsp;·&nbsp; 60 days remaining</div>
+</header>
+<div class="owner-legend">
+  <div class="owner-legend-item"><strong>Zain</strong><span>Contracts, legal, marketing, IB strategy</span></div>
+  <div class="owner-legend-item"><strong>Hamza</strong><span>PSPs, payments, KYC ops</span></div>
+  <div class="owner-legend-item"><strong>Helia</strong><span>Tech, infra, integrations</span></div>
+  <div class="owner-legend-item"><strong>Billawal</strong><span>Banking, treasury</span></div>
+  <div class="owner-legend-item"><strong>Qayyum</strong><span>Risk, compliance, accounting</span></div>
+  <div class="owner-legend-item"><strong>Fahad Riaz</strong><span>Brand, content series</span></div>
+</div>
+<div class="tr-tabs">
+  <div class="tr-tab active" data-view="tr-timeline">Timeline</div>
+  <div class="tr-tab" data-view="tr-workstreams">Workstreams</div>
+  <div class="tr-tab" data-view="tr-kanban">Tracker Board</div>
+  <div class="tr-tab" data-view="tr-milestones">Milestones &amp; Critical Path</div>
+</div>
+<div class="tr-view active" id="tr-timeline">
+  <div class="alert warn"><strong>FSA license — strategic, not blocking:</strong> Most prep work proceeds without it. But serious LPs (Match-Prime, Finalto, IS Prime) require regulatory status, card PSPs price unlicensed brokers as high-risk, and "FSA-regulated" is the credibility line in your IB pitch. The license is fee-paid and expected week 1 — keep it as the master unlock for live trading, not for soft launch.</div>
+  <div class="alert"><strong>MT5 White Label timeline:</strong> MetaQuotes onboarding takes 8–12 weeks. The 30 June soft launch runs on a <strong>demo MT5 environment</strong> (sublicensed/temp) for IB familiarization. Live trading realistically lands late July or August once WL completes.</div>
+  <div class="alert brand"><strong>Content series leads the brokerage:</strong> Fahad Riaz's "Building a Brokerage" series soft-launches <strong>15 May</strong> — six weeks ahead of the brokerage — to build narrative tension and audience for the 30 June launch. Each episode mirrors a brokerage milestone in real time.</div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--red)"></div>Critical path</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent)"></div>High priority</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--blue)"></div>Medium priority</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--purple)"></div>Brand / content</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--grey)"></div>Standard</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--green);opacity:0.65"></div>Done</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:repeating-linear-gradient(45deg, var(--red), var(--red) 3px, transparent 3px, transparent 6px);opacity:0.6"></div>Blocked</div>
+  </div>
+  <div class="timeline-wrapper"><div class="timeline-grid" id="ganttGrid"></div></div>
+</div>
+<div class="tr-view" id="tr-workstreams"><div class="workstream-grid" id="workstreamGrid"></div></div>
+<div class="tr-view" id="tr-kanban"><div class="kanban" id="kanbanBoard"></div></div>
+<div class="tr-view" id="tr-milestones">
+  <h2>Critical Milestones <span class="count">in dependency order</span></h2>
+  <div class="milestones-list" id="milestonesList"></div>
+</div>
+`;
+
+  const tasks = [
+    { id:'L1', name:'St. Lucia IBC incorporation', stream:'Legal', owner:'Zain', start:0, end:0, status:'done', priority:'critical', notes:'Complete' },
+    { id:'L2', name:'FSA Securities Dealer license', stream:'Legal', owner:'Zain', start:1, end:14, status:'progress', priority:'high', notes:'Strategic enabler — unlocks tier-1 LPs, reduces PSP risk pricing, anchors IB pitch.' },
+    { id:'L3', name:'Ajman trade license (UAE)', stream:'Legal', owner:'Zain', start:1, end:21, status:'notStarted', priority:'high', notes:'Required for PSP merchant relationships and UAE banking.' },
+    { id:'L4', name:'Corporate bank account (St. Lucia entity)', stream:'Legal', owner:'Billawal', start:14, end:35, status:'blocked', priority:'high', notes:'Easier with FSA license. Critical for client fund flows.' },
+    { id:'L5', name:'Operational bank account (Ajman entity)', stream:'Legal', owner:'Billawal', start:21, end:42, status:'blocked', priority:'high', notes:'For PSP settlements and OPEX.' },
+    { id:'L6', name:'IB partnership agreement (legal template)', stream:'Legal', owner:'Zain', start:7, end:21, status:'notStarted', priority:'high', notes:'Standard tier structure, commission terms, clawback rules.' },
+    { id:'I1', name:'Netshop server contract & deployment', stream:'Infrastructure', owner:'Helia', start:1, end:14, status:'progress', priority:'high', notes:'LD7 primary, Amsterdam backup, Singapore access. Contract closing.' },
+    { id:'I2', name:'MT5 White Label application (MetaQuotes)', stream:'Infrastructure', owner:'Helia', start:1, end:60, status:'notStarted', priority:'critical', notes:'Submit immediately. 8–12 weeks. Will likely complete late July/August.' },
+    { id:'I3', name:'MT5 demo environment (sublicense/temp)', stream:'Infrastructure', owner:'Helia', start:7, end:28, status:'notStarted', priority:'critical', notes:'Required for soft launch. Temp via master broker.' },
+    { id:'I4', name:'Centroid bridge contract & pricing', stream:'Infrastructure', owner:'Zain', start:1, end:10, status:'progress', priority:'critical', notes:'Vendor confirmed; price negotiation only.' },
+    { id:'I5', name:'Centroid CS360 configuration & cross-connect', stream:'Infrastructure', owner:'Helia', start:14, end:35, status:'notStarted', priority:'critical', notes:'LD7→LD4 cross-connect via Netshop.' },
+    { id:'I6', name:'MT5 server installation & symbol setup', stream:'Infrastructure', owner:'Helia', start:21, end:42, status:'notStarted', priority:'critical', notes:'Symbols, leverage, groups, swaps configured.' },
+    { id:'I7', name:'End-to-end execution test (demo)', stream:'Infrastructure', owner:'Helia', start:42, end:50, status:'notStarted', priority:'critical', notes:'Bridge → MT5 → LP demo flow validated.' },
+    { id:'I8', name:'Failover test (LD7 → Amsterdam)', stream:'Infrastructure', owner:'Helia', start:49, end:55, status:'notStarted', priority:'med', notes:'Documented runbook for primary outage.' },
+    { id:'B1', name:'Alpha Dealing contract signed', stream:'Execution', owner:'Zain', start:1, end:10, status:'progress', priority:'critical', notes:'Final redlines pending; superior to HedgX terms.' },
+    { id:'B2', name:'Alpha Dealing onboarding & access setup', stream:'Execution', owner:'Helia + Aris', start:21, end:42, status:'notStarted', priority:'high', notes:'Limited dealer access; group permissions; reporting cadence.' },
+    { id:'B3', name:'Risk rules / B-book exposure limits documented', stream:'Execution', owner:'Qayyum', start:21, end:42, status:'notStarted', priority:'high', notes:'A-book at launch; B-book rules for post-scale.' },
+    { id:'B4', name:'Dealing desk SOPs & escalation matrix', stream:'Execution', owner:'Qayyum + Aris', start:35, end:49, status:'notStarted', priority:'med', notes:'Coverage hours, escalation, manual intervention rules.' },
+    { id:'LP1', name:'LP shortlist & outreach', stream:'Liquidity', owner:'Zain + Helia', start:1, end:14, status:'notStarted', priority:'critical', notes:'Target: Match-Prime, FXCM Pro, Finalto, IS Prime. Shortlist 3.' },
+    { id:'LP2', name:'LP applications & due diligence', stream:'Liquidity', owner:'Zain + Helia', start:14, end:42, status:'blocked', priority:'critical', notes:'Blocked on FSA license + bank account.' },
+    { id:'LP3', name:'LP demo connection & feed validation', stream:'Liquidity', owner:'Helia', start:35, end:49, status:'notStarted', priority:'critical', notes:'Test feeds before live cutover.' },
+    { id:'LP4', name:'LP credit line & live feed activation', stream:'Liquidity', owner:'Zain + Billawal', start:49, end:60, status:'notStarted', priority:'high', notes:'Funding deposit; live cutover post-soft-launch.' },
+    { id:'C1', name:'Brokeret vs Syntellicore final evaluation', stream:'CRM', owner:'Helia + Zain', start:1, end:10, status:'progress', priority:'critical', notes:'Decide by 10 May. Pricing, IB portal, MT5 integration, KYC flow.' },
+    { id:'C2', name:'CRM contract signed', stream:'CRM', owner:'Zain', start:10, end:14, status:'notStarted', priority:'critical', notes:'Decision lock-in.' },
+    { id:'C3', name:'CRM provisioning & MT5 integration', stream:'CRM', owner:'Helia', start:14, end:42, status:'notStarted', priority:'critical', notes:'Wallet logic, IB tiers, deposit/withdrawal flows.' },
+    { id:'C4', name:'KYC workflow & document templates', stream:'CRM', owner:'Hamza', start:21, end:42, status:'notStarted', priority:'high', notes:'Per FSA requirements; PEP/sanctions screening.' },
+    { id:'C5', name:'IB portal configured (50-IB target)', stream:'CRM', owner:'Zain + Helia', start:35, end:49, status:'notStarted', priority:'high', notes:'Multi-tier commission, real-time stats, payout logic.' },
+    { id:'C6', name:'CRM acceptance testing (UAT)', stream:'CRM', owner:'Helia + Zain', start:42, end:52, status:'notStarted', priority:'high', notes:'Full client journey: signup → KYC → deposit → trade → withdraw.' },
+    { id:'P1', name:'PSP shortlist confirmed', stream:'PSP', owner:'Hamza', start:1, end:7, status:'notStarted', priority:'critical', notes:'CoinsPaid (priority 1), Match2Pay, Praxis, Paytah.' },
+    { id:'P2', name:'CoinsPaid onboarding (crypto rail)', stream:'PSP', owner:'Hamza', start:14, end:42, status:'blocked', priority:'critical', notes:'First PSP. Crypto deposit preference of South Asia/Africa base.' },
+    { id:'P3', name:'Card PSP onboarding', stream:'PSP', owner:'Hamza', start:14, end:49, status:'blocked', priority:'high', notes:'1 of: Praxis/Paytah/Match2Pay. May extend past launch.' },
+    { id:'P4', name:'Payment orchestrator selection', stream:'PSP', owner:'Hamza', start:10, end:21, status:'notStarted', priority:'med', notes:'Praxis Cashier, Match2Pay, or alternative.' },
+    { id:'P5', name:'PSP→CRM webhook integration & test deposits', stream:'PSP', owner:'Helia + Hamza', start:35, end:49, status:'notStarted', priority:'high', notes:'End-to-end deposit flow with reconciliation.' },
+    { id:'P6', name:'Withdrawal SOP & approval workflow', stream:'PSP', owner:'Hamza + Billawal', start:35, end:49, status:'notStarted', priority:'high', notes:'Dual-approval, AML checks, payout cadence.' },
+    { id:'IB1', name:'IB payout tier structure designed', stream:'IB Strategy', owner:'Zain + Qayyum', start:1, end:14, status:'notStarted', priority:'critical', notes:'Multi-tier rebates ($/lot), CPA, sub-IB splits. Stress-test against unit economics.' },
+    { id:'IB2', name:'IB payout calculator & illustrator', stream:'IB Strategy', owner:'Zain + Helia', start:14, end:28, status:'notStarted', priority:'high', notes:'Excel/web tool showing IB earnings at different volumes — used in pitch.' },
+    { id:'IB3', name:'IB tiering, retention & promotion logic', stream:'IB Strategy', owner:'Zain', start:14, end:28, status:'notStarted', priority:'high', notes:'Bronze/Silver/Gold thresholds; volume-based promotion; clawback rules.' },
+    { id:'IB4', name:'IB enablement materials (decks, brochures)', stream:'IB Strategy', owner:'Zain', start:21, end:42, status:'notStarted', priority:'high', notes:'Pitch deck, fact sheet, swap/spread sheet, regulatory section.' },
+    { id:'S1', name:'Sales lead JD + comp structure', stream:'Sales Team', owner:'Zain', start:1, end:7, status:'notStarted', priority:'high', notes:'Senior IB acquisition lead. Base + commission on net IB volume.' },
+    { id:'S2', name:'Sales lead hired', stream:'Sales Team', owner:'Zain', start:7, end:28, status:'notStarted', priority:'high', notes:'Internal hire. Owns IB pipeline, agency relationships, and BDR coordination.' },
+    { id:'S3', name:'IB recruitment agency shortlist & onboard', stream:'Sales Team', owner:'Zain', start:7, end:28, status:'notStarted', priority:'high', notes:'External agency for South Asia/Africa IB networks. Performance-based fee.' },
+    { id:'S4', name:'Sales playbook (script, objection handling)', stream:'Sales Team', owner:'Zain + Sales lead', start:21, end:42, status:'notStarted', priority:'med', notes:'Discovery call script, IB pain points, regulatory talking points.' },
+    { id:'S5', name:'CRM sales pipeline configured', stream:'Sales Team', owner:'Sales lead + Helia', start:28, end:49, status:'notStarted', priority:'med', notes:'IB lead → demo → activation tracking. Commission visibility.' },
+    { id:'A1', name:'Accountant team JD + scope defined', stream:'Accounting Team', owner:'Qayyum', start:1, end:7, status:'notStarted', priority:'high', notes:'2 hires: senior accountant (in-house, full-time) + bookkeeper. Or outsourced firm.' },
+    { id:'A2', name:'Senior accountant hired', stream:'Accounting Team', owner:'Qayyum', start:7, end:28, status:'notStarted', priority:'high', notes:'Forex/CFD experience preferred. Owns reconciliation, FSA reporting, audit prep.' },
+    { id:'A3', name:'External audit firm engaged', stream:'Accounting Team', owner:'Qayyum', start:14, end:35, status:'notStarted', priority:'high', notes:'FSA requires audited financials. Engage early.' },
+    { id:'A4', name:'Accounting team onboarded to systems', stream:'Accounting Team', owner:'Qayyum', start:28, end:49, status:'notStarted', priority:'med', notes:'Xero/QuickBooks access, MT5 P&L exports, reconciliation runbook.' },
+    { id:'F1', name:'Chart of accounts finalized', stream:'Finance', owner:'Qayyum', start:1, end:14, status:'notStarted', priority:'high', notes:'Mapped to MT5 P&L master file.' },
+    { id:'F2', name:'Accounting software stack deployed', stream:'Finance', owner:'Qayyum', start:14, end:28, status:'notStarted', priority:'high', notes:'Xero/QuickBooks + reconciliation tooling.' },
+    { id:'F3', name:'Daily reconciliation process documented', stream:'Finance', owner:'Qayyum + Snr Acct', start:28, end:49, status:'notStarted', priority:'high', notes:'MT5 → LP → PSP → bank reconciliation.' },
+    { id:'F4', name:'Treasury & client fund segregation policy', stream:'Finance', owner:'Qayyum + Billawal', start:14, end:35, status:'notStarted', priority:'critical', notes:'FSA requirement. Fund movement, dual-approval thresholds.' },
+    { id:'CP1', name:'Compliance manual (AML/KYC/CDD)', stream:'Compliance', owner:'Qayyum + external', start:1, end:35, status:'notStarted', priority:'critical', notes:'FSA requirement; external compliance counsel recommended.' },
+    { id:'CP2', name:'Customer agreements, T&Cs, risk disclosures', stream:'Compliance', owner:'Qayyum + Zain', start:14, end:35, status:'notStarted', priority:'critical', notes:'Client agreement, risk warning, privacy policy, complaints policy.' },
+    { id:'CP3', name:'MLRO appointed', stream:'Compliance', owner:'Qayyum', start:1, end:21, status:'notStarted', priority:'high', notes:'Money Laundering Reporting Officer. Often outsourced initially.' },
+    { id:'CP4', name:'Incident response & business continuity plan', stream:'Compliance', owner:'Helia + Qayyum', start:28, end:49, status:'notStarted', priority:'med', notes:'Server failover, data backup, comms protocol.' },
+    { id:'CP5', name:'Internal compliance training', stream:'Compliance', owner:'Qayyum', start:42, end:56, status:'notStarted', priority:'med', notes:'Team-wide briefing on AML, fund handling, complaints.' },
+    { id:'FR1', name:'Series concept, narrative arc & episode plan', stream:'Content Series', owner:'Fahad Riaz + Zain', start:1, end:10, status:'notStarted', priority:'brand', notes:'"Building a Brokerage" — episodic, behind-the-scenes. Each ep mirrors a real milestone.' },
+    { id:'FR2', name:'Production setup (crew, gear, locations)', stream:'Content Series', owner:'Fahad Riaz + Zain', start:7, end:14, status:'notStarted', priority:'brand', notes:'In-house team or production house. Dubai office as primary location.' },
+    { id:'FR3', name:'Episode 1 production & edit', stream:'Content Series', owner:'Fahad Riaz + Zain', start:7, end:14, status:'notStarted', priority:'brand', notes:'Theme: "Why I am building a broker" — origin and vision.' },
+    { id:'FR4', name:'Series soft launch (Ep 1 drops)', stream:'Content Series', owner:'Fahad Riaz + Zain', start:14, end:14, status:'notStarted', priority:'brand', notes:'15 May — six weeks before brokerage launch. Build narrative tension.' },
+    { id:'FR5', name:'Episode 2: vendor selection & contracts', stream:'Content Series', owner:'Fahad Riaz + Zain', start:14, end:28, status:'notStarted', priority:'brand', notes:'Drops late May. Mirrors actual contract milestones.' },
+    { id:'FR6', name:'Episode 3: MT5, the bridge & infra', stream:'Content Series', owner:'Fahad Riaz + Zain', start:28, end:42, status:'notStarted', priority:'brand', notes:'Drops mid-June. Mirrors infra build.' },
+    { id:'FR7', name:'Episode 4: launch day', stream:'Content Series', owner:'Fahad Riaz + Zain', start:49, end:60, status:'notStarted', priority:'brand', notes:'Drops 30 June — synchronized with brokerage soft launch.' },
+    { id:'FR8', name:'Cross-channel distribution & boost', stream:'Content Series', owner:'Zain', start:14, end:60, status:'notStarted', priority:'brand', notes:'YouTube, Instagram, TikTok, X. Paid amplification on each drop.' },
+    { id:'M1', name:'Marketing strategy & launch creative', stream:'Marketing', owner:'Zain', start:1, end:35, status:'notStarted', priority:'high', notes:'Brand voice, channel mix, content calendar, ad creative.' },
+    { id:'M2', name:'Website unlock (accounts/deposits pages)', stream:'Marketing', owner:'Zain + Helia', start:35, end:49, status:'notStarted', priority:'high', notes:'Remove blur overlays; add live signup flow.' },
+    { id:'M3', name:'Social channels active', stream:'Marketing', owner:'Zain', start:14, end:60, status:'notStarted', priority:'med', notes:'Daily content cadence aligned with content series episodes.' },
+    { id:'SL1', name:'Internal team test trades (demo)', stream:'Launch', owner:'All', start:49, end:53, status:'notStarted', priority:'critical', notes:'Full team places test trades; bug bash.' },
+    { id:'SL2', name:'IB familiarization sessions', stream:'Launch', owner:'Sales lead + Zain', start:52, end:58, status:'notStarted', priority:'high', notes:'5–10 trusted IBs onboard demo accounts before soft launch.' },
+    { id:'SL3', name:'Pre-launch readiness review (go/no-go)', stream:'Launch', owner:'All leads', start:56, end:58, status:'notStarted', priority:'critical', notes:'Cross-functional sign-off before flipping the switch.' },
+    { id:'SL4', name:'Soft launch — IB demo accounts go live', stream:'Launch', owner:'Zain + Helia', start:60, end:60, status:'notStarted', priority:'critical', notes:'30 June. Synchronized with content series Episode 4.' },
+  ];
+  const totalDays = 60;
+  const streamMeta = {
+    Legal:           { title:'1. Legal & Licensing',         status:'atRisk',     desc:'St. Lucia IBC <strong>done</strong>. FSA license is a <strong>strategic enabler</strong> — unlocks tier-1 LPs, reduces PSP risk pricing, anchors IB pitch. Ajman license + UAE bank are PSP unlocks.' },
+    Infrastructure:  { title:'2. Infrastructure',            status:'blocked',    desc:'Netshop closing. Centroid confirmed. <strong>MT5 White Label is the binding constraint</strong> — won’t complete by 30 June. Soft launch runs on demo.' },
+    Execution:       { title:'3. Execution / Dealing',       status:'onTrack',    desc:'Alpha Dealing decided. Onboarding starts week 4. SOPs and risk rules in parallel.' },
+    Liquidity:       { title:'4. Liquidity Providers',       status:'blocked',    desc:'No LP onboarded yet. Tier-1 LPs are FSA-license dependent. Demo feeds for soft launch; live feeds activate post-launch.' },
+    CRM:             { title:'5. CRM',                       status:'atRisk',     desc:'Brokeret vs Syntellicore <strong>still open</strong>. Decide by 10 May or this becomes the long pole.' },
+    PSP:             { title:'6. Payments',                  status:'blocked',    desc:'Hamza-led. CoinsPaid first; one card rail next. Both blocked on FSA + Ajman license. Withdrawal SOPs equally important.' },
+    'IB Strategy':   { title:'7. IB Strategy & Payouts',     status:'notStarted', desc:'<strong>Critical and underestimated.</strong> Tier structure must clear unit economics check. Calculator & enablement materials are the IB acquisition kit.' },
+    'Sales Team':    { title:'8. Sales Team Hiring',         status:'notStarted', desc:'1 internal sales lead + external IB recruitment agency. Lead in by week 4 to manage agency and own pipeline.' },
+    'Accounting Team':{ title:'9. Accounting Team Hiring',   status:'notStarted', desc:'Senior accountant (in-house) + external audit firm. Forex/CFD experience preferred. FSA requires audited financials.' },
+    Finance:         { title:'10. Finance & Accounting Process', status:'notStarted', desc:'Chart of accounts mapped to MT5 P&L. Reconciliation and treasury policy critical for FSA.' },
+    Compliance:      { title:'11. Compliance & Ops',         status:'notStarted', desc:'Compliance manual, MLRO, T&Cs, training. Most underestimated workstream — start week 1.' },
+    'Content Series':{ title:'12. Fahad Riaz Content Series', status:'notStarted', desc:'<strong>"Building a Brokerage"</strong> — soft launches 15 May, six weeks ahead of brokerage. 4 episodes synchronized with real milestones. Builds narrative tension and pre-launch audience.' },
+    Marketing:       { title:'13. General Marketing',        status:'notStarted', desc:'Brand voice, channel mix, social cadence. Coordinated with content series drops.' },
+    Launch:          { title:'14. Soft Launch',              status:'notStarted', desc:'Internal testing → IB familiarization → go/no-go → 30 June soft launch on demo, synchronized with Episode 4.' },
+  };
+  const milestones = [
+    { date:'7 May',  name:'Sales lead JD live & accountant scope set', sub:'Hiring kicks off week 1', owner:'Zain + Qayyum', deps:'—' },
+    { date:'10 May', name:'CRM decision locked', sub:'Brokeret or Syntellicore', owner:'Helia + Zain', deps:'Evaluation done' },
+    { date:'10 May', name:'Centroid + Alpha Dealing contracts signed', sub:'Two key vendor contracts', owner:'Zain', deps:'Pricing finalized' },
+    { date:'14 May', name:'IB payout structure locked', sub:'Tier rebates, CPA, sub-IB splits', owner:'Zain + Qayyum', deps:'Unit economics check' },
+    { date:'14 May', name:'FSA license received', sub:'Unlocks tier-1 LPs and PSP onboarding', owner:'Zain', deps:'—', isLicense:true },
+    { date:'15 May', name:'CONTENT SERIES SOFT LAUNCH', sub:'Fahad Riaz Episode 1 drops — six weeks ahead of brokerage', owner:'Fahad Riaz + Zain', deps:'Production complete', isBrand:true },
+    { date:'21 May', name:'Ajman trade license + MLRO appointed', sub:'PSP and compliance unlocks', owner:'Zain + Qayyum', deps:'—' },
+    { date:'28 May', name:'Sales lead + senior accountant hired', sub:'Internal team in place', owner:'Zain + Qayyum', deps:'JDs out by week 1' },
+    { date:'28 May', name:'MT5 demo environment live', sub:'Sublicense or temp main label', owner:'Helia', deps:'Centroid contract + Netshop' },
+    { date:'4 Jun',  name:'Bank account opened (St. Lucia entity)', sub:'Client funds account', owner:'Billawal', deps:'FSA license' },
+    { date:'11 Jun', name:'Compliance manual + T&Cs finalized', sub:'Customer agreements, risk disclosures', owner:'Qayyum + Zain', deps:'External counsel review' },
+    { date:'11 Jun', name:'CRM provisioned & MT5-integrated', sub:'Wallet, IB tiers, KYC flow', owner:'Helia', deps:'CRM contract' },
+    { date:'15 Jun', name:'CoinsPaid live (test deposits)', sub:'First payment rail operational', owner:'Hamza', deps:'Bank account' },
+    { date:'18 Jun', name:'End-to-end execution test passed', sub:'Bridge → MT5 → demo LP', owner:'Helia', deps:'All infra deployed' },
+    { date:'21 Jun', name:'CRM UAT complete', sub:'Full client journey validated', owner:'Helia + Zain', deps:'CRM + PSP integrated' },
+    { date:'25 Jun', name:'IB familiarization complete', sub:'5–10 trusted IBs trained on demo', owner:'Sales lead + Zain', deps:'IB portal live' },
+    { date:'28 Jun', name:'Go/no-go review', sub:'Cross-functional sign-off', owner:'All leads', deps:'All workstreams green' },
+    { date:'30 Jun', name:'BROKERAGE SOFT LAUNCH', sub:'IB demo accounts live + Content Series Episode 4 drops', owner:'Zain + Helia', deps:'All above', isLaunch:true },
+  ];
+  const escAttr = s => String(s).replace(/"/g, '&quot;');
+  const $ = id => trPanel.querySelector('#' + id);
+
+  function renderTimeline() {
+    const grid = $('ganttGrid');
+    let html = '<div class="th th-task">Task</div>';
+    for (let d = 1; d <= 61; d++) {
+      let label, cls;
+      if (d === 1) { label = 'May 1'; cls = 'month-marker'; }
+      else if (d === 32) { label = 'Jun 1'; cls = 'month-marker'; }
+      else if (d % 7 === 0) { label = d <= 31 ? d : d - 31; cls = 'week-marker'; }
+      else { label = d <= 31 ? d : d - 31; cls = 'th'; }
+      html += '<div class="' + cls + '">' + label + '</div>';
+    }
+    const streamOrder = ['Legal','Infrastructure','Execution','Liquidity','CRM','PSP','IB Strategy','Sales Team','Accounting Team','Finance','Compliance','Content Series','Marketing','Launch'];
+    for (const stream of streamOrder) {
+      html += '<div class="stream-divider">' + stream + '</div>';
+      for (const t of tasks.filter(x => x.stream === stream)) {
+        html += '<div class="task-name" title="' + escAttr(t.notes) + '">' + t.name + '<span class="owner-tag">' + t.owner.split(' ')[0] + '</span></div>';
+        for (let d = 0; d <= totalDays; d++) {
+          const inRange = d >= t.start && d <= t.end;
+          let cls = '';
+          if (inRange) {
+            if (t.status === 'done') cls = 'fill-done';
+            else if (t.status === 'blocked') cls = 'fill-blocked';
+            else if (t.priority === 'critical') cls = 'fill-critical';
+            else if (t.priority === 'high') cls = 'fill-high';
+            else if (t.priority === 'med') cls = 'fill-med';
+            else if (t.priority === 'brand') cls = 'fill-brand';
+            else cls = 'fill-low';
+          }
+          html += '<div class="bar ' + cls + '"></div>';
+        }
+      }
+    }
+    grid.innerHTML = html;
+  }
+
+  function renderWorkstreams() {
+    const grid = $('workstreamGrid');
+    let html = '';
+    for (const [stream, meta] of Object.entries(streamMeta)) {
+      html += '<div class="ws-card"><div class="ws-header"><div class="ws-title">' + meta.title + '</div><div class="ws-status status-' + meta.status + '">' + meta.status.replace(/([A-Z])/g, ' $1').trim() + '</div></div><div class="ws-body">' + meta.desc + '</div><div class="ws-tasks">';
+      for (const t of tasks.filter(x => x.stream === stream)) {
+        const icon = t.status === 'done' ? '✓' : t.status === 'progress' ? '◐' : t.status === 'blocked' ? '✕' : '○';
+        const color = t.status === 'done' ? 'var(--green)' : t.status === 'progress' ? 'var(--amber)' : t.status === 'blocked' ? 'var(--red)' : 'var(--muted-2)';
+        html += '<div class="ws-task"><span class="ws-task-name"><span style="color:' + color + ';font-weight:bold">' + icon + '</span> ' + t.name + '</span><span class="ws-task-owner">' + t.owner + '</span></div>';
+      }
+      html += '</div></div>';
+    }
+    grid.innerHTML = html;
+  }
+
+  function renderKanban() {
+    const board = $('kanbanBoard');
+    const cols = [
+      { key:'blocked',  title:'Blocked',     filter:t => t.status === 'blocked' },
+      { key:'review',   title:'Not Started', filter:t => t.status === 'notStarted' },
+      { key:'progress', title:'In Progress', filter:t => t.status === 'progress' },
+      { key:'done',     title:'Done',        filter:t => t.status === 'done' },
+    ];
+    const order = { critical:0, high:1, med:2, brand:3, low:4 };
+    let html = '';
+    for (const col of cols) {
+      const colTasks = tasks.filter(col.filter).sort((a,b) => order[a.priority] - order[b.priority]);
+      html += '<div class="column ' + col.key + '"><div class="column-header"><div class="col-title">' + col.title + '</div><div class="col-count">' + colTasks.length + '</div></div>';
+      for (const t of colTasks) {
+        const wk = Math.ceil(t.end / 7);
+        const urgent = (t.end <= 21 && t.priority === 'critical') ? ' urgent' : '';
+        html += '<div class="card priority-' + t.priority + '" title="' + escAttr(t.notes) + '"><div class="card-title">' + t.name + '</div><div class="card-meta"><span class="meta-pill">' + t.stream + '</span><span class="meta-pill owner">' + t.owner + '</span><span class="meta-pill deadline' + urgent + '">Wk ' + wk + '</span></div></div>';
+      }
+      html += '</div>';
+    }
+    board.innerHTML = html;
+  }
+
+  function renderMilestones() {
+    const list = $('milestonesList');
+    let html = '';
+    for (const m of milestones) {
+      const cls = m.isLaunch ? 'launch-row' : m.isBrand ? 'brand-row' : '';
+      html += '<div class="ms-row ' + cls + '"><div class="ms-date">' + m.date + '</div><div class="ms-name">' + m.name + '<small>' + m.sub + '</small></div><div class="ms-owner">' + m.owner + '</div><div class="ms-deps">' + m.deps + '</div></div>';
+    }
+    list.innerHTML = html;
+  }
+
+  trPanel.querySelectorAll('.tr-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-view');
+      trPanel.querySelectorAll('.tr-tab').forEach(t => t.classList.remove('active'));
+      trPanel.querySelectorAll('.tr-view').forEach(v => v.classList.remove('active'));
+      tab.classList.add('active');
+      const view = trPanel.querySelector('#' + target);
+      if (view) view.classList.add('active');
+    });
+  });
+
+  renderTimeline();
+  renderWorkstreams();
+  renderKanban();
+  renderMilestones();
 })();
 </script>
 </body>
