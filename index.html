@@ -265,6 +265,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 .ft-table td.ft-vol{font-weight:700;color:var(--pu-text);font-size:15px;white-space:nowrap}
 .ft-table td.ft-result{font-weight:700;font-size:15px;white-space:nowrap;text-align:right;background:var(--pu-dim);color:var(--pu-text);border-left:1px solid var(--border-dim)}
 .ft-table th:last-child{background:var(--pu-mid);color:var(--text)}
+.ft-table th:nth-child(7){background:var(--pu-mid);color:var(--text)}
 .ft-table td.ft-input-cell{padding:.45rem .9rem}
 .ft-input-wrap{display:flex;align-items:center;justify-content:flex-end;gap:3px;border-bottom:1px solid var(--border-dim);padding-bottom:2px}
 .ft-input-wrap:focus-within{border-bottom-color:var(--pu-text)}
@@ -588,30 +589,6 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
     <div class="hero-sub">Three-tier IB structure. 20% / 60% / 20% client split. CPA = one-time per new client. Rev share = monthly on active base. Rebate = per lot traded.</div>
   </div>
 
-  <div class="divider fu fu2"><div class="divider-label">Network Summary</div><div class="divider-line"></div></div>
-  <div class="ib-summary fu fu2">
-    <div class="ib-sum-card">
-      <div class="ib-sum-label">Total active client base</div>
-      <div class="ib-sum-formula">Adjust slider below</div>
-      <div class="ib-sum-value pu" id="ib-total-clients">2,000</div>
-    </div>
-    <div class="ib-sum-card">
-      <div class="ib-sum-label">Total IB payout / month</div>
-      <div class="ib-sum-formula">CPA + Rev share + Rebate (all IBs)</div>
-      <div class="ib-sum-value red" id="ib-total-payout">—</div>
-    </div>
-    <div class="ib-sum-card">
-      <div class="ib-sum-label">Payout as % of gross revenue</div>
-      <div class="ib-sum-formula">Total IB payout ÷ (clients × lots × spread × $10)</div>
-      <div class="ib-sum-value" id="ib-payout-pct">—</div>
-    </div>
-    <div class="ib-sum-card">
-      <div class="ib-sum-label">Total active IBs</div>
-      <div class="ib-sum-formula">Across all 3 tiers</div>
-      <div class="ib-sum-value" id="ib-total-ibs">3</div>
-    </div>
-  </div>
-
   <div class="divider fu fu2"><div class="divider-label">Client Base</div><div class="divider-line"></div></div>
   <div style="background:var(--bg2);border:1px solid var(--border);padding:1.5rem 2rem;" class="fu fu2">
     <div style="display:flex;flex-direction:column;gap:6px;max-width:520px">
@@ -821,6 +798,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
           <th>Withdrawal %</th>
           <th>Lifetime (mo)</th>
           <th>= Net Flow</th>
+          <th>= Lots</th>
         </tr>
       </thead>
       <tbody>
@@ -832,6 +810,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-withdraw" value="3"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-lifetime"  value="12"   min="0" step="1"  ></span></td>
           <td class="ft-result" id="flt-t1-result">$0</td>
+          <td class="ft-result" id="flt-t1-lots">0</td>
         </tr>
         <tr>
           <td><span class="tier-badge t2" style="margin-right:8px">Tier 2</span> Experienced IBs</td>
@@ -841,6 +820,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-withdraw" value="3"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-lifetime"  value="9"    min="0" step="1"  ></span></td>
           <td class="ft-result" id="flt-t2-result">$0</td>
+          <td class="ft-result" id="flt-t2-lots">0</td>
         </tr>
         <tr>
           <td><span class="tier-badge t3" style="margin-right:8px">Tier 3</span> New / Converted IBs</td>
@@ -850,6 +830,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-withdraw" value="2"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-lifetime"  value="6"    min="0" step="1"  ></span></td>
           <td class="ft-result" id="flt-t3-result">$0</td>
+          <td class="ft-result" id="flt-t3-lots">0</td>
         </tr>
         <tr>
           <td><span style="display:inline-block;padding:4px 12px;border-radius:2px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--bg3);color:var(--text-dim);border:1px solid var(--border-dim);margin-right:8px">Organic</span> Direct / Affiliates</td>
@@ -859,6 +840,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-withdraw" value="2"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-lifetime"  value="6"    min="0" step="1"  ></span></td>
           <td class="ft-result" id="flt-other-result">$0</td>
+          <td class="ft-result" id="flt-other-lots">0</td>
         </tr>
       </tbody>
     </table>
@@ -1936,8 +1918,6 @@ function renderIB() {
   ibSetClients();
   const total = getIBClients();
   const setEl = (id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
-  setEl('ib-total-clients', total.toLocaleString());
-  setEl('ib-clients-display', total.toLocaleString());
 
   let allIBs=0, allCPA=0, allRS=0, allRB=0;
 
@@ -1962,8 +1942,6 @@ function renderIB() {
   const totalRev    = total * netSpread;
   const payPct      = totalRev > 0 ? ((totalPayout/totalRev)*100).toFixed(1)+'%' : '—';
 
-  setEl('ib-total-ibs',    allIBs);
-  setEl('ib-total-payout', fmtM(totalPayout));
   setEl('ib-payout-pct',   payPct);
   setEl('ibt-clients',     total.toLocaleString());
   setEl('ibt-ibs',         allIBs);
@@ -2281,6 +2259,9 @@ function recalcDepositsTotal() {
     totalNetFloat += netFloat;
     const rEl = document.getElementById('flt-' + s.key + '-result');
     if(rEl) rEl.textContent = fmt$(netFloat);
+    // Lots = Net Flow $ ÷ standard lot size ($100,000 notional). 1-decimal display.
+    const lotsEl = document.getElementById('flt-' + s.key + '-lots');
+    if(lotsEl) lotsEl.textContent = (netFloat / 100000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   });
   const cTot = document.getElementById('dep-clients-total');
   const vTot = document.getElementById('dep-volume-total');
@@ -5912,12 +5893,8 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
         const el = document.getElementById('t' + tier + '-clients');
         if (el) el.textContent = tierTotals[tier].toLocaleString();
       });
-      const tot = document.getElementById('ib-total-clients');
-      if (tot) tot.textContent = grand.toLocaleString();
       const ibtClients = document.getElementById('ibt-clients');
       if (ibtClients) ibtClients.textContent = grand.toLocaleString();
-      // ib-clients-display was inside the removed Client Base section — null-safe via setEl,
-      // but we leave the original's setEl call as-is; it silently no-ops on missing element.
     };
 
     // Re-render IB tab now if it's currently active so the changes take
@@ -6162,25 +6139,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // FIX 8 — IB Network summary formula text in tab3
-  // ═══════════════════════════════════════════════════════════════════
-  const ibSumFormula = document.querySelector('#tab3 .ib-sum-formula');
-  if (ibSumFormula) {
-    const t = ibSumFormula.textContent.trim();
-    if (t === 'Adjust slider below' || t.includes('slider')) {
-      ibSumFormula.textContent = 'Sum of all IB profile client counts';
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════════════════
-  // FIX 9 — tier-title in tier1-block (strip "Fahad")
-  // ═══════════════════════════════════════════════════════════════════
-  const tierHeaderEl = document.querySelector('#tier1-block .tier-title');
-  if (tierHeaderEl && tierHeaderEl.textContent.includes('Fahad')) {
-    tierHeaderEl.textContent = 'Top IBs';
-  }
-
-  // ═══════════════════════════════════════════════════════════════════
   // FIX 5 (cont.) — Live IB sync + new variable-cost total
   //   recalcVRCTotalNew is added as an additional listener (the existing
   //   recalcVariableTotal still runs first, but our listener fires last
@@ -6396,8 +6354,8 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   }
 
   // Row 3 — derived efficiency metrics
-  row3.appendChild(buildReadout('ib-payout-pct-mirror', 'Payout as % of Gross Revenue',
-    'Total IB payout ÷ (clients × lots × spread × $10) — mirrors top summary'));
+  row3.appendChild(buildReadout('ib-payout-pct', 'Payout as % of Gross Revenue',
+    'Total IB payout ÷ (clients × lots × spread × $10)'));
   row3.appendChild(buildReadout('ib-roi', 'IB ROI',
     '(IB-referred revenue − IB commissions) / IB commissions × 100'));
   row3.appendChild(buildReadout('ib-avg-payout-per-client', 'Avg Payout per Active Client',
@@ -6431,11 +6389,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   }
 
   function recalcIBSummary() {
-    // Mirror Network Summary's ib-payout-pct value
-    const src = document.getElementById('ib-payout-pct');
-    const mir = document.getElementById('ib-payout-pct-mirror');
-    if (src && mir) mir.textContent = src.textContent || '—';
-
     // ib-roi: (gross IB-referred revenue − IB cost) / IB cost × 100
     const ibtTotal   = parseFormattedMoney('ibt-total');
     const ibtClients = parseInt2('ibt-clients');
@@ -6478,15 +6431,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     new MutationObserver(() => recalcIBSummary()).observe(ibtTotalEl, {
       characterData:true, childList:true, subtree:true,
     });
-  }
-
-  // Mirror watcher — keep ib-payout-pct-mirror in sync with the source whenever it updates
-  const payoutPctEl = document.getElementById('ib-payout-pct');
-  if (payoutPctEl) {
-    new MutationObserver(() => {
-      const mir = document.getElementById('ib-payout-pct-mirror');
-      if (mir) mir.textContent = payoutPctEl.textContent || '—';
-    }).observe(payoutPctEl, { characterData:true, childList:true, subtree:true });
   }
 
   // Initial paint after a short delay so all upstream renders settle first
@@ -7282,15 +7226,12 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     });
 
     const grandTotal = grandCPA + grandRS + grandRB;
-    setText('ib-total-clients', grandClients.toLocaleString());
     setText('ibt-clients',      grandClients.toLocaleString());
     setText('ibt-ibs',          String(grandIBs));
-    setText('ib-total-ibs',     String(grandIBs));
     setText('ibt-cpa',          fmtMLocal(grandCPA));
     setText('ibt-revshare',     fmtMLocal(grandRS));
     setText('ibt-rebate',       fmtMLocal(grandRB));
     setText('ibt-total',        fmtMLocal(grandTotal));
-    setText('ib-total-payout',  fmtMLocal(grandTotal));
 
     const grossRev = grandClients * lots * spread * 10;
     setText('ib-payout-pct', grossRev > 0 ? ((grandTotal / grossRev) * 100).toFixed(1) + '%' : '—');
@@ -7336,6 +7277,8 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       totalNetFloat  += netFloat;
       const rEl = document.getElementById('flt-' + s.key + '-result');
       if (rEl) rEl.textContent = fmt$(netFloat);
+      const lotsEl = document.getElementById('flt-' + s.key + '-lots');
+      if (lotsEl) lotsEl.textContent = (netFloat / 100000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     });
 
     setText('dep-clients-total', totalClients.toLocaleString());
@@ -7825,9 +7768,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     'ibt-revshare':            'Tier 1 Rev Share + Tier 2 Rev Share + Tier 3 Rev Share',
     'ibt-rebate':              'Tier 1 Rebate + Tier 2 Rebate + Tier 3 Rebate',
     'ibt-total':               'Total CPA + Total Rev Share + Total Rebate',
-    'ib-total-clients':        'Tier 1 Clients + Tier 2 Clients + Tier 3 Clients',
-    'ib-total-ibs':            'Tier 1 Active IBs + Tier 2 Active IBs + Tier 3 Active IBs',
-    'ib-total-payout':         'Sum of monthly IB payouts across all tiers',
     'ib-payout-pct':           '(Total IB Payouts ÷ Gross Revenue) × 100%',
     'ib-sum-payouts':          'Sum of Master Payouts + Sub Payouts across all tiers',
     'ib-sum-vol-ibs':          'Sum of volume routed through IBs across all tiers',
@@ -7849,6 +7789,10 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     'flt-t2-result':           'T2 Deposit Volume × T2 Turn Over × ((1 + (T2 Redeposit % − T2 Withdrawal %))^T2 Lifetime − 1) ÷ (T2 Redeposit % − T2 Withdrawal %)',
     'flt-t3-result':           'T3 Deposit Volume × T3 Turn Over × ((1 + (T3 Redeposit % − T3 Withdrawal %))^T3 Lifetime − 1) ÷ (T3 Redeposit % − T3 Withdrawal %)',
     'flt-other-result':        'Other Deposit Volume × Other Turn Over × ((1 + (Other Redeposit % − Other Withdrawal %))^Other Lifetime − 1) ÷ (Other Redeposit % − Other Withdrawal %)',
+    'flt-t1-lots':             'T1 Net Flow ÷ $100,000 standard lot size',
+    'flt-t2-lots':             'T2 Net Flow ÷ $100,000 standard lot size',
+    'flt-t3-lots':             'T3 Net Flow ÷ $100,000 standard lot size',
+    'flt-other-lots':          'Organic Net Flow ÷ $100,000 standard lot size',
 
     // ─────────── tab7 — Variable Costs ───────────────────
     'vrc-total-display':       'Sum of every variable cost line + Sub-IB Override Cost',
@@ -7976,25 +7920,30 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 <script>
 // ═══════════════════════════════════════════════════════════════════
 // NET FLOAT cell formulas — render the formula inside each per-tier
-// "= Net Flow" td (flt-{t1,t2,t3,other}-result). The recalc at
-// recalcDepositsTotal sets textContent on these cells which wipes any
-// child elements, so a MutationObserver re-applies the structure.
+// "= Net Flow" and "= Lots" td. The recalc at recalcDepositsTotal sets
+// textContent on these cells which wipes any child elements, so a
+// MutationObserver re-applies the structure.
 // ═══════════════════════════════════════════════════════════════════
 (function injectNetFloatCellFormulas() {
   if (window.__netFloatCellFormulas) return;
   window.__netFloatCellFormulas = true;
 
-  const TIER_IDS = [
-    'flt-t1-result',
-    'flt-t2-result',
-    'flt-t3-result',
-    'flt-other-result',
-  ];
-
-  const FORMULA_TEXT =
+  const NET_FLOW_FORMULA =
     'ƒ Deposit Volume × Turn Over × ((1 + (Redeposit % − Withdrawal %))^Lifetime − 1) ÷ (Redeposit % − Withdrawal %)';
+  const LOTS_FORMULA = 'ƒ Net Flow ÷ $100,000 standard lot size';
 
-  function applyStructure(cell) {
+  const CELL_FORMULAS = {
+    'flt-t1-result':    NET_FLOW_FORMULA,
+    'flt-t2-result':    NET_FLOW_FORMULA,
+    'flt-t3-result':    NET_FLOW_FORMULA,
+    'flt-other-result': NET_FLOW_FORMULA,
+    'flt-t1-lots':      LOTS_FORMULA,
+    'flt-t2-lots':      LOTS_FORMULA,
+    'flt-t3-lots':      LOTS_FORMULA,
+    'flt-other-lots':   LOTS_FORMULA,
+  };
+
+  function applyStructure(cell, formulaText) {
     if (!cell) return;
     if (cell.querySelector('.flt-result-formula')) return; // already structured
 
@@ -8014,7 +7963,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 
     const formulaDiv = document.createElement('div');
     formulaDiv.className = 'flt-result-formula';
-    formulaDiv.textContent = FORMULA_TEXT;
+    formulaDiv.textContent = formulaText;
     formulaDiv.style.cssText =
       'font-family:SFMono-Regular,Consolas,Menlo,monospace;' +
       'font-size:9.5px;font-weight:400;color:var(--pu-text);opacity:.75;' +
@@ -8029,9 +7978,10 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   // Run after showAppFormulas (320ms) so we can clean up the orphan
   // .ci-formula div it appended to the <tr> parent.
   setTimeout(() => {
-    TIER_IDS.forEach(id => {
+    Object.keys(CELL_FORMULAS).forEach(id => {
       const cell = document.getElementById(id);
       if (!cell) return;
+      const formulaText = CELL_FORMULAS[id];
 
       // Remove any orphan formula div previously appended to the row by
       // showAppFormulas (its .ci fallback walked up to the <tr> parent).
@@ -8041,13 +7991,13 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
           .forEach(n => { if (n.parentNode === row) n.remove(); });
       }
 
-      applyStructure(cell);
+      applyStructure(cell, formulaText);
 
       // When recalcDepositsTotal sets textContent on the cell, every
       // child element is wiped. Re-apply structure on the next mutation.
       new MutationObserver(() => {
         if (cell.querySelector('.flt-result-formula')) return;
-        applyStructure(cell);
+        applyStructure(cell, formulaText);
       }).observe(cell, { childList: true, characterData: true, subtree: true });
     });
   }, 360);
