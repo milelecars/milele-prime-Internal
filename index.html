@@ -4430,9 +4430,16 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   });
 
   function buildTree(prefix, badgeText, tagline, badgeStyle, tierAccent, defs) {
+    // Outer wrapper carries the flex sizing — Net retained strip lives here,
+    // OUTSIDE the inner white card.
+    const wrapper = elem('div');
+    Object.assign(wrapper.style, {
+      flex:'1 1 300px', minWidth:'0',
+      display:'flex', flexDirection:'column', gap:'8px',
+    });
+
     const card = elem('div');
     Object.assign(card.style, {
-      flex:'1 1 300px', minWidth:'0',
       background:'var(--bg2)', border:'1px solid var(--border)',
       padding:'1.25rem', display:'flex', flexDirection:'column',
       alignItems:'stretch', gap:'8px',
@@ -4447,6 +4454,31 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       tl.style.cssText = 'font-size:11px;color:var(--text-dim);font-weight:500';
       headerWrap.appendChild(tl);
     }
+
+    // Live tier-level stats (clients from AUM tab, lots from Trading Flow tab)
+    const statsRow = elem('div');
+    statsRow.style.cssText =
+      'display:flex;gap:8px;width:100%;margin-top:4px';
+    function statBox(label, valueId) {
+      const box = elem('div');
+      box.style.cssText =
+        'flex:1;background:var(--bg3);border:1px solid var(--border-dim);' +
+        'padding:6px 8px;text-align:center';
+      const lt = elem('div', null, label);
+      lt.style.cssText =
+        'font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;' +
+        'color:var(--text-dim);margin-bottom:2px';
+      const v = elem('div', null, '0');
+      v.id = valueId;
+      v.style.cssText =
+        'font-size:14px;font-weight:700;color:var(--pu-text);line-height:1.1';
+      box.appendChild(lt);
+      box.appendChild(v);
+      return box;
+    }
+    statsRow.appendChild(statBox('Clients (AUM)',     prefix + '-clients-display'));
+    statsRow.appendChild(statBox('Lots / yr',         prefix + '-lots-display'));
+    headerWrap.appendChild(statsRow);
     card.appendChild(headerWrap);
 
     function makeNode(label, accent, dashed) {
@@ -4512,40 +4544,61 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       return row;
     }
 
-    // Broker node — always purple border (per spec)
-    const brokerNode = makeNode('Broker — Milele Prime', 'var(--pu)');
-    brokerNode.appendChild(rowCalc('Direct volume retained',     prefix + '-out-direct-volume'));
-    brokerNode.appendChild(rowCalc('Net retained after payouts', prefix + '-out-net-retained'));
-    card.appendChild(brokerNode);
-    card.appendChild(makeConnector());
+    // Net retained — sits OUTSIDE the inner white card, at the top of the
+    // per-tier wrapper.
+    const netCard = elem('div');
+    netCard.style.cssText =
+      'display:flex;justify-content:space-between;align-items:baseline;' +
+      'gap:1rem;background:var(--pu-dim);border:1px solid var(--border);' +
+      'padding:.65rem .85rem';
+    const netLbl = elem('div', null, 'Net retained after payouts');
+    netLbl.style.cssText =
+      'font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;' +
+      'color:var(--text-dim)';
+    const netVal = elem('div', null, '$0');
+    netVal.id = prefix + '-out-net-retained';
+    netVal.style.cssText =
+      'font-size:18px;font-weight:700;color:var(--pu-text);text-align:right';
+    netCard.appendChild(netLbl);
+    netCard.appendChild(netVal);
 
     // Master IB node — filled accent matching tier
     const masterNode = makeNode('Master IB', tierAccent);
-    masterNode.appendChild(rowInput('% from Master IBs', prefix + '-pct-master',  defs.pctMaster, { min:0, max:100, step:1, suffix:'%' }));
-    masterNode.appendChild(rowInput('Rate per lot',      prefix + '-master-rate', defs.masterRate, { prefix:'$', min:0, step:0.5 }));
-    masterNode.appendChild(rowCalc ('Override / lot',    prefix + '-out-master-override'));
-    masterNode.appendChild(rowCalc ('Volume allocated',  prefix + '-out-master-volume'));
-    masterNode.appendChild(rowCalc ('Master payout',     prefix + '-out-master-payout'));
+    masterNode.appendChild(rowInput('CPA / new funded client',     prefix + '-master-cpa',           defs.masterCpa,          { prefix:'$', min:0, step:1   }));
+    masterNode.appendChild(rowInput('Qualified clients (CPA)',     prefix + '-master-cpa-qualified', defs.masterCpaQualified, { min:0, step:1 }));
+    masterNode.appendChild(rowInput('Rev share % of net spread',   prefix + '-master-revshare',      defs.masterRevshare,     { min:0, max:100, step:0.5, suffix:'%' }));
+    masterNode.appendChild(rowInput('Rebate per lot traded',       prefix + '-master-rebate',        defs.masterRebate,       { prefix:'$', min:0, step:0.5 }));
+    masterNode.appendChild(rowCalc ('Master payout',               prefix + '-out-master-payout'));
     card.appendChild(masterNode);
     card.appendChild(makeConnector());
 
     // Sub-IB node — outlined / lighter (dashed border-top)
     const subNode = makeNode('Sub-IB', tierAccent, true);
-    subNode.appendChild(rowInput('% from Sub-IBs',  prefix + '-pct-sub',  defs.pctSub,  { min:0, max:100, step:1, suffix:'%' }));
-    subNode.appendChild(rowInput('Rate per lot',    prefix + '-sub-rate', defs.subRate, { prefix:'$', min:0, step:0.5 }));
-    subNode.appendChild(rowCalc ('Volume allocated',prefix + '-out-sub-volume'));
-    subNode.appendChild(rowCalc ('Sub payout',      prefix + '-out-sub-payout'));
+    subNode.appendChild(rowInput('CPA / new funded client',     prefix + '-sub-cpa',           defs.subCpa,          { prefix:'$', min:0, step:1   }));
+    subNode.appendChild(rowInput('Qualified clients (CPA)',     prefix + '-sub-cpa-qualified', defs.subCpaQualified, { min:0, step:1 }));
+    subNode.appendChild(rowInput('Rev share % of net spread',   prefix + '-sub-revshare',      defs.subRevshare,     { min:0, max:100, step:0.5, suffix:'%' }));
+    subNode.appendChild(rowInput('Rebate per lot traded',       prefix + '-sub-rebate',        defs.subRebate,       { prefix:'$', min:0, step:0.5 }));
+    subNode.appendChild(rowCalc ('Sub payout',                  prefix + '-out-sub-payout'));
     card.appendChild(subNode);
 
-    return card;
+    // Net retained sits at the top of the wrapper, outside the white card.
+    wrapper.appendChild(netCard);
+    wrapper.appendChild(card);
+    return wrapper;
   }
 
   treesRow.appendChild(buildTree('t1', 'Tier 1 — Beginner IB', 'Entry-level rates',
-    'dim',    'var(--text-dim)', { pctMaster:20, pctSub:10, masterRate:3,   subRate:1.5 }));
+    'dim',    'var(--text-dim)',
+    { masterCpa:50,  masterCpaQualified:0, masterRevshare:10, masterRebate:1.5,
+      subCpa:25,     subCpaQualified:0,    subRevshare:5,     subRebate:0.75 }));
   treesRow.appendChild(buildTree('t2', 'Tier 2 — Intermediate IB', 'Mid-tier rates',
-    'filled', 'var(--pu)',       { pctMaster:25, pctSub:15, masterRate:5,   subRate:3   }));
+    'filled', 'var(--pu)',
+    { masterCpa:100, masterCpaQualified:0, masterRevshare:20, masterRebate:3,
+      subCpa:50,     subCpaQualified:0,    subRevshare:10,    subRebate:1.5 }));
   treesRow.appendChild(buildTree('t3', 'Tier 3 — Expert IB', 'Top-tier rates',
-    'green',  'var(--green)',    { pctMaster:20, pctSub:20, masterRate:7,   subRate:4.5 }));
+    'green',  'var(--green)',
+    { masterCpa:200, masterCpaQualified:0, masterRevshare:30, masterRebate:5,
+      subCpa:100,    subCpaQualified:0,    subRevshare:15,    subRebate:2.5 }));
 
   ibPanel.appendChild(treesRow);
 
@@ -4581,40 +4634,50 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   ibPanel.appendChild(sumGrid);
 
   // ── Recalc per-tier + consolidated ─────────────────────────────────
+  // Live tier inputs:
+  //   • Clients: dep-tX-clients × dep-tX-ibs (from AUM tab)
+  //   • Lots:    flt-tX-lots textContent (from Trading Flow tab)
+  // Per node payout =
+  //   tier_clients × CPA + tier_revenue × revshare% + tier_lots × rebate
+  // tier_revenue = tier_lots × spread_pips × pip_value ($10).
+  function readLotsDisplay(id) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    return parseFloat((el.textContent || '').replace(/[^0-9.\-]/g, '')) || 0;
+  }
   function recalcOneTier(prefix) {
-    const v_a = num('rev-eng-out-va');
-    const v_b = num('rev-eng-out-vb');
-    const V_total = v_a + v_b;
+    const aumKey         = prefix; // t1/t2/t3 align between AUM and IB tabs
+    const clients_per_ib = num('dep-' + aumKey + '-clients');
+    const ibs            = Math.max(num('dep-' + aumKey + '-ibs') || 1, 1);
+    const tier_clients   = clients_per_ib * ibs;
+    const tier_lots      = readLotsDisplay('flt-' + aumKey + '-lots');
 
-    const pct_master      = Math.min(num(prefix + '-pct-master') / 100, 1);
-    const pct_sub         = Math.min(num(prefix + '-pct-sub')    / 100, 1);
-    const master_rate     = num(prefix + '-master-rate');
-    const sub_rate        = num(prefix + '-sub-rate');
-    const master_override = master_rate - sub_rate;
-
-    const V_master = V_total * pct_master;
-    const V_sub    = V_total * pct_sub;
-    const V_direct = Math.max(V_total * (1 - pct_master - pct_sub), 0);
-
-    const master_payout = V_master * master_rate;
-    const sub_payout    = V_sub    * sub_rate;
-
-    // full_spread_per_lot from Liquidation Engine context (sl-spread × pip_value)
     const spread_pips         = num('sl-spread');
     const pip_value           = 10;
     const full_spread_per_lot = spread_pips * pip_value;
-    const tier_revenue        = V_total * full_spread_per_lot;
-    const net_retained        = tier_revenue - master_payout - sub_payout;
+    const tier_revenue        = tier_lots * full_spread_per_lot;
 
-    setText(prefix + '-out-direct-volume',   fmtN(V_direct) + ' lots');
-    setText(prefix + '-out-net-retained',    fmt$(net_retained));
-    setText(prefix + '-out-master-override', fmt$dec(master_override) + ' / lot');
-    setText(prefix + '-out-master-volume',   fmtN(V_master) + ' lots');
-    setText(prefix + '-out-master-payout',   fmt$(master_payout));
-    setText(prefix + '-out-sub-volume',      fmtN(V_sub) + ' lots');
-    setText(prefix + '-out-sub-payout',      fmt$(sub_payout));
+    const m_cpa  = num(prefix + '-master-cpa');
+    const m_qual = num(prefix + '-master-cpa-qualified');
+    const m_rs   = num(prefix + '-master-revshare') / 100;
+    const m_rb   = num(prefix + '-master-rebate');
+    const s_cpa  = num(prefix + '-sub-cpa');
+    const s_qual = num(prefix + '-sub-cpa-qualified');
+    const s_rs   = num(prefix + '-sub-revshare') / 100;
+    const s_rb   = num(prefix + '-sub-rebate');
 
-    return { V_master, V_sub, master_payout, sub_payout };
+    const master_payout = m_qual * m_cpa + tier_revenue * m_rs + tier_lots * m_rb;
+    const sub_payout    = s_qual * s_cpa + tier_revenue * s_rs + tier_lots * s_rb;
+    const net_retained  = tier_revenue - master_payout - sub_payout;
+
+    setText(prefix + '-clients-display',   tier_clients.toLocaleString());
+    setText(prefix + '-lots-display',
+      tier_lots.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
+    setText(prefix + '-out-net-retained',  fmt$(net_retained));
+    setText(prefix + '-out-master-payout', fmt$(master_payout));
+    setText(prefix + '-out-sub-payout',    fmt$(sub_payout));
+
+    return { master_payout, sub_payout, tier_clients, tier_lots, tier_revenue };
   }
 
   function recalcAllTiers() {
@@ -4627,9 +4690,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const total_payouts = t1.master_payout + t1.sub_payout +
                           t2.master_payout + t2.sub_payout +
                           t3.master_payout + t3.sub_payout;
-    const total_ib_vol  = t1.V_master + t1.V_sub +
-                          t2.V_master + t2.V_sub +
-                          t3.V_master + t3.V_sub;
+    const total_ib_vol  = t1.tier_lots + t2.tier_lots + t3.tier_lots;
     const direct_vol    = Math.max(V_total - total_ib_vol, 0);
     const blended_rate  = total_ib_vol > 0 ? total_payouts / total_ib_vol : 0;
 
@@ -4641,7 +4702,8 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 
   // ── Wire input + observer triggers ──────────────────────────────────
   ['t1','t2','t3'].forEach(prefix => {
-    [prefix + '-pct-master', prefix + '-pct-sub', prefix + '-master-rate', prefix + '-sub-rate']
+    [prefix + '-master-cpa', prefix + '-master-cpa-qualified', prefix + '-master-revshare', prefix + '-master-rebate',
+     prefix + '-sub-cpa',    prefix + '-sub-cpa-qualified',    prefix + '-sub-revshare',    prefix + '-sub-rebate']
       .forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', recalcAllTiers);
@@ -4650,8 +4712,17 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   const slSpreadEl = document.getElementById('sl-spread');
   if (slSpreadEl) slSpreadEl.addEventListener('input', recalcAllTiers);
 
-  // V_total comes from Liquidation Engine output divs — observe changes
-  ['rev-eng-out-va','rev-eng-out-vb'].forEach(id => {
+  // AUM tab inputs that drive tier_clients
+  ['dep-t1-clients','dep-t1-ibs',
+   'dep-t2-clients','dep-t2-ibs',
+   'dep-t3-clients','dep-t3-ibs'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', recalcAllTiers);
+  });
+
+  // Trading Flow lots are <td> cells — observe their text changes.
+  ['flt-t1-lots','flt-t2-lots','flt-t3-lots',
+   'rev-eng-out-va','rev-eng-out-vb'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     new MutationObserver(() => recalcAllTiers()).observe(el, {
@@ -5001,32 +5072,13 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     if (el) el.addEventListener('input', recalcVariableTotal);
   });
 
-  // ── Sub-IB Override recalc (derived from IB Network tier inputs + V_total) ──
+  // Sub-IB Override no longer applies — Master and Sub are now paid
+  // independently (no routing % split, no rate-difference override).
+  // Keep vrc-sub-ib-override at $0 so the variable-cost total stays consistent.
   function recalcSubIBOverride() {
-    const V_total = num('rev-eng-out-va') + num('rev-eng-out-vb');
-    let override = 0;
-    ['t1','t2','t3'].forEach(prefix => {
-      const pct_sub     = (num(prefix + '-pct-sub') || 0) / 100;
-      const master_rate = num(prefix + '-master-rate');
-      const sub_rate    = num(prefix + '-sub-rate');
-      const V_sub       = V_total * pct_sub;
-      override += V_sub * (master_rate - sub_rate);
-    });
-    setText('vrc-sub-ib-override', fmt$(override));
+    setText('vrc-sub-ib-override', fmt$(0));
   }
-  ['t1','t2','t3'].forEach(prefix => {
-    [prefix + '-pct-sub', prefix + '-master-rate', prefix + '-sub-rate'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('input', recalcSubIBOverride);
-    });
-  });
-  ['rev-eng-out-va','rev-eng-out-vb'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    new MutationObserver(() => recalcSubIBOverride()).observe(el, {
-      characterData:true, childList:true, subtree:true,
-    });
-  });
+  recalcSubIBOverride();
 
   // Watch the override display so the Variable Costs total recalcs when it changes
   const overrideEl = document.getElementById('vrc-sub-ib-override');
@@ -6284,7 +6336,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 
   // ── STEP 2 — Locate the 3-tree wrapper inside tab-ib ───────────────
   let treesRow = null;
-  const t1Input = document.getElementById('t1-pct-master');
+  const t1Input = document.getElementById('t1-master-cpa');
   if (t1Input) {
     let n = t1Input.parentElement;
     while (n && n !== document.body) {
@@ -6384,7 +6436,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   function triggerVolumeRecalc() {
     // Dispatch input event on a tier input to fire the existing
     // recalcAllTiers listener registered by buildTieredIBTab
-    const t1pm = document.getElementById('t1-pct-master');
+    const t1pm = document.getElementById('t1-master-cpa');
     if (t1pm) t1pm.dispatchEvent(new Event('input', { bubbles:true }));
   }
 
@@ -6687,12 +6739,12 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     // Each tier's growth rate is set in IB Network → Tier Growth Assumptions.
     // The blended rate is what the 5-year IB projection actually uses.
     const grIB = (function computeBlendedIBGrowth() {
-      const Vtot = num('rev-eng-out-va') + num('rev-eng-out-vb');
       let totalPayout = 0, weighted = 0;
       ['t1','t2','t3'].forEach(t => {
-        const pctMaster = Math.min((num(t + '-pct-master') || 0) / 100, 1);
-        const pctSub    = Math.min((num(t + '-pct-sub')    || 0) / 100, 1);
-        const tierPayout = Vtot * (pctMaster * num(t + '-master-rate') + pctSub * num(t + '-sub-rate'));
+        // Each tier payout = Master payout + Sub payout, already rendered by
+        // recalcOneTier (clients × CPA + lots × spread × revShare% + lots × rebate).
+        const tierPayout = parseFormattedMoney(t + '-out-master-payout') +
+                           parseFormattedMoney(t + '-out-sub-payout');
         const tierGrowth = (num('ib-growth-' + t) || 0) / 100;
         totalPayout += tierPayout;
         weighted    += tierPayout * tierGrowth;
@@ -7047,9 +7099,9 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   // Also fire when V_total source values change (already triggers recalcFM_v2
   // via its own observers — this just keeps things synchronous).
   ['rev-eng-out-va','rev-eng-out-vb',
-   't1-pct-master','t1-pct-sub','t1-master-rate','t1-sub-rate',
-   't2-pct-master','t2-pct-sub','t2-master-rate','t2-sub-rate',
-   't3-pct-master','t3-pct-sub','t3-master-rate','t3-sub-rate',
+   't1-master-cpa','t1-master-cpa-qualified','t1-master-revshare','t1-master-rebate','t1-sub-cpa','t1-sub-cpa-qualified','t1-sub-revshare','t1-sub-rebate',
+   't2-master-cpa','t2-master-cpa-qualified','t2-master-revshare','t2-master-rebate','t2-sub-cpa','t2-sub-cpa-qualified','t2-sub-revshare','t2-sub-rebate',
+   't3-master-cpa','t3-master-cpa-qualified','t3-master-revshare','t3-master-rebate','t3-sub-cpa','t3-sub-cpa-qualified','t3-sub-revshare','t3-sub-rebate',
   ].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -7647,15 +7699,17 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     style.id = 'rev-formulas-style';
     style.textContent = `
 .ci-formula {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  font-size: 11px;
+  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 400;
   color: var(--pu-text);
-  background: rgba(191,111,255,0.06);
-  border-left: 2px solid var(--pu-mid);
-  padding: 5px 9px;
-  margin-top: 8px;
-  line-height: 1.45;
-  border-radius: 0 3px 3px 0;
+  opacity: .75;
+  text-align: left;
+  margin-top: 5px;
+  padding-top: 5px;
+  line-height: 1.35;
+  border-top: 1px dashed rgba(191,111,255,0.30);
+  white-space: normal;
   word-break: break-word;
 }
 .ci-formula::before {
@@ -7734,33 +7788,21 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     // ─────────── tab3 — IB Network (per-tier outputs) ────
     't1-clients':              'Tier 1 Clients per IB × Tier 1 Active IBs',
     't1-payout':               'Tier 1 CPA + Tier 1 Rev Share + Tier 1 Rebate',
-    't1-out-master-volume':    'Total Volume × Tier 1 Master Routing %',
-    't1-out-master-payout':    'Tier 1 Master Volume × Tier 1 Master Rate per Lot',
-    't1-out-master-override':  'Tier 1 Master Rate − Tier 1 Sub Rate (per lot)',
-    't1-out-sub-volume':       'Total Volume × Tier 1 Sub Routing %',
-    't1-out-sub-payout':       'Tier 1 Sub Volume × Tier 1 Sub Rate per Lot',
-    't1-out-direct-volume':    'Total Volume × (1 − Tier 1 Master Routing % − Tier 1 Sub Routing %)',
-    't1-out-net-retained':     '(Total Volume × Spread per Lot) − Tier 1 Master Payout − Tier 1 Sub Payout',
+    't1-out-master-payout':    'T1 Master Qualified Clients × Master CPA + T1 Lots × Net Spread × Master Rev Share % + T1 Lots × Master Rebate',
+    't1-out-sub-payout':       'T1 Sub Qualified Clients × Sub CPA + T1 Lots × Net Spread × Sub Rev Share % + T1 Lots × Sub Rebate',
+    't1-out-net-retained':     '(T1 Lots × Spread per Lot) − T1 Master Payout − T1 Sub Payout',
 
     't2-clients':              'Tier 2 Clients per IB × Tier 2 Active IBs',
     't2-payout':               'Tier 2 CPA + Tier 2 Rev Share + Tier 2 Rebate',
-    't2-out-master-volume':    'Total Volume × Tier 2 Master Routing %',
-    't2-out-master-payout':    'Tier 2 Master Volume × Tier 2 Master Rate per Lot',
-    't2-out-master-override':  'Tier 2 Master Rate − Tier 2 Sub Rate (per lot)',
-    't2-out-sub-volume':       'Total Volume × Tier 2 Sub Routing %',
-    't2-out-sub-payout':       'Tier 2 Sub Volume × Tier 2 Sub Rate per Lot',
-    't2-out-direct-volume':    'Total Volume × (1 − Tier 2 Master Routing % − Tier 2 Sub Routing %)',
-    't2-out-net-retained':     '(Total Volume × Spread per Lot) − Tier 2 Master Payout − Tier 2 Sub Payout',
+    't2-out-master-payout':    'T2 Master Qualified Clients × Master CPA + T2 Lots × Net Spread × Master Rev Share % + T2 Lots × Master Rebate',
+    't2-out-sub-payout':       'T2 Sub Qualified Clients × Sub CPA + T2 Lots × Net Spread × Sub Rev Share % + T2 Lots × Sub Rebate',
+    't2-out-net-retained':     '(T2 Lots × Spread per Lot) − T2 Master Payout − T2 Sub Payout',
 
     't3-clients':              'Tier 3 Clients per IB × Tier 3 Active IBs',
     't3-payout':               'Tier 3 CPA + Tier 3 Rev Share + Tier 3 Rebate',
-    't3-out-master-volume':    'Total Volume × Tier 3 Master Routing %',
-    't3-out-master-payout':    'Tier 3 Master Volume × Tier 3 Master Rate per Lot',
-    't3-out-master-override':  'Tier 3 Master Rate − Tier 3 Sub Rate (per lot)',
-    't3-out-sub-volume':       'Total Volume × Tier 3 Sub Routing %',
-    't3-out-sub-payout':       'Tier 3 Sub Volume × Tier 3 Sub Rate per Lot',
-    't3-out-direct-volume':    'Total Volume × (1 − Tier 3 Master Routing % − Tier 3 Sub Routing %)',
-    't3-out-net-retained':     '(Total Volume × Spread per Lot) − Tier 3 Master Payout − Tier 3 Sub Payout',
+    't3-out-master-payout':    'T3 Master Qualified Clients × Master CPA + T3 Lots × Net Spread × Master Rev Share % + T3 Lots × Master Rebate',
+    't3-out-sub-payout':       'T3 Sub Qualified Clients × Sub CPA + T3 Lots × Net Spread × Sub Rev Share % + T3 Lots × Sub Rebate',
+    't3-out-net-retained':     '(T3 Lots × Spread per Lot) − T3 Master Payout − T3 Sub Payout',
 
     'ibt-clients':             'Tier 1 Clients + Tier 2 Clients + Tier 3 Clients',
     'ibt-ibs':                 'Tier 1 Active IBs + Tier 2 Active IBs + Tier 3 Active IBs',
@@ -7815,14 +7857,39 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   function attachFormula(id, formula) {
     const el = document.getElementById(id);
     if (!el) return;
-    const card = el.closest('.ci') || el.parentElement;
-    if (!card) return;
-    if (card.querySelector('.ci-formula[data-for="' + id + '"]')) return;
+    const ciCard = el.closest('.ci');
+    if (ciCard) {
+      // Inside a .ci card → append as the next column-flow child.
+      if (ciCard.querySelector('.ci-formula[data-for="' + id + '"]')) return;
+      const f = document.createElement('div');
+      f.className = 'ci-formula';
+      f.setAttribute('data-for', id);
+      f.textContent = formula;
+      ciCard.appendChild(f);
+      return;
+    }
+    // No .ci ancestor: the value may live in a horizontal flex row (rowCalc,
+    // netCard, …) or in a vertical container (tier-stat, etc.). If the
+    // parent is a row-flex container, appending the formula as a child would
+    // push it to the right of the value via justify-content:space-between —
+    // escape one level up and insert it as a sibling AFTER the row instead.
+    const parent = el.parentElement;
+    if (!parent) return;
+    const ps = window.getComputedStyle(parent);
+    const dir = ps.flexDirection || 'row';
+    const isRowFlex = ps.display === 'flex' && (dir === 'row' || dir === 'row-reverse');
     const f = document.createElement('div');
     f.className = 'ci-formula';
     f.setAttribute('data-for', id);
     f.textContent = formula;
-    card.appendChild(f);
+    if (isRowFlex && parent.parentNode) {
+      const host = parent.parentNode;
+      if (host.querySelector(':scope > .ci-formula[data-for="' + id + '"]')) return;
+      host.insertBefore(f, parent.nextSibling);
+    } else {
+      if (parent.querySelector(':scope > .ci-formula[data-for="' + id + '"]')) return;
+      parent.appendChild(f);
+    }
   }
 
   // Run after IB Network render (280ms) so dynamically-injected output IDs exist
