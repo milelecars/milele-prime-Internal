@@ -326,8 +326,8 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 <div class="page-tabs">
   <div class="container">
     <div class="page-tabs-inner">
-      <button class="page-tab" data-tab="tab4">Deposits</button>
-      <button class="page-tab" data-tab="tab5">Trading Float</button>
+      <button class="page-tab" data-tab="tab4">AUM</button>
+      <button class="page-tab" data-tab="tab5">Trading Flow</button>
       <button class="page-tab" data-tab="tab6">Revenue</button>
       <button class="page-tab" data-tab="tab7">Variable Costs</button>
       <button class="page-tab" data-tab="tab8">Fixed Costs</button>
@@ -705,21 +705,21 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 ══════════════════════════════════════════ -->
 <div class="tab-panel" id="tab4">
   <div class="hero fu fu1">
-    <div class="hero-title">Deposits</div>
+    <div class="hero-title">Assets Under Management</div>
     <div class="hero-sub">Per-section deposit volume = clients × avg deposit. Totals at the top sum every section (3 IB tiers + organic clients).</div>
   </div>
 
   <div class="divider fu fu2"><div class="divider-label">Totals</div><div class="divider-line"></div></div>
   <div class="costs-grid fu fu2" style="grid-template-columns:repeat(2,1fr)">
     <div class="ci">
+      <div class="ci-label">Total AUM</div>
+      <div class="ci-note">Sum of (clients × avg deposit + bonus) across all 4 sections</div>
+      <div id="dep-volume-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
+    </div>
+      <div class="ci">
       <div class="ci-label">Total Clients Count</div>
       <div class="ci-note">Calculated: Tier 1 + Tier 2 + Tier 3 + Organic clients</div>
       <div id="dep-clients-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">2,000</div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Total Deposit Volume</div>
-      <div class="ci-note">Sum of (clients × avg deposit) across all 4 sections</div>
-      <div id="dep-volume-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
     </div>
   </div>
 
@@ -733,6 +733,8 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t1-clients" value="400" min="0" step="1"></div>
       <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t1-vol" value="10000" min="0" step="100"></div>
+      <div class="ci-note" style="margin-top:.85rem">Bonus per client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t1-bonus" value="200" min="0" step="10"></div>
       <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Section deposit</span>
         <span id="dep-t1-subtotal" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
@@ -746,6 +748,8 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t2-clients" value="1200" min="0" step="1"></div>
       <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t2-vol" value="5000" min="0" step="100"></div>
+      <div class="ci-note" style="margin-top:.85rem">Bonus per client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t2-bonus" value="100" min="0" step="10"></div>
       <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Section deposit</span>
         <span id="dep-t2-subtotal" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
@@ -759,6 +763,8 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-t3-clients" value="400" min="0" step="1"></div>
       <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t3-vol" value="2500" min="0" step="100"></div>
+      <div class="ci-note" style="margin-top:.85rem">Bonus per client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-t3-bonus" value="50" min="0" step="10"></div>
       <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Section deposit</span>
         <span id="dep-t3-subtotal" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
@@ -775,6 +781,8 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="dep-other-clients" value="0" min="0" step="1"></div>
       <div class="ci-note" style="margin-top:.85rem">Avg deposit per client</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-other-vol" value="0" min="0" step="100"></div>
+      <div class="ci-note" style="margin-top:.85rem">Bonus per client</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="dep-other-bonus" value="50" min="0" step="10"></div>
       <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Section deposit</span>
         <span id="dep-other-subtotal" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
@@ -788,21 +796,16 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 ══════════════════════════════════════════ -->
 <div class="tab-panel" id="tab5">
   <div class="hero fu fu1">
-    <div class="hero-title">Trading Float</div>
+    <div class="hero-title">Trading Flow</div>
     <div class="hero-sub">Per-client-type trading activity. Each row's deposit volume is pulled live from the Deposits tab (clients × avg deposit).</div>
   </div>
 
-  <div class="divider fu fu2"><div class="divider-label">Trading Float Overview</div><div class="divider-line"></div></div>
+  <div class="divider fu fu2"><div class="divider-label">Trading Flow Overview</div><div class="divider-line"></div></div>
   <div class="costs-grid fu fu2" style="grid-template-columns:repeat(2,1fr)">
     <div class="ci">
-      <div class="ci-label">Total Trading Float</div>
-      <div class="ci-note">Sum of Net Float across all 4 client types — live</div>
+      <div class="ci-label">Year 1 Notional Volume</div>
+      <div class="ci-note">Sum of Net Flow across all 4 client types — live</div>
       <div id="flt-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Total Client Deposits Volume</div>
-      <div class="ci-note">Live from Deposits tab — sum of clients × avg deposit across all 4 sections</div>
-      <div id="flt-volume-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
     </div>
   </div>
 
@@ -813,63 +816,48 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
         <tr>
           <th>Client Type</th>
           <th>Deposit Volume</th>
-          <th>Active %</th>
-          <th>Leverage (×)</th>
-          <th>Amount $</th>
-          <th>Redeposits</th>
-          <th>Withdrawal $</th>
+          <th>Turn Over (%)</th>
+          <th>Redeposit %</th>
+          <th>Withdrawal %</th>
           <th>Lifetime (mo)</th>
-          <th>Bonus $</th>
-          <th>= Net Float</th>
+          <th>= Net Flow</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><span class="tier-badge t1" style="margin-right:8px">Tier 1</span> Top IBs</td>
           <td class="ft-vol" id="flt-t1-volume">$0</td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-active" value="100" min="0" max="100" step="1"><span class="ft-input-sym">%</span></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-leverage" value="100" min="1" step="1"><span class="ft-input-sym">×</span></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t1-amount"   value="2500" min="0" step="100"></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-redep"     value="2"    min="0" step="1"  ></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t1-withdraw" value="1500" min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-turnover" value="100" min="0" step="1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-redep"     value="5"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-withdraw" value="3"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t1-lifetime"  value="12"   min="0" step="1"  ></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t1-bonus"    value="200"  min="0" step="10" ></span></td>
           <td class="ft-result" id="flt-t1-result">$0</td>
         </tr>
         <tr>
           <td><span class="tier-badge t2" style="margin-right:8px">Tier 2</span> Experienced IBs</td>
           <td class="ft-vol" id="flt-t2-volume">$0</td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-active" value="100" min="0" max="100" step="1"><span class="ft-input-sym">%</span></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-leverage" value="100" min="1" step="1"><span class="ft-input-sym">×</span></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t2-amount"   value="2000" min="0" step="100"></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-redep"     value="2"    min="0" step="1"  ></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t2-withdraw" value="1200" min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-turnover" value="100" min="0" step="1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-redep"     value="4"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-withdraw" value="3"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t2-lifetime"  value="9"    min="0" step="1"  ></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t2-bonus"    value="100"  min="0" step="10" ></span></td>
           <td class="ft-result" id="flt-t2-result">$0</td>
         </tr>
         <tr>
           <td><span class="tier-badge t3" style="margin-right:8px">Tier 3</span> New / Converted IBs</td>
           <td class="ft-vol" id="flt-t3-volume">$0</td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-active" value="100" min="0" max="100" step="1"><span class="ft-input-sym">%</span></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-leverage" value="100" min="1" step="1"><span class="ft-input-sym">×</span></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t3-amount"   value="1500" min="0" step="100"></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-redep"     value="1"    min="0" step="1"  ></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t3-withdraw" value="800"  min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-turnover" value="100" min="0" step="1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-redep"     value="3"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-withdraw" value="2"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-t3-lifetime"  value="6"    min="0" step="1"  ></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-t3-bonus"    value="50"   min="0" step="10" ></span></td>
           <td class="ft-result" id="flt-t3-result">$0</td>
         </tr>
         <tr>
           <td><span style="display:inline-block;padding:4px 12px;border-radius:2px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--bg3);color:var(--text-dim);border:1px solid var(--border-dim);margin-right:8px">Organic</span> Direct / Affiliates</td>
           <td class="ft-vol" id="flt-other-volume">$0</td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-active" value="100" min="0" max="100" step="1"><span class="ft-input-sym">%</span></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-leverage" value="100" min="1" step="1"><span class="ft-input-sym">×</span></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-other-amount"   value="1500" min="0" step="100"></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-redep"     value="1"    min="0" step="1"  ></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-other-withdraw" value="900"  min="0" step="100"></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-turnover" value="100" min="0" step="1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-redep"     value="3"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
+          <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-withdraw" value="2"    min="0" step="0.1"><span class="ft-input-sym">%</span></span></td>
           <td class="ft-input-cell"><span class="ft-input-wrap"><input class="ft-input" type="number" id="flt-other-lifetime"  value="6"    min="0" step="1"  ></span></td>
-          <td class="ft-input-cell"><span class="ft-input-wrap"><span class="ft-input-sym">$</span><input class="ft-input" type="number" id="flt-other-bonus"    value="50"   min="0" step="10" ></span></td>
           <td class="ft-result" id="flt-other-result">$0</td>
         </tr>
       </tbody>
@@ -2243,10 +2231,10 @@ if(ibSliderEl) ibSliderEl.addEventListener('input', renderIB);
 document.addEventListener('input',  saveStateDebounced);
 document.addEventListener('change', saveStateDebounced);
 
-// Deposits + Trading Float — derived values. Per-section deposit volume = clients
+// Deposits + Trading Flow — derived values. Per-section deposit volume = clients
 // × avg deposit; section subtotals + totals show on Deposits tab; the same volumes
-// feed the Trading Float tab (flt-*-volume cells + flt-volume-total). Each row's
-// Net Float = clients × (avg deposit + amount × redeposits − withdrawal − bonus).
+// feed the Trading Flow tab (flt-*-volume cells + flt-volume-total). Each row's
+// Net Flow = clients × (avg deposit + amount × redeposits − withdrawal − bonus).
 function recalcDepositsTotal() {
   const num = id => {
     const el = document.getElementById(id);
@@ -2264,7 +2252,10 @@ function recalcDepositsTotal() {
     const ibs      = s.ibs ? Math.max(num(s.ibs) || 1, 1) : 1;
     const clients  = num(s.c) * ibs;
     const avgDep   = num(s.v);
-    const sub      = clients * avgDep;
+    const bonus    = num('dep-' + s.key + '-bonus');
+    // Bonus is added to the per-client deposit before scaling by clients × IBs.
+    const effDep   = avgDep + bonus;
+    const sub      = clients * effDep;
     totalClients  += clients;
     totalVolume   += sub;
 
@@ -2272,21 +2263,21 @@ function recalcDepositsTotal() {
     const sEl = document.getElementById(s.out);
     if(sEl) sEl.textContent = fmt$(sub);
 
-    // Trading Float tab: live deposit volume cell
+    // Trading Flow tab: live deposit volume cell
     const fEl = document.getElementById('flt-' + s.key + '-volume');
     if(fEl) fEl.textContent = fmt$(sub);
 
-    // Trading Float tab: per-row Net Float result, now expressed as NOTIONAL.
-    // active% scales the deposit portion (the share actually working as margin).
-    // leverage then converts the resulting cash margin into notional volume.
-    // Defaults: active=100%, leverage=100× → multiplies cash margin by 100.
-    const activePct = num('flt-' + s.key + '-active') / 100;
-    const leverage  = num('flt-' + s.key + '-leverage') || 1;
-    const amount    = num('flt-' + s.key + '-amount');
-    const redep     = num('flt-' + s.key + '-redep');
-    const withdraw  = num('flt-' + s.key + '-withdraw');
-    const bonus     = num('flt-' + s.key + '-bonus');
-    const netFloat  = clients * (avgDep * activePct + amount * redep - withdraw - bonus) * leverage;
+    // Trading Flow tab: per-row Net Flow — geometric growth over lifetime.
+    // = depositVolume × turnover × ((1 + (r − w))^L − 1) / (r − w)
+    // r, w are monthly redeposit / withdrawal rates; L is lifetime in months.
+    // When r − w → 0 the limit of the factor is L (Taylor expansion).
+    const turnover = num('flt-' + s.key + '-turnover') / 100;
+    const r        = num('flt-' + s.key + '-redep')    / 100;
+    const w        = num('flt-' + s.key + '-withdraw') / 100;
+    const L        = num('flt-' + s.key + '-lifetime');
+    const net      = r - w;
+    const factor   = Math.abs(net) < 1e-9 ? L : (Math.pow(1 + net, L) - 1) / net;
+    const netFloat = sub * turnover * factor;
     totalNetFloat += netFloat;
     const rEl = document.getElementById('flt-' + s.key + '-result');
     if(rEl) rEl.textContent = fmt$(netFloat);
@@ -2582,17 +2573,19 @@ function buildCalculator(targetId) {
 
 Object.keys(REV_FORMULAS).forEach(buildCalculator);
 
-// Trigger the recalc on any of the 8 deposit inputs OR any of the 20 trading-float
+// Trigger the recalc on any of the 8 deposit inputs OR any of the 20 trading-flow
 // per-tier inputs. (Lifetime is collected as input but isn't part of the current
-// Net Float formula — drop or wire it in later if the model needs it.)
+// Net Flow formula — drop or wire it in later if the model needs it.)
 [
   'dep-t1-ibs','dep-t2-ibs','dep-t3-ibs',
-  'dep-t1-clients','dep-t1-vol','dep-t2-clients','dep-t2-vol',
-  'dep-t3-clients','dep-t3-vol','dep-other-clients','dep-other-vol',
-  'flt-t1-active','flt-t1-leverage','flt-t1-amount','flt-t1-redep','flt-t1-withdraw','flt-t1-lifetime','flt-t1-bonus',
-  'flt-t2-active','flt-t2-leverage','flt-t2-amount','flt-t2-redep','flt-t2-withdraw','flt-t2-lifetime','flt-t2-bonus',
-  'flt-t3-active','flt-t3-leverage','flt-t3-amount','flt-t3-redep','flt-t3-withdraw','flt-t3-lifetime','flt-t3-bonus',
-  'flt-other-active','flt-other-leverage','flt-other-amount','flt-other-redep','flt-other-withdraw','flt-other-lifetime','flt-other-bonus',
+  'dep-t1-clients','dep-t1-vol','dep-t1-bonus',
+  'dep-t2-clients','dep-t2-vol','dep-t2-bonus',
+  'dep-t3-clients','dep-t3-vol','dep-t3-bonus',
+  'dep-other-clients','dep-other-vol','dep-other-bonus',
+  'flt-t1-turnover','flt-t1-redep','flt-t1-withdraw','flt-t1-lifetime',
+  'flt-t2-turnover','flt-t2-redep','flt-t2-withdraw','flt-t2-lifetime',
+  'flt-t3-turnover','flt-t3-redep','flt-t3-withdraw','flt-t3-lifetime',
+  'flt-other-turnover','flt-other-redep','flt-other-withdraw','flt-other-lifetime',
 ].forEach(id => {
   const el = document.getElementById(id);
   if(el) el.addEventListener('input', recalcDepositsTotal);
@@ -2671,10 +2664,10 @@ function _revBuildCard(id, label, noteText, value, opts) {
   grid.style.gridTemplateColumns = 'repeat(3,1fr)';
 
   grid.appendChild(_revBuildCard('rev-abook-pct', 'A-Book Volume %',
-    '% of total trading float routed to LP (hedged). Remaining % is B-booked.',
+    '% of total trading flow routed to LP (hedged). Remaining % is B-booked.',
     20, { min:0, max:100, step:1, suffix:'%' }));
   grid.appendChild(_revBuildCard('rev-lot-size', 'Standard Lot Size ($)',
-    'Used to convert notional float volume into lots. Standard lot = $100,000. Mini lot = $10,000. Micro lot = $1,000.',
+    'Used to convert notional flow volume into lots. Standard lot = $100,000. Mini lot = $10,000. Micro lot = $1,000.',
     100000, { min:1000, step:1000, prefix:'$' }));
   grid.appendChild(_revBuildCard('rev-nights-held', 'Avg Nights Position Held Open',
     'Average number of nights a client holds a position before closing. Drives swap revenue. Intraday-only traders = 0.',
@@ -3128,8 +3121,8 @@ recalcRevAutoFields = function() {
 [
   'rev-eng-lots-per-day','rev-eng-days-stopout','rev-eng-reload-rate',
   'rev-eng-liquidations','rev-eng-ftd','rev-eng-reload-amount',
-  // Trading Float leverage inputs cascade into revenue too
-  'flt-t1-leverage','flt-t2-leverage','flt-t3-leverage','flt-other-leverage',
+  // Trading Flow turnover inputs cascade into revenue too
+  'flt-t1-turnover','flt-t2-turnover','flt-t3-turnover','flt-other-turnover',
 ].forEach(id => {
   const el = document.getElementById(id);
   if(el) el.addEventListener('input', recalcRevAutoFields);
@@ -3137,7 +3130,7 @@ recalcRevAutoFields = function() {
 
 // ═══════════════════════════════════════════════════════════════════
 // TF → REVENUE HANDOFF FIX
-// Tab 5 (Trading Float) outputs flt-total ($, notional capital deployed).
+// Tab 5 (Trading Flow) outputs flt-total ($, notional capital deployed).
 // Tab 6 (Revenue) applies rev-turnover-pct to convert $ → lots/day, which
 // drives rev-eng-lots-per-day (Liquidation Engine). AUTO mode writes the
 // derived value; MANUAL mode lets the user override.
@@ -3158,8 +3151,8 @@ recalcRevAutoFields = function() {
     if (!grid) return;
     grid.appendChild(_revBuildCard(
       'rev-turnover-pct',
-      'Daily Float Turnover %',
-      'What % of the total trading float is turned over as traded volume per day. Retail CFD benchmark: 80–150%. High-frequency scalper books: 300–500%. Conservative swing trader books: 20–50%. Applied to flt-total to derive broker-wide lots/day.',
+      'Daily Flow Turnover %',
+      'What % of the total trading flow is turned over as traded volume per day. Retail CFD benchmark: 80–150%. High-frequency scalper books: 300–500%. Conservative swing trader books: 20–50%. Applied to flt-total to derive broker-wide lots/day.',
       100,
       { min:1, max:1000, step:10, suffix:'%' }
     ));
@@ -3220,7 +3213,7 @@ recalcRevAutoFields = function() {
         ? '$' + (flt_total/1e6).toFixed(1) + 'M'
         : '$' + Math.round(flt_total).toLocaleString();
       src.textContent = '↑ ' + fltFmt
-        + ' float ÷ $' + lot_size.toLocaleString()
+        + ' flow ÷ $' + lot_size.toLocaleString()
         + ' lot size ÷ ' + DAYS + ' days'
         + ' × ' + turnover_pct + '% turnover';
     }
@@ -3257,7 +3250,7 @@ recalcRevAutoFields = function() {
 
     const note = document.createElement('div');
     note.className = 'ci-note';
-    note.textContent = 'Auto-calculated from Trading Float tab: total notional float ÷ lot size ÷ 22 trading days × daily turnover %. Switch to MANUAL to override with a custom value.';
+    note.textContent = 'Auto-calculated from Trading Flow tab: total notional flow ÷ lot size ÷ 22 trading days × daily turnover %. Switch to MANUAL to override with a custom value.';
 
     const toggleBtn = document.createElement('button');
     toggleBtn.type = 'button';
@@ -3386,7 +3379,7 @@ recalcRevAutoFields = function() {
 
   addCard('rev-spread-fx', () => _revBuildCard(
     'rev-spread-fx', 'Spread Markup — FX Majors (pips)',
-    'Pips above raw LP price for FX major pairs (EURUSD, GBPUSD etc). Typical retail: 0.8–2.5 pips. This is YOUR commercial decision — not a function of your float size.',
+    'Pips above raw LP price for FX major pairs (EURUSD, GBPUSD etc). Typical retail: 0.8–2.5 pips. This is YOUR commercial decision — not a function of your flow size.',
     1.2, { min:0.1, max:20, step:0.1 }
   ));
   addCard('rev-spread-commodities', () => _revBuildCard(
@@ -3774,7 +3767,7 @@ recalcRevAutoFields = function() {
       if (lotsCard) {
         const lotsNote = lotsCard.querySelector('.ci-note');
         if (lotsNote) {
-          lotsNote.textContent = 'Auto-derived from Trading Float tab: total notional float ÷ lot size ÷ 22 trading days × daily turnover %. Switch to MANUAL above to override.';
+          lotsNote.textContent = 'Auto-derived from Trading Flow tab: total notional flow ÷ lot size ÷ 22 trading days × daily turnover %. Switch to MANUAL above to override.';
         }
         const lotsWrap = lotsCard.querySelector('.ci-input-wrap');
         if (lotsWrap) {
@@ -5234,7 +5227,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     'Annual % increase in total revenue from prior year. Applied to all revenue streams proportionally.',
     40, { min:-50, max:300, step:1, suffix:'%' }));
   gGrid.appendChild(buildCard('fm-growth-clients',  'Client Growth Rate',
-    'Annual % increase in total funded client base. Drives deposit volume and trading float growth.',
+    'Annual % increase in total funded client base. Drives deposit volume and trading flow growth.',
     60, { min:0,   max:500, step:1, suffix:'%' }));
   gGrid.appendChild(buildCard('fm-growth-variable', 'Variable Cost Growth Rate',
     'Annual % increase in variable costs. Should be lower than revenue growth as unit economics improve at scale.',
@@ -5507,7 +5500,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     html += sectionRow('Volume & Clients', 6);
     html += '<tr>' + rowLabel('Total Funded Clients')   + years.map(y => intCell(y.cli)).join('')   + '</tr>';
     html += '<tr>' + rowLabel('Total Deposit Volume ($)') + years.map(y => moneyCell(y.dep)).join('') + '</tr>';
-    html += '<tr>' + rowLabel('Total Trading Float ($)')  + years.map(y => moneyCell(y.flt)).join('') + '</tr>';
+    html += '<tr>' + rowLabel('Total Trading Flow ($)')  + years.map(y => moneyCell(y.flt)).join('') + '</tr>';
     html += '<tr>' + rowLabel('Avg Deposit per Client ($)') + years.map(y => moneyCell(y.adp)).join('') + '</tr>';
 
     html += sectionRow('Income Statement', 6);
@@ -6817,7 +6810,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     html += sectionRow('Volume & Clients', 6);
     html += '<tr>' + rowLabel('Total Funded Clients')        + years.map(y => intCell(y.cli)).join('')   + '</tr>';
     html += '<tr>' + rowLabel('Total Deposit Volume ($)')    + years.map(y => moneyCell(y.dep)).join('') + '</tr>';
-    html += '<tr>' + rowLabel('Total Trading Float ($)')     + years.map(y => moneyCell(y.flt)).join('') + '</tr>';
+    html += '<tr>' + rowLabel('Total Trading Flow ($)')     + years.map(y => moneyCell(y.flt)).join('') + '</tr>';
     html += '<tr>' + rowLabel('Avg Deposit per Client ($)')  + years.map(y => moneyCell(y.adp)).join('') + '</tr>';
 
     html += sectionRow('Income Statement', 6);
@@ -7146,7 +7139,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 //          → recalcFM_v2 in tab-fm
 //   2) Deposits tab — "IB Tiers — Clients & Avg Deposit Volume" section
 //        Effective tier clients = (dep-tX-clients) × (ib-count-tX)
-//        Cascades into Trading Float volumes / Net Float and via the
+//        Cascades into Trading Flow volumes / Net Flow and via the
 //        existing dep-volume-total MutationObserver into Revenue auto-derive.
 //   3) NOT applied to:
 //        • Volume Routing tier-tree (uses % of total volume — would exceed 100%)
@@ -7304,7 +7297,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // (2) DEPOSITS — scale tier client count, recompute totals + Trading Float
+  // (2) DEPOSITS — scale tier client count, recompute totals + Trading Flow
   // ═══════════════════════════════════════════════════════════════
   function applyTierCountsToDeposits() {
     const sections = [
@@ -7320,7 +7313,9 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       const ibs      = s.ibs ? Math.max(num(s.ibs) || 1, 1) : 1;
       const clients  = num(s.c) * ibs;             // ← multiplied for tiers, ×1 for organic
       const avgDep   = num(s.v);
-      const sub      = clients * avgDep;
+      const bonus    = num('dep-' + s.key + '-bonus');
+      const effDep   = avgDep + bonus;
+      const sub      = clients * effDep;
       totalClients  += clients;
       totalVolume   += sub;
 
@@ -7330,14 +7325,14 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       const fEl = document.getElementById('flt-' + s.key + '-volume');
       if (fEl) fEl.textContent = fmt$(sub);
 
-      // Trading Float Net Float (mirrors recalcDepositsTotal's formula)
-      const activePct = num('flt-' + s.key + '-active') / 100;
-      const leverage  = num('flt-' + s.key + '-leverage') || 1;
-      const amount    = num('flt-' + s.key + '-amount');
-      const redep     = num('flt-' + s.key + '-redep');
-      const withdraw  = num('flt-' + s.key + '-withdraw');
-      const bonus     = num('flt-' + s.key + '-bonus');
-      const netFloat  = clients * (avgDep * activePct + amount * redep - withdraw - bonus) * leverage;
+      // Trading Flow Net Flow (mirrors recalcDepositsTotal's formula)
+      const turnover = num('flt-' + s.key + '-turnover') / 100;
+      const r        = num('flt-' + s.key + '-redep')    / 100;
+      const w        = num('flt-' + s.key + '-withdraw') / 100;
+      const L        = num('flt-' + s.key + '-lifetime');
+      const net      = r - w;
+      const factor   = Math.abs(net) < 1e-9 ? L : (Math.pow(1 + net, L) - 1) / net;
+      const netFloat = sub * turnover * factor;
       totalNetFloat  += netFloat;
       const rEl = document.getElementById('flt-' + s.key + '-result');
       if (rEl) rEl.textContent = fmt$(netFloat);
@@ -7367,12 +7362,14 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   // overwrite the displays with scaled values. Same trick for ib-count-tX.
   const depWatchIds = [
     'dep-t1-ibs','dep-t2-ibs','dep-t3-ibs',
-    'dep-t1-clients','dep-t1-vol','dep-t2-clients','dep-t2-vol',
-    'dep-t3-clients','dep-t3-vol','dep-other-clients','dep-other-vol',
-    'flt-t1-active','flt-t1-leverage','flt-t1-amount','flt-t1-redep','flt-t1-withdraw','flt-t1-bonus',
-    'flt-t2-active','flt-t2-leverage','flt-t2-amount','flt-t2-redep','flt-t2-withdraw','flt-t2-bonus',
-    'flt-t3-active','flt-t3-leverage','flt-t3-amount','flt-t3-redep','flt-t3-withdraw','flt-t3-bonus',
-    'flt-other-active','flt-other-leverage','flt-other-amount','flt-other-redep','flt-other-withdraw','flt-other-bonus',
+    'dep-t1-clients','dep-t1-vol','dep-t1-bonus',
+    'dep-t2-clients','dep-t2-vol','dep-t2-bonus',
+    'dep-t3-clients','dep-t3-vol','dep-t3-bonus',
+    'dep-other-clients','dep-other-vol','dep-other-bonus',
+    'flt-t1-turnover','flt-t1-redep','flt-t1-withdraw','flt-t1-lifetime',
+    'flt-t2-turnover','flt-t2-redep','flt-t2-withdraw','flt-t2-lifetime',
+    'flt-t3-turnover','flt-t3-redep','flt-t3-withdraw','flt-t3-lifetime',
+    'flt-other-turnover','flt-other-redep','flt-other-withdraw','flt-other-lifetime',
   ];
   depWatchIds.forEach(id => {
     const el = document.getElementById(id);
@@ -7736,7 +7733,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     // Book Routing
     'rev-bbook-pct-display':  '100% − A-Book Volume %',
     // Liquidation Engine (Zone 2)
-    'rev-eng-lots-per-day':   'Total Trading Float ÷ Standard Lot Size ÷ 22 trading days × Daily Float Turnover %',
+    'rev-eng-lots-per-day':   'Total Trading Flow ÷ Standard Lot Size ÷ 22 trading days × Daily Flow Turnover %',
     // Volume Engine outputs
     'rev-eng-out-va':         'Avg Lots / Day × Days to Stop-out × A-Book Volume % × (1 + Reload Rate × (Liquidations / Lifetime − 1))',
     'rev-eng-out-vb':         'Avg Lots / Day × Days to Stop-out × B-Book Volume % × (1 + Reload Rate × (Liquidations / Lifetime − 1))',
@@ -7839,19 +7836,19 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 
     // ─────────── tab4 — Deposits ─────────────────────────
     'dep-clients-total':       '(T1 Clients × T1 IBs) + (T2 Clients × T2 IBs) + (T3 Clients × T3 IBs) + Other Direct Clients',
-    'dep-volume-total':        '(T1 Clients × T1 IBs × T1 Avg Deposit) + (T2 Clients × T2 IBs × T2 Avg Deposit) + (T3 Clients × T3 IBs × T3 Avg Deposit) + (Other Clients × Other Avg Deposit)',
+    'dep-volume-total':        '(T1 Clients × T1 IBs × T1 Avg Deposit + T1 Bonus) + (T2 Clients × T2 IBs × T2 Avg Deposit + T2 Bonus) + (T3 Clients × T3 IBs × T3 Avg Deposit + T3 Bonus) + (Organic Clients × Organic Avg Deposit + Organic Clients Bonus)',
     'dep-t1-subtotal':         'T1 Clients × T1 IBs × T1 Avg Deposit',
     'dep-t2-subtotal':         'T2 Clients × T2 IBs × T2 Avg Deposit',
     'dep-t3-subtotal':         'T3 Clients × T3 IBs × T3 Avg Deposit',
     'dep-other-subtotal':      'Other Direct Clients × Other Avg Deposit',
 
-    // ─────────── tab5 — Trading Float ────────────────────
+    // ─────────── tab5 — Trading Flow ────────────────────
     'flt-volume-total':        'Mirrors Total Deposits from the Deposits tab',
-    'flt-total':               'Sum of T1 Net Float + T2 Net Float + T3 Net Float + Other Net Float (each tier × Tier Leverage × Active %)',
-    'flt-t1-result':           'T1 Clients × ((T1 Avg Deposit × Active % + T1 Redeposit Amount × Redeposits − Withdrawals − Bonus) × T1 Leverage)',
-    'flt-t2-result':           'T2 Clients × ((T2 Avg Deposit × Active % + T2 Redeposit Amount × Redeposits − Withdrawals − Bonus) × T2 Leverage)',
-    'flt-t3-result':           'T3 Clients × ((T3 Avg Deposit × Active % + T3 Redeposit Amount × Redeposits − Withdrawals − Bonus) × T3 Leverage)',
-    'flt-other-result':        'Other Clients × ((Other Avg Deposit × Active % + Other Redeposit Amount × Redeposits − Withdrawals − Bonus) × Other Leverage)',
+    'flt-total':               'Sum of T1 Net Flow + T2 Net Flow + T3 Net Flow + Organic Net Flow',
+    'flt-t1-result':           'T1 Deposit Volume × T1 Turn Over × ((1 + (T1 Redeposit % − T1 Withdrawal %))^T1 Lifetime − 1) ÷ (T1 Redeposit % − T1 Withdrawal %)',
+    'flt-t2-result':           'T2 Deposit Volume × T2 Turn Over × ((1 + (T2 Redeposit % − T2 Withdrawal %))^T2 Lifetime − 1) ÷ (T2 Redeposit % − T2 Withdrawal %)',
+    'flt-t3-result':           'T3 Deposit Volume × T3 Turn Over × ((1 + (T3 Redeposit % − T3 Withdrawal %))^T3 Lifetime − 1) ÷ (T3 Redeposit % − T3 Withdrawal %)',
+    'flt-other-result':        'Other Deposit Volume × Other Turn Over × ((1 + (Other Redeposit % − Other Withdrawal %))^Other Lifetime − 1) ÷ (Other Redeposit % − Other Withdrawal %)',
 
     // ─────────── tab7 — Variable Costs ───────────────────
     'vrc-total-display':       'Sum of every variable cost line + Sub-IB Override Cost',
@@ -7979,7 +7976,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 <script>
 // ═══════════════════════════════════════════════════════════════════
 // NET FLOAT cell formulas — render the formula inside each per-tier
-// "= Net Float" td (flt-{t1,t2,t3,other}-result). The recalc at
+// "= Net Flow" td (flt-{t1,t2,t3,other}-result). The recalc at
 // recalcDepositsTotal sets textContent on these cells which wipes any
 // child elements, so a MutationObserver re-applies the structure.
 // ═══════════════════════════════════════════════════════════════════
@@ -7995,7 +7992,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   ];
 
   const FORMULA_TEXT =
-    'ƒ Clients × ((Avg Deposit × Active % + Redeposit Amount × Redeposits − Withdrawal − Bonus) × Leverage)';
+    'ƒ Deposit Volume × Turn Over × ((1 + (Redeposit % − Withdrawal %))^Lifetime − 1) ÷ (Redeposit % − Withdrawal %)';
 
   function applyStructure(cell) {
     if (!cell) return;
