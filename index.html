@@ -712,6 +712,20 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
     <div class="hero-sub">Per-client-type trading activity. Each row's deposit volume is pulled live from the Deposits tab (clients × avg deposit).</div>
   </div>
 
+  <div class="divider fu fu2"><div class="divider-label">Trading Flow Overview</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2" style="grid-template-columns:repeat(2,1fr)">
+    <div class="ci">
+      <div class="ci-label">Year 1 Notional Volume</div>
+      <div class="ci-note">Sum of Net Flow across all 4 client types — live</div>
+      <div id="flt-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Year 1 Total Lots</div>
+      <div class="ci-note">Year 1 Notional Volume ÷ $100,000 standard lot size</div>
+      <div id="flt-total-lots" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">0</div>
+    </div>
+  </div>
+
   <div class="divider fu fu2"><div class="divider-label">A-Book / B-Book Split</div><div class="divider-line"></div></div>
   <div class="costs-grid fu fu2" style="grid-template-columns:repeat(2,1fr)">
     <div class="ci">
@@ -739,20 +753,6 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
         <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">B-Book Lots</span>
         <span id="flt-bbook-lots" style="font-size:16px;font-weight:700;color:var(--pu-text)">0</span>
       </div>
-    </div>
-  </div>
-
-  <div class="divider fu fu2"><div class="divider-label">Trading Flow Overview</div><div class="divider-line"></div></div>
-  <div class="costs-grid fu fu2" style="grid-template-columns:repeat(2,1fr)">
-    <div class="ci">
-      <div class="ci-label">Year 1 Notional Volume</div>
-      <div class="ci-note">Sum of Net Flow across all 4 client types — live</div>
-      <div id="flt-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">Year 1 Total Lots</div>
-      <div class="ci-note">Year 1 Notional Volume ÷ $100,000 standard lot size</div>
-      <div id="flt-total-lots" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">0</div>
     </div>
   </div>
 
@@ -827,119 +827,182 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   </div>
 
   <div class="divider fu fu2"><div class="divider-label">Total</div><div class="divider-line"></div></div>
-  <div class="costs-grid fu fu2">
-    <div class="ci">
+  <div class="costs-grid fu fu2" style="grid-template-columns:repeat(4,1fr)">
+    <div class="ci" style="background:var(--pu-dim)">
       <div class="ci-label">Total Revenue</div>
-      <div class="ci-note">Live sum of every revenue line on this page</div>
+      <div class="ci-note">A-Book + B-Book + Other</div>
       <div id="rev-total" style="font-size:30px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">A-Book Revenue</div>
+      <div class="ci-note">Sum of every A-book line</div>
+      <div id="rev-section-abook" style="font-size:24px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">B-Book Revenue</div>
+      <div class="ci-note">Sum of every B-book line</div>
+      <div id="rev-section-bbook" style="font-size:24px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">Other Revenue</div>
+      <div class="ci-note">Non-trading revenue streams</div>
+      <div id="rev-section-other" style="font-size:24px;font-weight:300;color:var(--pu-text);padding-top:6px;line-height:1">$0</div>
     </div>
   </div>
 
-  <div class="divider fu fu2"><div class="divider-label">Book P&amp;L</div><div class="divider-line"></div></div>
-
-  <div class="fu fu2" style="display:flex;flex-wrap:wrap;gap:1.75rem;align-items:flex-start">
-    <!-- A-Book column -->
-    <div style="flex:1 1 420px;min-width:0">
-      <div style="margin:0 0 .65rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span style="display:inline-block;padding:6px 14px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:rgba(31,168,118,0.15);color:var(--green);border:1px solid rgba(31,168,118,0.4)">A Book</span>
-        <span style="font-size:12px;color:var(--text-dim)">9 streams — hedged to LP, broker keeps markup &amp; fees</span>
-      </div>
-      <div class="costs-grid" style="grid-template-columns:repeat(2,1fr)">
-        <div class="ci">
-          <div class="ci-label">Spread Revenue</div>
-          <div class="ci-note">Markup only over LP raw price (e.g., 0.5 pip of a 1.2 pip spread)</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-spread" value="0" min="0" step="100"></div>
+  <div class="divider fu fu2"><div class="divider-label">A-Book Revenue</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2" style="grid-template-columns:repeat(2,1fr)">
+    <div class="ci" style="grid-column:1 / -1">
+      <div class="ci-label">A-Book Account Mix</div>
+      <div class="ci-note">Allocate A-book lots between Standard and ECN/Raw account types.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:.65rem;align-items:end">
+        <div>
+          <div class="ci-note">A-Book Lots </div>
+          <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-aacc-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
         </div>
-        <div class="ci">
-          <div class="ci-label">Commission Revenue</div>
-          <div class="ci-note">Full commission collected (e.g., $5/lot) minus LP per-lot fee</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-commission" value="0" min="0" step="100"></div>
+        <div>
+          <div class="ci-note">Standard Account % of lots</div>
+          <div class="ci-note" style="font-style:italic;font-size:10px;margin-top:2px">No commission — spread markup only</div>
+          <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-aacc-standard-pct" value="70" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
         </div>
-        <div class="ci">
-          <div class="ci-label">Swap Revenue</div>
-          <div class="ci-note">Markup over LP tom-next rate only</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-swap" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">FX Conversion Markup</div>
-          <div class="ci-note">Full markup (book-agnostic)</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-fx" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">Interest on Deposits</div>
-          <div class="ci-note">Full yield (book-agnostic)</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-interest" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">Inactivity Fees</div>
-          <div class="ci-note">Full fee (book-agnostic)</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-inactivity" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">Withdrawal Fees</div>
-          <div class="ci-note">Net of PSP cost (book-agnostic)</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-withdrawal" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">Slippage Revenue</div>
-          <div class="ci-note">Incidental — depends on LP fill quality</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-slippage" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">LP Volume Rebates</div>
-          <div class="ci-note">Earned — LP pays you back per volume tier</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-a-lp-rebate" value="0" min="0" step="100"></div>
+        <div>
+          <div class="ci-note">ECN / Raw Account % of lots</div>
+          <div class="ci-note" style="font-style:italic;font-size:10px;margin-top:2px">Tight spread + commission per lot</div>
+          <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-aacc-ecn-pct" value="30" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
         </div>
       </div>
     </div>
-
-    <!-- B-Book column -->
-    <div style="flex:1 1 420px;min-width:0">
-      <div style="margin:0 0 .65rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span style="display:inline-block;padding:6px 14px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:var(--pu);color:#fff">B Book</span>
-        <span style="font-size:12px;color:var(--text-dim)">8 streams — broker keeps full client P&amp;L</span>
+    <div class="ci" style="grid-column:1 / -1">
+      <style>
+        .rmf-input { background:transparent;border:none;border-bottom:1px dashed var(--pu-mid);color:var(--pu);font-family:inherit;font-size:inherit;font-weight:700;width:42px;text-align:right;outline:none;padding:0 1px;-moz-appearance:textfield }
+        .rmf-input::-webkit-inner-spin-button, .rmf-input::-webkit-outer-spin-button { -webkit-appearance:none;margin:0 }
+        .rmf-input:focus { border-bottom-style:solid;border-bottom-color:var(--pu) }
+        .rmf-input[readonly] { border-bottom:none;color:var(--pu-text);font-weight:600;cursor:default;width:auto;min-width:0;text-align:left;padding:0 }
+        .rmf-lots { color:var(--pu-text);font-weight:600 }
+        .rmf-result { color:var(--pu);font-weight:700 }
+      </style>
+      <div class="ci-label">A-Book Spread Markup Revenue</div>
+      <div class="ci-note">Spread markup retained across the Standard A-book share, blended by asset class.</div>
+      <div id="rev-markup-formula-fx" class="ci-formula" data-for="rev-markup-formula-fx" style="margin-top:.85rem">FX%  (blended) = [
+        (<span class="rmf-lots" data-pool="t1">0.0</span> × <input class="rmf-input" type="text" id="rev-markup-t1-fx" readonly tabindex="-1">%)
+        + (<span class="rmf-lots" data-pool="t2">0.0</span> × <input class="rmf-input" type="text" id="rev-markup-t2-fx" readonly tabindex="-1">%)
+        + (<span class="rmf-lots" data-pool="t3">0.0</span> × <input class="rmf-input" type="text" id="rev-markup-t3-fx" readonly tabindex="-1">%)
+        + (<span class="rmf-lots" data-pool="other">0.0</span> × <input class="rmf-input" type="number" id="rev-organic-mix-fx" value="70" min="0" max="100" step="1">%)
+        ] ÷ (
+        <span class="rmf-lots" data-pool="t1">0.0</span>
+        + <span class="rmf-lots" data-pool="t2">0.0</span>
+        + <span class="rmf-lots" data-pool="t3">0.0</span>
+        + <span class="rmf-lots" data-pool="other">0.0</span>
+        ) = <span class="rmf-result">0.0</span>%</div>
+      <div id="rev-markup-formula-com" class="ci-formula" data-for="rev-markup-formula-com">Com% (blended) = [
+        (<span class="rmf-lots" data-pool="t1">0.0</span> × <input class="rmf-input" type="text" id="rev-markup-t1-com" readonly tabindex="-1">%)
+        + (<span class="rmf-lots" data-pool="t2">0.0</span> × <input class="rmf-input" type="text" id="rev-markup-t2-com" readonly tabindex="-1">%)
+        + (<span class="rmf-lots" data-pool="t3">0.0</span> × <input class="rmf-input" type="text" id="rev-markup-t3-com" readonly tabindex="-1">%)
+        + (<span class="rmf-lots" data-pool="other">0.0</span> × <input class="rmf-input" type="number" id="rev-organic-mix-com" value="20" min="0" max="100" step="1">%)
+        ] ÷ (
+        <span class="rmf-lots" data-pool="t1">0.0</span>
+        + <span class="rmf-lots" data-pool="t2">0.0</span>
+        + <span class="rmf-lots" data-pool="t3">0.0</span>
+        + <span class="rmf-lots" data-pool="other">0.0</span>
+        ) = <span class="rmf-result">0.0</span>%</div>
+      <div id="rev-markup-formula-cry" class="ci-formula" data-for="rev-markup-formula-cry">Cry% (blended) = [
+        (<span class="rmf-lots" data-pool="t1">0.0</span> × <input class="rmf-input" type="text" id="rev-markup-t1-cry" readonly tabindex="-1">%)
+        + (<span class="rmf-lots" data-pool="t2">0.0</span> × <input class="rmf-input" type="text" id="rev-markup-t2-cry" readonly tabindex="-1">%)
+        + (<span class="rmf-lots" data-pool="t3">0.0</span> × <input class="rmf-input" type="text" id="rev-markup-t3-cry" readonly tabindex="-1">%)
+        + (<span class="rmf-lots" data-pool="other">0.0</span> × <input class="rmf-input" type="number" id="rev-organic-mix-cry" value="10" min="0" max="100" step="1">%)
+        ] ÷ (
+        <span class="rmf-lots" data-pool="t1">0.0</span>
+        + <span class="rmf-lots" data-pool="t2">0.0</span>
+        + <span class="rmf-lots" data-pool="t3">0.0</span>
+        + <span class="rmf-lots" data-pool="other">0.0</span>
+        ) = <span class="rmf-result">0.0</span>%</div>
+      <div class="ci-note" style="margin-top:.85rem">Standard A-Book Lots — derived (A-Book Lots × Standard %)</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-markup-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Markup Revenue</span>
+        <span id="rev-abook-markup-amount" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
       </div>
-      <div class="costs-grid" style="grid-template-columns:repeat(2,1fr)">
-        <div class="ci">
-          <div class="ci-label">Spread Revenue</div>
-          <div class="ci-note">Full spread retained — no LP to share with</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-spread" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">Commission Revenue</div>
-          <div class="ci-note">Full commission collected — no LP fee deducted</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-commission" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">Swap Revenue</div>
-          <div class="ci-note">Full overnight financing charge retained</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-swap" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">FX Conversion Markup</div>
-          <div class="ci-note">Full markup (book-agnostic)</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-fx" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">Interest on Deposits</div>
-          <div class="ci-note">Full yield (book-agnostic)</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-interest" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">Inactivity Fees</div>
-          <div class="ci-note">Full fee (book-agnostic)</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-inactivity" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">Withdrawal Fees</div>
-          <div class="ci-note">Net of PSP cost (book-agnostic)</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-withdrawal" value="0" min="0" step="100"></div>
-        </div>
-        <div class="ci">
-          <div class="ci-label">Slippage Revenue</div>
-          <div class="ci-note">By design — you control the fill</div>
-          <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-b-slippage" value="0" min="0" step="100"></div>
-        </div>
+    </div>
+    <div class="ci" style="grid-column:1 / -1">
+      <div class="ci-label">A-Book Commission Revenue</div>
+      <div class="ci-note">Commission collected on the ECN/Raw share of A-book volume.</div>
+      <div class="ci-note" style="margin-top:.65rem">Commission per lot</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-comm-per-lot" value="5" min="0" step="0.5"></div>
+      <div class="ci-note" style="margin-top:.65rem">ECN A-Book Lots — derived (A-Book Lots × ECN %)</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-comm-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Commission Revenue</span>
+        <span id="rev-abook-comm-amount" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
+      </div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">A-Book Slippage Gain</div>
+      <div class="ci-note">Positive LP fills above quote — your gain on hedged A-book volume.</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-abook-slip-pips" value="0" min="0" step="0.1"><span class="ci-prefix">pips</span></div>
+      <div class="ci-note" style="margin-top:.65rem">A-Book Lots </div>
+      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-abook-slip-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Slippage Gain</span>
+        <span id="rev-abook-slip-gain" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
+      </div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">A-Book Swap Revenue</div>
+      <div class="ci-note">Overnight swap markup retained across each LP's share of held A-book volume.</div>
+      <div id="rev-swap-lp-lines" style="margin-top:.85rem"></div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Swap Revenue</span>
+        <span id="rev-abook-swap-amount" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider fu fu2"><div class="divider-label">B-Book Revenue</div><div class="divider-line"></div></div>
+  <div class="costs-grid fu fu2">
+    <div class="ci">
+      <div class="ci-label">B-Book Gain</div>
+      <div class="ci-note">Broker retains client losses on B-book volume.</div>
+      <div class="ci-note" style="margin-top:.65rem">Client Loss Rate</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-bbook-lossrate" value="75" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
+      <div class="ci-note" style="margin-top:.65rem">Avg Loss</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-bbook-avgloss-pips" value="30" min="0" step="0.1"><span class="ci-prefix">pips</span></div>
+      <div class="ci-note" style="margin-top:.65rem">B-Book Lots </div>
+      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-bbook-gain-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">B-Book Gain</span>
+        <span id="rev-bbook-gain-amount" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
+      </div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">B-Book Swap Revenue</div>
+      <div class="ci-note">Full overnight financing charge retained — no LP swap cost deducted on B-book volume.</div>
+      <div class="ci-note" style="margin-top:.65rem">Overnight Position %</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-bbook-swap-overnight-pct" value="20" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
+      <div class="ci-note" style="margin-top:.65rem">Client Swap</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-bbook-swap-client-pips" value="1" min="0" step="0.1"><span class="ci-prefix">pips</span></div>
+      <div class="ci-note" style="margin-top:.65rem">B-Book Lots </div>
+      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-bbook-swap-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
+      <div class="ci-formula" data-for="rev-bbook-swap-amount" style="margin-top:.85rem">B-Book Lots × Overnight % × Client Swap pips × $10</div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Swap Revenue</span>
+        <span id="rev-bbook-swap-amount" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
+      </div>
+    </div>
+    <div class="ci">
+      <div class="ci-label">B-Book Commission Revenue</div>
+      <div class="ci-note">Full commission collected on ECN/Raw B-book volume — no LP per-lot fee deducted.</div>
+      <div class="ci-note" style="margin-top:.65rem">Commission per lot</div>
+      <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-bbook-comm-per-lot" value="5" min="0" step="0.5"></div>
+      <div class="ci-note" style="margin-top:.65rem">ECN % of B-Book lots</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-bbook-comm-ecn-pct" value="30" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
+      <div class="ci-note" style="margin-top:.65rem">B-Book Lots </div>
+      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-bbook-comm-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
+      <div class="ci-note" style="margin-top:.65rem">ECN B-Book Lots — derived (B-Book Lots × ECN %)</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-bbook-comm-ecn-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
+      <div class="ci-formula" data-for="rev-bbook-comm-amount" style="margin-top:.85rem">B-Book Lots × ECN % × Commission per lot</div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Commission Revenue</span>
+        <span id="rev-bbook-comm-amount" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
       </div>
     </div>
   </div>
@@ -967,63 +1030,6 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="rev-signals" value="0" min="0" step="100"></div>
     </div>
   </div>
-
-  <div class="divider fu fu2"><div class="divider-label">Hand-picked</div><div class="divider-line"></div></div>
-  <div class="costs-grid fu fu2" style="grid-template-columns:repeat(2,1fr)">
-    <div class="ci">
-      <div class="ci-label">A-Book Slippage Gain</div>
-      <div class="ci-note">Positive slippage (LP fills better than quoted) → your gain. Revenue = A-Book Lots × Avg Slippage × $10.</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-abook-slip-pips" value="0" min="0" step="0.1"><span class="ci-prefix">pips</span></div>
-      <div class="ci-note" style="margin-top:.65rem">A-Book Lots — fetched</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-abook-slip-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
-      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Slippage Gain</span>
-        <span id="rev-abook-slip-gain" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
-      </div>
-    </div>
-    <div class="ci">
-      <div class="ci-label">B-Book Gain</div>
-      <div class="ci-note">B-book client losses retained by broker. Revenue = B-Book Lots × Client Loss Rate × Avg Loss × $10.</div>
-      <div class="ci-note" style="margin-top:.65rem">Client Loss Rate</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-bbook-lossrate" value="75" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
-      <div class="ci-note" style="margin-top:.65rem">Avg Loss</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-bbook-avgloss-pips" value="30" min="0" step="0.1"><span class="ci-prefix">pips</span></div>
-      <div class="ci-note" style="margin-top:.65rem">B-Book Lots — fetched</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-bbook-gain-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
-      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">B-Book Gain</span>
-        <span id="rev-bbook-gain-amount" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
-      </div>
-    </div>
-    <div class="ci" style="grid-column:1 / -1">
-      <div class="ci-label">A-Book Spread Markup Revenue</div>
-      <div class="ci-note">A-Book Lots × (FX% × FX pips + Com% × Com pips + Cry% × Cry pips) × $10. Each blended % below is auto-derived from IB Network Master mix per tier; only the Organic % values are manual inputs.</div>
-      <div id="rev-markup-formula-fx"  class="ci-formula" data-for="rev-markup-formula-fx"  style="margin-top:.85rem">FX% (blended) = …</div>
-      <div id="rev-markup-formula-com" class="ci-formula" data-for="rev-markup-formula-com">Com% (blended) = …</div>
-      <div id="rev-markup-formula-cry" class="ci-formula" data-for="rev-markup-formula-cry">Cry% (blended) = …</div>
-      <div class="ci-note" style="margin-top:1rem;font-style:italic">Organic Trading Mix — inputs (the only manual values; T1/T2/T3 derive from IB Network Master mix)</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:.5rem">
-        <div>
-          <div class="ci-note">Organic FX %</div>
-          <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-organic-mix-fx" value="70" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
-        </div>
-        <div>
-          <div class="ci-note">Organic Commodity %</div>
-          <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-organic-mix-com" value="20" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
-        </div>
-        <div>
-          <div class="ci-note">Organic Crypto %</div>
-          <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-organic-mix-cry" value="10" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
-        </div>
-      </div>
-      <div class="ci-note" style="margin-top:.65rem">A-Book Lots — fetched</div>
-      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-markup-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
-      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Markup Revenue</span>
-        <span id="rev-abook-markup-amount" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -1044,12 +1050,12 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
     </div>
     <div class="ci">
       <div class="ci-label">B-Book Loss</div>
-      <div class="ci-note">B-book client wins paid out by broker. Cost = B-Book Lots × Client Win Rate × Avg Win × $10.</div>
+      <div class="ci-note">Broker pays out client wins on B-book volume.</div>
       <div class="ci-note" style="margin-top:.65rem">Client Win Rate</div>
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="vrc-bbook-winrate" value="25" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
       <div class="ci-note" style="margin-top:.65rem">Avg Win</div>
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="vrc-bbook-avgwin-pips" value="20" min="0" step="0.1"><span class="ci-prefix">pips</span></div>
-      <div class="ci-note" style="margin-top:.65rem">B-Book Lots — fetched</div>
+      <div class="ci-note" style="margin-top:.65rem">B-Book Lots </div>
       <div class="ci-input-wrap"><input class="ci-input" type="text" id="vrc-bbook-loss-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
       <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">B-Book Loss</span>
@@ -1200,9 +1206,9 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   <div class="costs-grid fu fu2">
     <div class="ci">
       <div class="ci-label">A-Book Slippage Cost</div>
-      <div class="ci-note">Negative slippage (LP fills worse than quoted) → your cost. Cost = A-Book Lots × Avg Slippage × $10.</div>
+      <div class="ci-note">Negative LP fills below quote — your cost on hedged A-book volume.</div>
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="vrc-abook-slip-pips" value="0.5" min="0" step="0.1"><span class="ci-prefix">pips</span></div>
-      <div class="ci-note" style="margin-top:.65rem">A-Book Lots — fetched</div>
+      <div class="ci-note" style="margin-top:.65rem">A-Book Lots </div>
       <div class="ci-input-wrap"><input class="ci-input" type="text" id="vrc-abook-slip-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
       <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Slippage Cost</span>
@@ -2758,33 +2764,9 @@ function _revBuildCard(id, label, noteText, value, opts) {
   grid.className = 'costs-grid fu fu2';
   grid.style.gridTemplateColumns = 'repeat(3,1fr)';
 
-  grid.appendChild(_revBuildCard('rev-abook-pct', 'A-Book Volume %',
-    '% of total trading flow routed to LP (hedged). Remaining % is B-booked.',
-    20, { min:0, max:100, step:1, suffix:'%' }));
-  grid.appendChild(_revBuildCard('rev-lot-size', 'Standard Lot Size ($)',
-    'Used to convert notional flow volume into lots. Standard lot = $100,000. Mini lot = $10,000. Micro lot = $1,000.',
-    100000, { min:1000, step:1000, prefix:'$' }));
-  grid.appendChild(_revBuildCard('rev-nights-held', 'Avg Nights Position Held Open',
-    'Average number of nights a client holds a position before closing. Drives swap revenue. Intraday-only traders = 0.',
-    2, { min:0, step:0.5 }));
-  grid.appendChild(_revBuildCard('rev-commission-per-lot', 'Commission per Lot per Side ($)',
-    'Used for commission revenue auto-calculation. Default ECN rate.',
-    5, { min:0, step:0.5, prefix:'$' }));
-  grid.appendChild(_revBuildCard('rev-swap-client-pips', 'Swap Charged to Client (pips/lot/night)',
-    'Average overnight swap rate charged across all open positions.',
-    1, { min:0, step:0.1 }));
-  grid.appendChild(_revBuildCard('rev-swap-lp-pips', 'Swap Paid to LP (pips/lot/night)',
-    'A-book only — tom-next rate paid to LP. B-book pays nothing.',
-    0.3, { min:0, step:0.1 }));
-  grid.appendChild(_revBuildCard('rev-slip-avg', 'Avg Slippage Captured (pips/lot)',
-    'A-book = incidental LP fill quality. B-book = by design (keep ≤ 3 pips).',
-    1.5, { min:0, step:0.1 }));
   grid.appendChild(_revBuildCard('rev-rebate-per-lot', 'LP Rebate per A-Book Lot ($)',
     'Tier-based kickback from LP. Typically $0.50–$2.00/lot at volume.',
     1, { min:0, step:0.1, prefix:'$' }));
-  grid.appendChild(_revBuildCard('rev-client-loss-rate', 'B-Book Client Loss Rate (%)',
-    'Industry benchmark: 75–80% of retail clients lose. Used for Net P&L auto-calc.',
-    78, { min:0, max:100, step:1, suffix:'%' }));
 
   bookPLDivider.parentNode.insertBefore(aDiv, bookPLDivider);
   bookPLDivider.parentNode.insertBefore(grid, bookPLDivider);
@@ -3029,88 +3011,7 @@ applyState = function(s) {
 // Replaces the old flt_total / lot_size derivation as the volume base.
 // ═══════════════════════════════════════════════════════════════════
 
-(function injectLiquidationEngine() {
-  const tab6 = document.getElementById('tab6');
-  if(!tab6) return;
-  if(document.getElementById('rev-eng-lots-per-day')) return;
-
-  // Find Book P&L divider — engine + summary go right above it
-  const dividers = tab6.querySelectorAll('.divider');
-  let bookPL = null;
-  for(let i = 0; i < dividers.length; i++) {
-    const lbl = dividers[i].querySelector('.divider-label');
-    if(lbl && lbl.textContent.trim() === 'Book P&L') { bookPL = dividers[i]; break; }
-  }
-  if(!bookPL) return;
-
-  // ── Liquidation Engine inputs section ────────────────────────────
-  const engDivider = document.createElement('div');
-  engDivider.className = 'divider fu fu2';
-  const eL = document.createElement('div'); eL.className = 'divider-label'; eL.textContent = 'Liquidation Engine';
-  const eLine = document.createElement('div'); eLine.className = 'divider-line';
-  engDivider.appendChild(eL); engDivider.appendChild(eLine);
-
-  const engGrid = document.createElement('div');
-  engGrid.className = 'costs-grid fu fu2';
-  engGrid.style.gridTemplateColumns = 'repeat(3,1fr)';
-
-  engGrid.appendChild(_revBuildCard('rev-eng-lots-per-day', 'Avg Lots / Day (broker-wide)',
-    'Total daily lot volume across all active clients. Drives V_A and V_B.',
-    100, { min:0, step:1 }));
-  engGrid.appendChild(_revBuildCard('rev-eng-days-stopout', 'Days to Stop-out',
-    'Average trading days before a client account hits stop-out.',
-    60, { min:0, step:1 }));
-  engGrid.appendChild(_revBuildCard('rev-eng-reload-rate', 'Reload Rate',
-    'Probability that a liquidated client reloads and continues trading.',
-    50, { min:0, max:100, step:1, suffix:'%' }));
-  engGrid.appendChild(_revBuildCard('rev-eng-liquidations', 'Liquidations / Lifetime',
-    'Number of times an average client liquidates over their lifetime.',
-    3, { min:1, step:1 }));
-  engGrid.appendChild(_revBuildCard('rev-eng-ftd', 'First-Time Deposits (broker-wide)',
-    'Aggregate first-time deposits across all clients. Drives Total Lifetime Deposits.',
-    5000000, { min:0, step:10000, prefix:'$' }));
-  engGrid.appendChild(_revBuildCard('rev-eng-reload-amount', 'Reload Amount (% of FTD)',
-    'Each reload deposit as % of the original first-time deposit.',
-    80, { min:0, max:100, step:1, suffix:'%' }));
-
-  bookPL.parentNode.insertBefore(engDivider, bookPL);
-  bookPL.parentNode.insertBefore(engGrid, bookPL);
-
-  // ── Volume Engine — Live Outputs (read-only summary) ─────────────
-  const volDivider = document.createElement('div');
-  volDivider.className = 'divider fu fu2';
-  const vL = document.createElement('div'); vL.className = 'divider-label'; vL.textContent = 'Volume Engine — Live Outputs';
-  const vLine = document.createElement('div'); vLine.className = 'divider-line';
-  volDivider.appendChild(vL); volDivider.appendChild(vLine);
-
-  const volGrid = document.createElement('div');
-  volGrid.className = 'costs-grid fu fu2';
-  volGrid.style.gridTemplateColumns = 'repeat(5,1fr)';
-
-  function makeReadout(id, label, note) {
-    const card = document.createElement('div');
-    card.className = 'ci';
-    const lbl = document.createElement('div');  lbl.className = 'ci-label';  lbl.textContent = label;
-    const nt  = document.createElement('div');  nt.className  = 'ci-note';   nt.textContent  = note;
-    const v   = document.createElement('div');
-    v.id = id;
-    Object.assign(v.style, {
-      fontSize:'22px', fontWeight:'300', color:'var(--pu-text)',
-      paddingTop:'6px', lineHeight:'1.1',
-    });
-    v.textContent = '0';
-    card.appendChild(lbl); card.appendChild(nt); card.appendChild(v);
-    return card;
-  }
-  volGrid.appendChild(makeReadout('rev-eng-out-va',       'V_A (A-book lots)',        'Lifetime A-book volume — feeds A-book lot revenue'));
-  volGrid.appendChild(makeReadout('rev-eng-out-vb',       'V_B (B-book lots)',        'Lifetime B-book volume — feeds B-book lot revenue'));
-  volGrid.appendChild(makeReadout('rev-eng-out-deposits', 'Total Lifetime Deposits',  'FTD + reload deposits across the lifecycle'));
-  volGrid.appendChild(makeReadout('rev-eng-out-days',     'Trading Days Alive',       'days_to_stopout × (1 + reload_rate × (liquidations − 1))'));
-  volGrid.appendChild(makeReadout('rev-eng-out-liqs',     'Total Liquidations',       'Per-client lifetime liquidation count'));
-
-  bookPL.parentNode.insertBefore(volDivider, bookPL);
-  bookPL.parentNode.insertBefore(volGrid, bookPL);
-})();
+// (Liquidation Engine section removed.)
 
 // Override recalcRevAutoFields to use the engine as the volume + deposits source
 recalcRevAutoFields = function() {
@@ -3237,21 +3138,7 @@ recalcRevAutoFields = function() {
   window._engLotsAutoMode = window._engLotsAutoMode || 'auto';
   const DAYS = 22;
 
-  // ── CHANGE 1 — inject rev-turnover-pct into Revenue Assumptions grid ──
-  (function injectTurnoverInput() {
-    if (document.getElementById('rev-turnover-pct')) return;
-    const anchor = document.getElementById('rev-abook-pct');
-    if (!anchor) return;
-    const grid = anchor.closest('.costs-grid');
-    if (!grid) return;
-    grid.appendChild(_revBuildCard(
-      'rev-turnover-pct',
-      'Daily Flow Turnover %',
-      'What % of the total trading flow is turned over as traded volume per day. Retail CFD benchmark: 80–150%. High-frequency scalper books: 300–500%. Conservative swing trader books: 20–50%. Applied to flt-total to derive broker-wide lots/day.',
-      100,
-      { min:1, max:1000, step:10, suffix:'%' }
-    ));
-  })();
+  // (Daily Flow Turnover % input removed.)
 
   // ── helpers used by card builder + applyState patch ─────────────────
   function applyEngLotsToggleVisual() {
@@ -3487,46 +3374,9 @@ recalcRevAutoFields = function() {
     'BTC/USD, ETH/USD as CFDs. Retail standard: 50–150 pips equivalent. High volatility = wide spreads.',
     80, { min:0, max:500, step:5 }
   ));
-  addCard('rev-vol-fx-pct', () => _revBuildCard(
-    'rev-vol-fx-pct', 'Volume Mix — FX %',
-    '% of total lots that are FX major/minor pairs. Drives blended spread calculation.',
-    70, { min:0, max:100, step:5, suffix:'%' }
-  ));
-  addCard('rev-vol-commodity-pct', () => _revBuildCard(
-    'rev-vol-commodity-pct', 'Volume Mix — Commodities %',
-    '% of total lots that are commodity CFDs. Auto-derives crypto % (100 - FX% - Commodities%).',
-    20, { min:0, max:100, step:5, suffix:'%' }
-  ));
-  addCard('rev-blended-spread', () => buildDisplayCard(
-    'rev-blended-spread', 'Blended Spread Markup (pips) — AUTO',
-    'Weighted avg: (FX% × FX pips) + (Commod% × Commod pips) + (Crypto% × Crypto pips). Drives all lot-based revenue.',
-    '0.00 pips', 'var(--pu-text)'
-  ));
-  addCard('rev-lp-fee-per-lot', () => _revBuildCard(
-    'rev-lp-fee-per-lot', 'LP Fee per Lot (A-Book cost)',
-    'What you pay the LP per executed A-book lot. Typically $2–$5. Shown here so net margin per lot is visible alongside your pricing. Flows to Variable Costs as A-book LP cost.',
-    3, { min:0, step:0.5, prefix:'$' }
-  ));
-  addCard('rev-net-margin-per-lot', () => buildDisplayCard(
-    'rev-net-margin-per-lot', 'Net Margin per Lot (A-Book) — AUTO',
-    'Blended spread revenue per lot minus LP cost per lot. Broker keeps this on every A-book trade. B-book keeps full spread plus client P&L edge.',
-    '$0.00 / lot', 'var(--green)'
-  ));
-  addCard('rev-bbook-edge-pips', () => _revBuildCard(
-    'rev-bbook-edge-pips', 'B-Book Edge (avg pips lost per lot by client)',
-    'How many pips on average a retail client loses per lot traded. Your B-book profit driver. South Asian retail benchmark: 8–15 pips per lot. At $10/pip = $80–$150 profit per lot before your spread (which is additive). Set conservatively.',
-    10, { min:0, max:100, step:1 }
-  ));
-  addCard('rev-inactivity-fee', () => _revBuildCard(
-    'rev-inactivity-fee', 'Inactivity Fee per Account / Month',
-    'Monthly fee charged on accounts with no trades for 90+ days. Typical: $10–$30/month.',
-    15, { min:0, step:5, prefix:'$' }
-  ));
-  addCard('rev-dormant-pct', () => _revBuildCard(
-    'rev-dormant-pct', 'Dormant Account % of Client Base',
-    '% of total client base that goes inactive at any time. Industry benchmark: 20–40% of funded accounts.',
-    25, { min:0, max:100, step:5, suffix:'%' }
-  ));
+  // (Volume Mix FX/Commodities, Blended Spread Markup, LP Fee per Lot,
+  // Net Margin per Lot, B-Book Edge, Inactivity Fee, Dormant Account %
+  // cards removed from this section.)
 
   // Hide legacy cards (preserved in DOM so persisted state still round-trips)
   ['rev-client-loss-rate', 'rev-swap-lp-pips'].forEach(id => {
@@ -3536,87 +3386,7 @@ recalcRevAutoFields = function() {
     if (card) card.style.display = 'none';
   });
 
-  // ── STEP 2 — Book Routing section before Liquidation Engine ───────
-  (function injectBookRouting() {
-    if (document.getElementById('rev-book-routing-grid')) return;
-    if (!tab6) return;
-
-    let engDivider = null;
-    tab6.querySelectorAll('.divider').forEach(d => {
-      const lbl = d.querySelector('.divider-label');
-      if (lbl && lbl.textContent.trim() === 'Liquidation Engine') engDivider = d;
-    });
-    if (!engDivider) return;
-
-    const brDivider = document.createElement('div');
-    brDivider.className = 'divider fu fu2';
-    const brLbl  = document.createElement('div'); brLbl.className  = 'divider-label'; brLbl.textContent = 'Book Routing';
-    const brLine = document.createElement('div'); brLine.className = 'divider-line';
-    brDivider.appendChild(brLbl); brDivider.appendChild(brLine);
-
-    const brGrid = document.createElement('div');
-    brGrid.id = 'rev-book-routing-grid';
-    brGrid.className = 'costs-grid fu fu2';
-    brGrid.style.gridTemplateColumns = 'repeat(3,1fr)';
-
-    // MOVE rev-abook-pct card from Rate Card into Book Routing
-    const abookInput = document.getElementById('rev-abook-pct');
-    if (abookInput) {
-      const abookCard = abookInput.closest('.ci');
-      if (abookCard && abookCard.parentNode) {
-        const lblEl = abookCard.querySelector('.ci-label');
-        if (lblEl) lblEl.textContent = 'A-Book Volume %';
-        const noteEl = abookCard.querySelector('.ci-note');
-        if (noteEl) noteEl.textContent = '% of total lots routed to LP and hedged. Remaining % is B-booked (internalized). A-book = safer, lower margin per lot. B-book = higher margin but broker takes market risk. Typical early-stage South Asian broker: 20–40% A-book.';
-        abookCard.parentNode.removeChild(abookCard);
-        brGrid.appendChild(abookCard);
-      }
-    }
-
-    brGrid.appendChild(buildDisplayCard(
-      'rev-bbook-pct-display', 'B-Book Volume % — AUTO',
-      '100% minus A-Book %. All client P&L on B-book volume stays with the broker.',
-      '0%', 'var(--pu-text)'
-    ));
-
-    // Amber explainer card (full width)
-    const amber = document.createElement('div');
-    amber.className = 'ci';
-    Object.assign(amber.style, {
-      gridColumn: '1 / -1',
-      background: 'var(--amber-bg)',
-      border: '1px solid var(--amber)',
-    });
-    const amberLbl = document.createElement('div');
-    amberLbl.className = 'ci-label';
-    amberLbl.style.color = 'var(--amber)';
-    amberLbl.textContent = 'A-Book vs B-Book — what this means';
-    const amberBody = document.createElement('div');
-    amberBody.className = 'ci-note';
-    Object.assign(amberBody.style, { lineHeight:'1.5', color:'var(--text)' });
-    function appendLine(parent, strong, rest) {
-      const p = document.createElement('div');
-      p.style.marginBottom = '8px';
-      const s = document.createElement('strong');
-      s.textContent = strong;
-      p.appendChild(s);
-      p.appendChild(document.createTextNode(' ' + rest));
-      parent.appendChild(p);
-    }
-    appendLine(amberBody, 'A-Book:',
-      'every trade is hedged with your LP. You earn only your markup (spread minus LP cost) + commissions. Zero market risk. Suitable for profitable, large-account clients.');
-    appendLine(amberBody, 'B-Book:',
-      'trades are internalized. You earn the full spread PLUS the client’s loss when they lose. Higher margin but you carry the risk of client wins. Suitable for retail flow from new clients with low win rates.');
-    const tail = document.createElement('div');
-    tail.textContent = 'Most South Asian retail brokers run 20–30% A-book in Year 1, scaling up as they identify profitable clients.';
-    amberBody.appendChild(tail);
-    amber.appendChild(amberLbl);
-    amber.appendChild(amberBody);
-    brGrid.appendChild(amber);
-
-    engDivider.parentNode.insertBefore(brDivider, engDivider);
-    engDivider.parentNode.insertBefore(brGrid, engDivider);
-  })();
+  // (Book Routing section removed.)
 
   // ── STEP 3 — Replace recalcRevAutoFields with new rate-card engine ──
   recalcRevAutoFields = function recalcRevEngine() {
@@ -4224,25 +3994,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     }
   }
 
-  if (otherDivider) {
-    const enhDiv = elem('div', 'divider fu fu2');
-    enhDiv.appendChild(elem('div', 'divider-label', 'Enhanced Trading Revenue'));
-    enhDiv.appendChild(elem('div', 'divider-line'));
-
-    const enhGrid = elem('div', 'costs-grid fu fu2');
-    enhGrid.appendChild(buildCard('rev-bonus-clawback', 'Bonus Clawback Revenue',
-      'Unclaimed bonuses from clients who bust before meeting volume withdrawal threshold',
-      0, { min:0, step:100, prefix:'$' }));
-    enhGrid.appendChild(buildCard('rev-news-spread', 'News/Volatility Spread Widening',
-      'Additional spread revenue during high-impact news events above normal markup',
-      0, { min:0, step:100, prefix:'$' }));
-    enhGrid.appendChild(buildCard('rev-crypto-financing', 'Crypto CFD Financing Fee',
-      'Daily % financing on leveraged crypto CFD positions held overnight',
-      0, { min:0, step:100, prefix:'$' }));
-
-    otherDivider.parentNode.insertBefore(enhDiv,  otherDivider);
-    otherDivider.parentNode.insertBefore(enhGrid, otherDivider);
-  }
+  // (Enhanced Trading Revenue section removed.)
 
   // ═════════════════════════════════════════════════════════════════
   // ADDITION 3 — Expand Other Revenue Streams (3 new cards into existing grid)
@@ -4271,7 +4023,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   // ═════════════════════════════════════════════════════════════════
 
   const newRevIds = [
-    'rev-bonus-clawback','rev-news-spread','rev-crypto-financing',
     'rev-deposit-fee','rev-copy-trading','rev-tournament',
   ];
   if (typeof REV_INPUT_IDS !== 'undefined') {
@@ -4285,35 +4036,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   }
 
   if (typeof REV_FORMULAS !== 'undefined' && typeof buildCalculator === 'function') {
-    REV_FORMULAS['rev-bonus-clawback'] = {
-      formula: 'N_bonus_clients × bonus_amount × (1 − completion_rate%)',
-      inputs: [
-        { key:'N_bonus_clients', label:'Number of clients who received a bonus' },
-        { key:'bonus_amount',    label:'Average bonus per client ($)', placeholder:'e.g. 50' },
-        { key:'completion_rate', label:'% who meet volume threshold before busting', placeholder:'e.g. 30' },
-      ],
-      compute: v => v.N_bonus_clients * v.bonus_amount * (1 - v.completion_rate / 100),
-    };
-    REV_FORMULAS['rev-news-spread'] = {
-      formula: 'V_news × (S_widened − S_normal) × pip_value × N_news_events',
-      inputs: [
-        { key:'V_news',        label:'Volume traded during news windows (lots)' },
-        { key:'S_widened',     label:'Spread during news (pips)', placeholder:'e.g. 5.0' },
-        { key:'S_normal',      label:'Normal spread (pips)',      placeholder:'e.g. 1.2' },
-        { key:'pip_value',     label:'Dollar value per pip per lot', defaultValue:10 },
-        { key:'N_news_events', label:'High-impact events per month', placeholder:'e.g. 10' },
-      ],
-      compute: v => v.V_news * (v.S_widened - v.S_normal) * v.pip_value * v.N_news_events,
-    };
-    REV_FORMULAS['rev-crypto-financing'] = {
-      formula: 'notional_value × (daily_rate% ÷ 100) × N_days',
-      inputs: [
-        { key:'notional_value', label:'Total notional value of open crypto positions ($)' },
-        { key:'daily_rate',     label:'Daily financing rate (%)', placeholder:'e.g. 0.075' },
-        { key:'N_days',         label:'Average days positions held' },
-      ],
-      compute: v => v.notional_value * (v.daily_rate / 100) * v.N_days,
-    };
     REV_FORMULAS['rev-deposit-fee'] = {
       formula: 'N_deposits × (fee_charged − PSP_deposit_cost)',
       inputs: [
@@ -7978,7 +7700,11 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     // ─────────── tab6 — Revenue (Hand-picked) ────────────
     'rev-abook-slip-gain':     'A-Book Lots × Avg Slippage (pips) × $10',
     'rev-bbook-gain-amount':   'B-Book Lots × Client Loss Rate % × Avg Loss (pips) × $10',
-    'rev-abook-markup-amount': 'A-Book Lots × (Blended FX% × FX pips + Blended Com% × Com pips + Blended Cry% × Cry pips) × $10  —  Blended % = (Σ tier_lots × tier_mix%) ÷ Σ tier_lots across T1/T2/T3 + Organic',
+    'rev-bbook-swap-amount':   'B-Book Lots × Overnight % × Client Swap (pips) × $10',
+    'rev-bbook-comm-amount':   'ECN B-Book Lots × Commission per lot ($)  —  ECN B-Book Lots = B-Book Lots × ECN %',
+    'rev-abook-markup-amount': 'Standard A-Book Lots × (Blended FX% × FX pips + Blended Com% × Com pips + Blended Cry% × Cry pips) × $10  —  Standard A-Book Lots = A-Book Lots × Standard Account %; blended mix is lots-weighted across T1/T2/T3 + Organic',
+    'rev-abook-comm-amount':   'ECN A-Book Lots × Commission per lot ($)  —  ECN A-Book Lots = A-Book Lots × ECN/Raw Account %',
+    'rev-abook-swap-amount':   'Σ across every LP line of:  (per-LP A-Book Lots) × (per-LP Overnight %) × (per-LP Client Swap pips − fetched LP Swap pips) × $10',
 
     // ─────────── tab8 — Fixed Costs ──────────────────────
     'fxc-total-display':       'Sum of every fixed cost line',
@@ -8611,6 +8337,165 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════
+// REVENUE SECTION TOTALS — computes A-Book, B-Book, Other section totals
+// from their constituent Revenue tab values and writes them to the 3 cells
+// at the top of the tab. Total Revenue = A-Book + B-Book + Other (the
+// existing recalcRevenueTotal + LP rev-total observer chain already produces
+// the same number; we just decompose it into 3 visible sub-totals).
+// ═══════════════════════════════════════════════════════════════════════
+(function revenueSectionTotals() {
+  if (window.__revSectionTotalsInited) return;
+  window.__revSectionTotalsInited = true;
+
+  function fmt$(n) {
+    return (n < 0 ? '-' : '') + '$' + Math.round(Math.abs(n)).toLocaleString();
+  }
+  function parseFmt(id) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    const t = (el.textContent || '').trim().replace(/[$,\s]/g, '');
+    return parseFloat(t) || 0;
+  }
+  function numVal(id) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    return (+el.value) || 0;
+  }
+  function setText(id, txt) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = txt;
+  }
+
+  const A_BOOK_AMOUNT_IDS = [
+    'rev-abook-slip-gain',
+    'rev-abook-markup-amount',
+    'rev-abook-comm-amount',
+    'rev-abook-swap-amount',
+  ];
+  const B_BOOK_AMOUNT_IDS = [
+    'rev-bbook-gain-amount',
+    'rev-bbook-swap-amount',
+    'rev-bbook-comm-amount',
+  ];
+  const OTHER_INPUT_IDS = [
+    'rev-b2b','rev-premium','rev-educational','rev-signals',
+    'rev-deposit-fee','rev-copy-trading','rev-tournament',
+  ];
+
+  function recalcSections() {
+    const aBook = A_BOOK_AMOUNT_IDS.reduce((s, id) => s + parseFmt(id), 0);
+    const bBook = B_BOOK_AMOUNT_IDS.reduce((s, id) => s + parseFmt(id), 0);
+    const other = OTHER_INPUT_IDS.reduce((s, id) => s + numVal(id), 0);
+    setText('rev-section-abook', fmt$(aBook));
+    setText('rev-section-bbook', fmt$(bBook));
+    setText('rev-section-other', fmt$(other));
+  }
+
+  // Watch the 5 hand-picked auto displays — they're <span>s, so input events
+  // don't fire on them; observe text mutations.
+  A_BOOK_AMOUNT_IDS.concat(B_BOOK_AMOUNT_IDS).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    new MutationObserver(recalcSections)
+      .observe(el, { characterData:true, childList:true, subtree:true });
+  });
+  // Other Revenue inputs fire input events — listen directly. The 3 expansion
+  // inputs (rev-deposit-fee / rev-copy-trading / rev-tournament) are added
+  // dynamically by a later IIFE; defer the listener attach to give it time.
+  function wireOtherInputs() {
+    OTHER_INPUT_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el || el.__revSectionWired) return;
+      el.__revSectionWired = true;
+      el.addEventListener('input', recalcSections);
+    });
+  }
+  wireOtherInputs();
+  setTimeout(wireOtherInputs, 250);
+  setTimeout(wireOtherInputs, 800);
+
+  // Initial paint after Supabase loadState has settled.
+  setTimeout(recalcSections, 200);
+  setTimeout(recalcSections, 600);
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// ASSUMPTIONS section on the Revenue tab.
+//   Moves the 3 spread-markup pip cards (rev-spread-fx / rev-spread-commodities
+//   / rev-spread-crypto) out of "Rate Card — Your Pricing" and into a new
+//   top-of-tab "Assumptions" section. DOM moves preserve all listeners,
+//   observers, and saved values.
+// ═══════════════════════════════════════════════════════════════════════
+(function injectAssumptionsSection() {
+  if (window.__assumptionsSectionInjected) return;
+  window.__assumptionsSectionInjected = true;
+
+  function build() {
+    const tab6 = document.getElementById('tab6');
+    if (!tab6) return false;
+    if (document.getElementById('rev-assumptions-grid')) return true;
+
+    // Find the "Total" divider — anchor for inserting the new Assumptions
+    // section directly under it (above Book P&L and the rate card).
+    const dividers = tab6.querySelectorAll('.divider');
+    let totalDiv = null;
+    for (const d of dividers) {
+      const lbl = d.querySelector('.divider-label');
+      if (lbl && lbl.textContent.trim() === 'Total') { totalDiv = d; break; }
+    }
+    if (!totalDiv) return false;
+    // The grid right after the Total divider holds the rev-total card.
+    const totalGrid = totalDiv.nextElementSibling;
+    if (!totalGrid) return false;
+
+    const cards = ['rev-spread-fx','rev-spread-commodities','rev-spread-crypto']
+      .map(id => {
+        const el = document.getElementById(id);
+        return el ? el.closest('.ci') : null;
+      });
+    if (cards.some(c => !c)) return false; // wait until they exist
+
+    // Build the new section — divider + 3-column grid.
+    const assumpDiv = document.createElement('div');
+    assumpDiv.className = 'divider fu fu2';
+    const lbl = document.createElement('div');
+    lbl.className = 'divider-label';
+    lbl.textContent = 'Assumptions';
+    const line = document.createElement('div');
+    line.className = 'divider-line';
+    assumpDiv.appendChild(lbl);
+    assumpDiv.appendChild(line);
+
+    const grid = document.createElement('div');
+    grid.id = 'rev-assumptions-grid';
+    grid.className = 'costs-grid fu fu2';
+    grid.style.gridTemplateColumns = 'repeat(3,1fr)';
+
+    // Insert directly after the Total grid.
+    totalGrid.parentNode.insertBefore(assumpDiv, totalGrid.nextSibling);
+    totalGrid.parentNode.insertBefore(grid,      assumpDiv.nextSibling);
+
+    // Move the 3 cards (preserves event listeners, observer subscriptions,
+    // and any current values).
+    cards.forEach(card => grid.appendChild(card));
+    return true;
+  }
+
+  // Cards are built dynamically by an earlier IIFE — poll briefly until they
+  // exist, then move them once.
+  let tries = 0;
+  (function tick() {
+    if (build()) return;
+    if (tries++ > 40) return; // give up after ~4s
+    setTimeout(tick, 100);
+  })();
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
 // LP COSTS — dynamic list of LP profiles in the Variable Costs tab.
 // Two LP types:
 //   • raw_only           → cost = aLots × spread_pips × $10
@@ -8660,7 +8545,8 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       ? 'LP quotes a tighter raw spread but charges a per-lot commission.'
       : 'LP charges you a wider raw spread, no separate fee.';
     const spreadLabel = isComm ? 'Marked-up spread (pips)' : 'Raw spread (pips)';
-    const cols = isComm ? 3 : 2;
+    const swap = (p.swap == null) ? 0 : p.swap;
+    const cols = isComm ? 4 : 3;
     return ''
       + '<div class="ci" style="position:relative">'
       +   '<button type="button" data-lp-remove="' + p.id + '" style="position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:18px;line-height:1;padding:0;width:22px;height:22px" title="Remove LP">×</button>'
@@ -8678,6 +8564,10 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
           + '</div>'
         : '')
       +     '<div>'
+      +       '<div class="ci-note">Swap rate (pips)</div>'
+      +       '<div class="ci-input-wrap"><input class="ci-input" type="number" value="' + swap + '" min="0" step="0.1" data-lp-id="' + p.id + '" data-lp-field="swap"></div>'
+      +     '</div>'
+      +     '<div>'
       +       '<div class="ci-note">Cost</div>'
       +       '<div id="lp-cost-' + p.id + '" style="font-size:18px;font-weight:700;color:var(--pu-text);padding-top:6px;line-height:1.1">$0</div>'
       +     '</div>'
@@ -8689,6 +8579,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const container = document.getElementById('vrc-lp-list');
     if (!container) return;
     container.innerHTML = lpProfiles.map(lpProfileHTML).join('');
+    renderSwapLPRows();
     recalcLPCosts();
   }
 
@@ -8698,6 +8589,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     lpProfiles.forEach(p => {
       let cost = aLots * (+p.spread || 0) * 10;
       if (p.type === 'raw_plus_commission') cost += aLots * (+p.commission || 0);
+      cost += aLots * (+p.swap || 0) * 10;
       total += cost;
       const el = document.getElementById('lp-cost-' + p.id);
       if (el) el.textContent = fmt$(cost);
@@ -8707,7 +8599,12 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     recalcSlippageCost();
     recalcBBookLoss();
     recalcBBookGain();
+    recalcBBookSwapRevenue();
+    recalcBBookCommRevenue();
+    recalcAAccountMix();
     recalcMarkupRevenue();
+    recalcCommissionRevenue();
+    recalcSwapRevenue();
     // Re-trigger the variable costs total so the LP + slippage contributions
     // are folded in by the vrc-total-display observer below.
     triggerVRCRecalc();
@@ -8767,11 +8664,152 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     triggerRevRecalc();
   }
 
+  // B-Book Swap Revenue: bLots × Overnight % × Client Swap pips × $10.
+  function recalcBBookSwapRevenue() {
+    const bLots = readBBookLots();
+    setText('rev-bbook-swap-lots-ref', fmtLots(bLots));
+    const overnight = (parseFloat((document.getElementById('rev-bbook-swap-overnight-pct') || {}).value) || 0) / 100;
+    const pips      = parseFloat((document.getElementById('rev-bbook-swap-client-pips') || {}).value) || 0;
+    const rev = bLots * overnight * pips * 10;
+    setText('rev-bbook-swap-amount', fmt$(rev));
+    triggerRevRecalc();
+  }
+
+  // B-Book Commission Revenue: ECN B-Book Lots × Commission per lot.
+  // ECN B-Book Lots = bLots × ECN %.
+  function recalcBBookCommRevenue() {
+    const bLots = readBBookLots();
+    setText('rev-bbook-comm-lots-ref', fmtLots(bLots));
+    const ecnPct = (parseFloat((document.getElementById('rev-bbook-comm-ecn-pct') || {}).value) || 0) / 100;
+    const ecnLots = bLots * ecnPct;
+    setText('rev-bbook-comm-ecn-lots-ref', fmtLots(ecnLots));
+    const perLot = parseFloat((document.getElementById('rev-bbook-comm-per-lot') || {}).value) || 0;
+    const rev = ecnLots * perLot;
+    setText('rev-bbook-comm-amount', fmt$(rev));
+    triggerRevRecalc();
+  }
+
+  // A-Book Account Mix (Revenue / Hand-picked) — splits A-book lots between
+  // Standard accounts (spread markup only) and ECN/Raw accounts (commission).
+  // Just refreshes the fetched-lots display; downstream cells read the % live
+  // from rev-aacc-standard-pct / rev-aacc-ecn-pct.
+  function recalcAAccountMix() {
+    setText('rev-aacc-lots-ref', fmtLots(readABookLots()));
+  }
+
+  // Commission Revenue (Revenue / Hand-picked).
+  //   ECN A-Book Lots × Commission per lot.
+  // ECN A-Book Lots = A-Book Lots × ECN/Raw Account % (set in A-Book Account
+  // Mix card above).
+  function recalcCommissionRevenue() {
+    const aLots = readABookLots();
+    const ecnPct = (parseFloat((document.getElementById('rev-aacc-ecn-pct') || {}).value) || 0) / 100;
+    const ecnLots = aLots * ecnPct;
+    setText('rev-comm-lots-ref', fmtLots(ecnLots));
+    const perLot = parseFloat((document.getElementById('rev-comm-per-lot') || {}).value) || 0;
+    const rev = ecnLots * perLot;
+    setText('rev-abook-comm-amount', fmt$(rev));
+    triggerRevRecalc();
+  }
+
+  // A-Book Swap Revenue (Revenue / Hand-picked).
+  //   Per LP: aBookLots × overnight% × (clientSwapPips − lpSwapPips) × $10
+  //   where the first 3 are PER-LP editable inputs and lpSwapPips is fetched
+  //   from the LP's Swap rate (pips) input under Variable Costs.
+  // The container is rebuilt only when LPs are added/removed; per-recalc we
+  // only update spans + the result so inline input focus is preserved.
+  const fmt2Swap = v => (v == null || isNaN(v) ? '0.0' : v.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
+
+  function buildSwapRowHTML(p) {
+    const lots = (p.aBookLots == null) ? 0 : p.aBookLots;
+    const ov   = (p.overnightPct == null) ? 20 : p.overnightPct;
+    const cs   = (p.clientSwap == null) ? 1 : p.clientSwap;
+    return ''
+      + '<div class="ci-formula" data-for="rev-swap-lp-' + p.id + '" id="swap-row-' + p.id + '">'
+      +   '<strong>' + escapeAttr(p.name) + '</strong>'
+      +   ' — LP Swap fetched: <strong class="rmf-result"><span class="swap-lp-display">' + fmt2Swap(p.swap || 0) + '</span> pips</strong>'
+      +   ' &nbsp;|&nbsp; A-Book Lots × Overnight % × (Client Swap − LP Swap) × $10'
+      +   ' &nbsp;=&nbsp; '
+      +   '<input class="rmf-input" type="number" min="0" step="1" value="' + lots + '" data-lp-id="' + p.id + '" data-lp-field="aBookLots">'
+      +   ' × '
+      +   '<input class="rmf-input" type="number" min="0" max="100" step="1" value="' + ov + '" data-lp-id="' + p.id + '" data-lp-field="overnightPct">%'
+      +   ' × ('
+      +   '<input class="rmf-input" type="number" min="0" step="0.1" value="' + cs + '" data-lp-id="' + p.id + '" data-lp-field="clientSwap">'
+      +   ' − <span class="swap-lp-display">' + fmt2Swap(p.swap || 0) + '</span>) × $10'
+      +   ' &nbsp;=&nbsp; <strong class="swap-row-result">$0</strong>'
+      + '</div>';
+  }
+
+  function renderSwapLPRows() {
+    const container = document.getElementById('rev-swap-lp-lines');
+    if (!container) return;
+    if (lpProfiles.length === 0) {
+      container.innerHTML =
+        '<div class="ci-note" style="font-style:italic;padding:8px 0">'
+        + 'No LPs added yet — add one or more under <strong>Variable Costs → LP Costs</strong> to see per-LP swap-revenue lines here.'
+        + '</div>';
+      return;
+    }
+    container.innerHTML = lpProfiles.map(buildSwapRowHTML).join('');
+  }
+
+  function recalcSwapRevenue() {
+    let total = 0;
+    lpProfiles.forEach(p => {
+      const row = document.getElementById('swap-row-' + p.id);
+      if (!row) return;
+      const lots   = +p.aBookLots || 0;
+      const ov     = (+p.overnightPct || 0) / 100;
+      const cs     = +p.clientSwap || 0;
+      const lpSwap = +p.swap || 0;
+      const rev    = lots * ov * (cs - lpSwap) * 10;
+      total += rev;
+      // Refresh fetched LP swap displays + result. Inline inputs are left
+      // alone so user focus and cursor are preserved while typing.
+      row.querySelectorAll('.swap-lp-display').forEach(s => { s.textContent = fmt2Swap(lpSwap); });
+      const r = row.querySelector('.swap-row-result');
+      if (r) r.textContent = fmt$(rev);
+    });
+    setText('rev-abook-swap-amount', fmt$(total));
+    triggerRevRecalc();
+  }
+
   // A-Book Spread Markup Revenue (Revenue / Hand-picked).
   //   Formula: A-Book Lots × (FX% × FXp + Com% × Comp + Cry% × Cryp) × $10
   // Each blended % is the lots-weighted average across T1, T2, T3 (Master mix
   // pulled from the IB Network tab) and Organic (manual inputs). FXp/Comp/Cryp
   // are the global Spread Markup pips on the Revenue tab.
+  // T1/T2/T3 mix inputs in the formula card are read-only displays of the IB
+  // Network Master mix values. Each pair: [proxyId in formula, sourceId in
+  // IB Network]. recalcMarkupRevenue refreshes the proxy display from source
+  // every run, so it stays in sync regardless of how the source was changed
+  // (user input, applyState restore, or any other path).
+  const MIX_PROXY_PAIRS = [
+    ['rev-markup-t1-fx',  't1-master-mix-fx'],
+    ['rev-markup-t1-com', 't1-master-mix-com'],
+    ['rev-markup-t1-cry', 't1-master-mix-cry'],
+    ['rev-markup-t2-fx',  't2-master-mix-fx'],
+    ['rev-markup-t2-com', 't2-master-mix-com'],
+    ['rev-markup-t2-cry', 't2-master-mix-cry'],
+    ['rev-markup-t3-fx',  't3-master-mix-fx'],
+    ['rev-markup-t3-com', 't3-master-mix-com'],
+    ['rev-markup-t3-cry', 't3-master-mix-cry'],
+  ];
+  function syncMixProxies() {
+    MIX_PROXY_PAIRS.forEach(pair => {
+      const proxy  = document.getElementById(pair[0]);
+      const source = document.getElementById(pair[1]);
+      if (!proxy || !source) return;
+      const v = source.value;
+      proxy.value = v;
+      // Size the input exactly to its content (monospace font → ch units).
+      // size= sets the visible character count for type="text" inputs and
+      // gives a snug fit with no leading whitespace.
+      const len = String(v == null ? '' : v).length || 1;
+      proxy.setAttribute('size', String(len));
+    });
+  }
+
   function recalcMarkupRevenue() {
     const t1Lots    = readTierLots('t1');
     const t2Lots    = readTierLots('t2');
@@ -8779,52 +8817,54 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const otherLots = readTierLots('other');
     const totalLots = t1Lots + t2Lots + t3Lots + otherLots;
 
+    // Refresh the read-only T1/T2/T3 proxy inputs from the IB Network sources
+    // every run, so they always reflect the latest Master mix values.
+    syncMixProxies();
+
     const num = id => parseFloat((document.getElementById(id) || {}).value) || 0;
-    const t1FX  = num('t1-master-mix-fx');
-    const t2FX  = num('t2-master-mix-fx');
-    const t3FX  = num('t3-master-mix-fx');
-    const oFX   = num('rev-organic-mix-fx');
-    const t1Com = num('t1-master-mix-com');
-    const t2Com = num('t2-master-mix-com');
-    const t3Com = num('t3-master-mix-com');
-    const oCom  = num('rev-organic-mix-com');
-    const t1Cry = num('t1-master-mix-cry');
-    const t2Cry = num('t2-master-mix-cry');
-    const t3Cry = num('t3-master-mix-cry');
-    const oCry  = num('rev-organic-mix-cry');
+    const lotsByPool = { t1: t1Lots, t2: t2Lots, t3: t3Lots, other: otherLots };
+    const fmt = v => v.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-    function blend(t1p, t2p, t3p, op) {
-      if (totalLots <= 0) return 0;
-      return (t1Lots * t1p + t2Lots * t2p + t3Lots * t3p + otherLots * op) / totalLots;
-    }
-    const fxBlended  = blend(t1FX,  t2FX,  t3FX,  oFX);
-    const comBlended = blend(t1Com, t2Com, t3Com, oCom);
-    const cryBlended = blend(t1Cry, t2Cry, t3Cry, oCry);
-
-    // Build the explicit blended-formula breakdown line per asset class.
-    // Each line shows the live values being plugged in plus the result.
-    const pct1   = v => v.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-    const lots1  = v => v.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-    function buildLine(label, t1p, t2p, t3p, op, result) {
-      const num =
-          '(' + lots1(t1Lots) + ' × ' + pct1(t1p) + ')'
-        + ' + (' + lots1(t2Lots) + ' × ' + pct1(t2p) + ')'
-        + ' + (' + lots1(t3Lots) + ' × ' + pct1(t3p) + ')'
-        + ' + (' + lots1(otherLots) + ' × ' + pct1(op) + ')';
-      const den = lots1(t1Lots) + ' + ' + lots1(t2Lots) + ' + ' + lots1(t3Lots) + ' + ' + lots1(otherLots);
-      return label + ' (blended) = [ ' + num + ' ] ÷ ( ' + den + ' ) = ' + pct1(result) + '%';
-    }
-    setText('rev-markup-formula-fx',  buildLine('FX%',  t1FX,  t2FX,  t3FX,  oFX,  fxBlended));
-    setText('rev-markup-formula-com', buildLine('Com%', t1Com, t2Com, t3Com, oCom, comBlended));
-    setText('rev-markup-formula-cry', buildLine('Cry%', t1Cry, t2Cry, t3Cry, oCry, cryBlended));
+    // Update all .rmf-lots spans (per pool) inside each formula div, and
+    // compute the blended result. We update spans (not innerHTML) so the
+    // inline inputs keep their focus / cursor while the user types. Math
+    // values are read from the IB Network SOURCE IDs (not the proxies)
+    // so we never miss an applyState-driven update.
+    const rows = [
+      { div:'rev-markup-formula-fx',  src:['t1-master-mix-fx',  't2-master-mix-fx',  't3-master-mix-fx',  'rev-organic-mix-fx'] },
+      { div:'rev-markup-formula-com', src:['t1-master-mix-com', 't2-master-mix-com', 't3-master-mix-com', 'rev-organic-mix-com'] },
+      { div:'rev-markup-formula-cry', src:['t1-master-mix-cry', 't2-master-mix-cry', 't3-master-mix-cry', 'rev-organic-mix-cry'] },
+    ];
+    const blended = {};
+    rows.forEach(r => {
+      const wrap = document.getElementById(r.div);
+      if (!wrap) { blended[r.div] = 0; return; }
+      wrap.querySelectorAll('.rmf-lots').forEach(s => {
+        const pool = s.getAttribute('data-pool');
+        s.textContent = fmt(lotsByPool[pool] || 0);
+      });
+      const t1p = num(r.src[0]), t2p = num(r.src[1]),
+            t3p = num(r.src[2]), op  = num(r.src[3]);
+      const result = totalLots > 0
+        ? (t1Lots * t1p + t2Lots * t2p + t3Lots * t3p + otherLots * op) / totalLots
+        : 0;
+      const resEl = wrap.querySelector('.rmf-result');
+      if (resEl) resEl.textContent = fmt(result);
+      blended[r.div] = result;
+    });
+    const fxBlended  = blended['rev-markup-formula-fx']  || 0;
+    const comBlended = blended['rev-markup-formula-com'] || 0;
+    const cryBlended = blended['rev-markup-formula-cry'] || 0;
 
     const aLots = readABookLots();
-    setText('rev-markup-lots-ref', fmtLots(aLots));
+    const standardPct = (parseFloat((document.getElementById('rev-aacc-standard-pct') || {}).value) || 0) / 100;
+    const standardLots = aLots * standardPct;
+    setText('rev-markup-lots-ref', fmtLots(standardLots));
 
     const fxPips  = num('rev-spread-fx');
     const comPips = num('rev-spread-commodities');
     const cryPips = num('rev-spread-crypto');
-    const markup = aLots * (fxBlended/100 * fxPips + comBlended/100 * comPips + cryBlended/100 * cryPips) * 10;
+    const markup = standardLots * (fxBlended/100 * fxPips + comBlended/100 * comPips + cryBlended/100 * cryPips) * 10;
     setText('rev-abook-markup-amount', fmt$(markup));
     triggerRevRecalc();
   }
@@ -8851,6 +8891,12 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       type: type,
       spread: type === 'raw_plus_commission' ? 0.3 : 0.5,
       commission: type === 'raw_plus_commission' ? 3 : 0,
+      swap: 0.3,
+      // Per-LP swap revenue inputs (defaults seeded at creation; user-editable
+      // inline in the formula on the Revenue tab → Hand-picked).
+      aBookLots: Math.round(readABookLots() * 10) / 10,
+      overnightPct: 20,
+      clientSwap: 1,
     });
     renderLPProfiles();
     if (typeof saveState === 'function') saveState();
@@ -8904,11 +8950,16 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     new MutationObserver(() => recalcLPCosts())
       .observe(aBookLotsEl, { characterData:true, childList:true, subtree:true });
   }
-  // B-Book Lots changes (Trading Flow tab) → re-derive B-book loss + gain.
+  // B-Book Lots changes (Trading Flow tab) → re-derive B-book loss + gain
+  // + B-book swap + commission revenues.
   const bBookLotsEl = document.getElementById('flt-bbook-lots');
   if (bBookLotsEl) {
-    new MutationObserver(() => { recalcBBookLoss(); recalcBBookGain(); })
-      .observe(bBookLotsEl, { characterData:true, childList:true, subtree:true });
+    new MutationObserver(() => {
+      recalcBBookLoss();
+      recalcBBookGain();
+      recalcBBookSwapRevenue();
+      recalcBBookCommRevenue();
+    }).observe(bBookLotsEl, { characterData:true, childList:true, subtree:true });
   }
   // Per-tier lots cells drive the blended trading-mix calculation.
   ['flt-t1-lots','flt-t2-lots','flt-t3-lots','flt-other-lots'].forEach(id => {
@@ -8941,16 +8992,75 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', recalcBBookGain);
   });
-  // A-Book Spread Markup Revenue — Organic mix inputs + tier Master-mix
-  // sources + global spread markup pips all drive the recalc.
+  // B-Book Swap Revenue inputs.
+  ['rev-bbook-swap-overnight-pct','rev-bbook-swap-client-pips'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', recalcBBookSwapRevenue);
+  });
+  // B-Book Commission Revenue inputs.
+  ['rev-bbook-comm-per-lot','rev-bbook-comm-ecn-pct'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', recalcBBookCommRevenue);
+  });
+  // Commission Revenue input (Revenue Hand-picked).
+  const commPerLotEl = document.getElementById('rev-comm-per-lot');
+  if (commPerLotEl) commPerLotEl.addEventListener('input', recalcCommissionRevenue);
+
+  // A-Book Account Mix inputs — auto-balance Standard ↔ ECN to 100% and
+  // re-derive both downstream cells (Spread Markup uses Standard %,
+  // Commission uses ECN %).
+  (function wireAAccountMix() {
+    const stdEl = document.getElementById('rev-aacc-standard-pct');
+    const ecnEl = document.getElementById('rev-aacc-ecn-pct');
+    if (!stdEl || !ecnEl) return;
+    const clamp = v => Math.max(0, Math.min(100, v));
+    stdEl.addEventListener('input', () => {
+      ecnEl.value = clamp(100 - (+stdEl.value || 0));
+      recalcAAccountMix();
+      recalcMarkupRevenue();
+      recalcCommissionRevenue();
+    });
+    ecnEl.addEventListener('input', () => {
+      stdEl.value = clamp(100 - (+ecnEl.value || 0));
+      recalcAAccountMix();
+      recalcMarkupRevenue();
+      recalcCommissionRevenue();
+    });
+  })();
+
+  // A-Book Swap Revenue per-LP inline inputs (lots / overnight % / client swap)
+  // — event-delegate on the rev-swap-lp-lines container so it survives DOM
+  // rebuilds when LPs are added/removed.
+  const swapLines = document.getElementById('rev-swap-lp-lines');
+  if (swapLines) {
+    swapLines.addEventListener('input', e => {
+      const t = e.target;
+      const id    = t.dataset && t.dataset.lpId;
+      const field = t.dataset && t.dataset.lpField;
+      if (!id || !field) return;
+      const p = lpProfiles.find(x => x.id === id);
+      if (!p) return;
+      p[field] = +t.value || 0;
+      recalcSwapRevenue();
+      if (typeof saveState === 'function') saveState();
+    });
+  }
+  // A-Book Spread Markup Revenue — Organic mix inputs (the only editable
+  // values on this card) and global spread markup pips drive the recalc.
+  // T1/T2/T3 changes flow in via the IB-Network → proxy mirror in bindMixSync.
   [ 'rev-organic-mix-fx','rev-organic-mix-com','rev-organic-mix-cry',
-    't1-master-mix-fx','t1-master-mix-com','t1-master-mix-cry',
-    't2-master-mix-fx','t2-master-mix-com','t2-master-mix-cry',
-    't3-master-mix-fx','t3-master-mix-com','t3-master-mix-cry',
     'rev-spread-fx','rev-spread-commodities','rev-spread-crypto'
   ].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', recalcMarkupRevenue);
+  });
+
+  // When any IB Network Master mix input fires `input`, refresh the markup
+  // formula. recalcMarkupRevenue will sync the proxies + read the latest
+  // source values + recompute the blended results.
+  MIX_PROXY_PAIRS.forEach(pair => {
+    const source = document.getElementById(pair[1]);
+    if (source) source.addEventListener('input', recalcMarkupRevenue);
   });
 
   // Hook auto-derived LP costs + slippage cost into vrc-total-display.
@@ -8979,7 +9089,11 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       if (revAdjusting) return;
       const adj = parseFmt('rev-abook-slip-gain')
                 + parseFmt('rev-bbook-gain-amount')
-                + parseFmt('rev-abook-markup-amount');
+                + parseFmt('rev-bbook-swap-amount')
+                + parseFmt('rev-bbook-comm-amount')
+                + parseFmt('rev-abook-markup-amount')
+                + parseFmt('rev-abook-comm-amount')
+                + parseFmt('rev-abook-swap-amount');
       if (adj === 0) return;
       const current = parseFmt('rev-total');
       revAdjusting = true;
@@ -9007,6 +9121,9 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
         lpCounter  = (+s.lpCounter) || lpProfiles.length;
         renderLPProfiles();
       }
+      // After applyState restores all inputs, refresh the markup formula so
+      // the read-only T1/T2/T3 proxies reflect the freshly-restored sources.
+      recalcMarkupRevenue();
     };
   }
 
