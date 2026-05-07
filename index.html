@@ -995,6 +995,34 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
         <span id="rev-bbook-gain-amount" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
       </div>
     </div>
+    <div class="ci" style="grid-column:1 / -1">
+      <div class="ci-label">A-Book Spread Markup Revenue</div>
+      <div class="ci-note">A-Book Lots × (FX% × FX pips + Com% × Com pips + Cry% × Cry pips) × $10. Each blended % below is auto-derived from IB Network Master mix per tier; only the Organic % values are manual inputs.</div>
+      <div id="rev-markup-formula-fx"  class="ci-formula" data-for="rev-markup-formula-fx"  style="margin-top:.85rem">FX% (blended) = …</div>
+      <div id="rev-markup-formula-com" class="ci-formula" data-for="rev-markup-formula-com">Com% (blended) = …</div>
+      <div id="rev-markup-formula-cry" class="ci-formula" data-for="rev-markup-formula-cry">Cry% (blended) = …</div>
+      <div class="ci-note" style="margin-top:1rem;font-style:italic">Organic Trading Mix — inputs (the only manual values; T1/T2/T3 derive from IB Network Master mix)</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:.5rem">
+        <div>
+          <div class="ci-note">Organic FX %</div>
+          <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-organic-mix-fx" value="70" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
+        </div>
+        <div>
+          <div class="ci-note">Organic Commodity %</div>
+          <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-organic-mix-com" value="20" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
+        </div>
+        <div>
+          <div class="ci-note">Organic Crypto %</div>
+          <div class="ci-input-wrap"><input class="ci-input" type="number" id="rev-organic-mix-cry" value="10" min="0" max="100" step="1"><span class="ci-prefix">%</span></div>
+        </div>
+      </div>
+      <div class="ci-note" style="margin-top:.65rem">A-Book Lots — fetched</div>
+      <div class="ci-input-wrap"><input class="ci-input" type="text" id="rev-markup-lots-ref" value="0.0" readonly tabindex="-1" style="color:var(--pu-text);cursor:default"><span class="ci-prefix">lots</span></div>
+      <div style="margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Markup Revenue</span>
+        <span id="rev-abook-markup-amount" style="font-size:16px;font-weight:700;color:var(--pu-text)">$0</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -7950,6 +7978,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     // ─────────── tab6 — Revenue (Hand-picked) ────────────
     'rev-abook-slip-gain':     'A-Book Lots × Avg Slippage (pips) × $10',
     'rev-bbook-gain-amount':   'B-Book Lots × Client Loss Rate % × Avg Loss (pips) × $10',
+    'rev-abook-markup-amount': 'A-Book Lots × (Blended FX% × FX pips + Blended Com% × Com pips + Blended Cry% × Cry pips) × $10  —  Blended % = (Σ tier_lots × tier_mix%) ÷ Σ tier_lots across T1/T2/T3 + Organic',
 
     // ─────────── tab8 — Fixed Costs ──────────────────────
     'fxc-total-display':       'Sum of every fixed cost line',
@@ -8618,6 +8647,11 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     if (!el) return 0;
     return parseFloat((el.textContent || '').replace(/[^0-9.\-]/g, '')) || 0;
   }
+  function readTierLots(prefix) {
+    const el = document.getElementById('flt-' + prefix + '-lots');
+    if (!el) return 0;
+    return parseFloat((el.textContent || '').replace(/[^0-9.\-]/g, '')) || 0;
+  }
 
   function lpProfileHTML(p) {
     const isComm = p.type === 'raw_plus_commission';
@@ -8673,6 +8707,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     recalcSlippageCost();
     recalcBBookLoss();
     recalcBBookGain();
+    recalcMarkupRevenue();
     // Re-trigger the variable costs total so the LP + slippage contributions
     // are folded in by the vrc-total-display observer below.
     triggerVRCRecalc();
@@ -8729,6 +8764,68 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const pips     = parseFloat((document.getElementById('rev-bbook-avgloss-pips') || {}).value) || 0;
     const gain = bLots * lossRate * pips * 10;
     setText('rev-bbook-gain-amount', fmt$(gain));
+    triggerRevRecalc();
+  }
+
+  // A-Book Spread Markup Revenue (Revenue / Hand-picked).
+  //   Formula: A-Book Lots × (FX% × FXp + Com% × Comp + Cry% × Cryp) × $10
+  // Each blended % is the lots-weighted average across T1, T2, T3 (Master mix
+  // pulled from the IB Network tab) and Organic (manual inputs). FXp/Comp/Cryp
+  // are the global Spread Markup pips on the Revenue tab.
+  function recalcMarkupRevenue() {
+    const t1Lots    = readTierLots('t1');
+    const t2Lots    = readTierLots('t2');
+    const t3Lots    = readTierLots('t3');
+    const otherLots = readTierLots('other');
+    const totalLots = t1Lots + t2Lots + t3Lots + otherLots;
+
+    const num = id => parseFloat((document.getElementById(id) || {}).value) || 0;
+    const t1FX  = num('t1-master-mix-fx');
+    const t2FX  = num('t2-master-mix-fx');
+    const t3FX  = num('t3-master-mix-fx');
+    const oFX   = num('rev-organic-mix-fx');
+    const t1Com = num('t1-master-mix-com');
+    const t2Com = num('t2-master-mix-com');
+    const t3Com = num('t3-master-mix-com');
+    const oCom  = num('rev-organic-mix-com');
+    const t1Cry = num('t1-master-mix-cry');
+    const t2Cry = num('t2-master-mix-cry');
+    const t3Cry = num('t3-master-mix-cry');
+    const oCry  = num('rev-organic-mix-cry');
+
+    function blend(t1p, t2p, t3p, op) {
+      if (totalLots <= 0) return 0;
+      return (t1Lots * t1p + t2Lots * t2p + t3Lots * t3p + otherLots * op) / totalLots;
+    }
+    const fxBlended  = blend(t1FX,  t2FX,  t3FX,  oFX);
+    const comBlended = blend(t1Com, t2Com, t3Com, oCom);
+    const cryBlended = blend(t1Cry, t2Cry, t3Cry, oCry);
+
+    // Build the explicit blended-formula breakdown line per asset class.
+    // Each line shows the live values being plugged in plus the result.
+    const pct1   = v => v.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const lots1  = v => v.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    function buildLine(label, t1p, t2p, t3p, op, result) {
+      const num =
+          '(' + lots1(t1Lots) + ' × ' + pct1(t1p) + ')'
+        + ' + (' + lots1(t2Lots) + ' × ' + pct1(t2p) + ')'
+        + ' + (' + lots1(t3Lots) + ' × ' + pct1(t3p) + ')'
+        + ' + (' + lots1(otherLots) + ' × ' + pct1(op) + ')';
+      const den = lots1(t1Lots) + ' + ' + lots1(t2Lots) + ' + ' + lots1(t3Lots) + ' + ' + lots1(otherLots);
+      return label + ' (blended) = [ ' + num + ' ] ÷ ( ' + den + ' ) = ' + pct1(result) + '%';
+    }
+    setText('rev-markup-formula-fx',  buildLine('FX%',  t1FX,  t2FX,  t3FX,  oFX,  fxBlended));
+    setText('rev-markup-formula-com', buildLine('Com%', t1Com, t2Com, t3Com, oCom, comBlended));
+    setText('rev-markup-formula-cry', buildLine('Cry%', t1Cry, t2Cry, t3Cry, oCry, cryBlended));
+
+    const aLots = readABookLots();
+    setText('rev-markup-lots-ref', fmtLots(aLots));
+
+    const fxPips  = num('rev-spread-fx');
+    const comPips = num('rev-spread-commodities');
+    const cryPips = num('rev-spread-crypto');
+    const markup = aLots * (fxBlended/100 * fxPips + comBlended/100 * comPips + cryBlended/100 * cryPips) * 10;
+    setText('rev-abook-markup-amount', fmt$(markup));
     triggerRevRecalc();
   }
   function triggerRevRecalc() {
@@ -8813,6 +8910,12 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     new MutationObserver(() => { recalcBBookLoss(); recalcBBookGain(); })
       .observe(bBookLotsEl, { characterData:true, childList:true, subtree:true });
   }
+  // Per-tier lots cells drive the blended trading-mix calculation.
+  ['flt-t1-lots','flt-t2-lots','flt-t3-lots','flt-other-lots'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) new MutationObserver(() => recalcMarkupRevenue())
+      .observe(el, { characterData:true, childList:true, subtree:true });
+  });
   // A-Book slippage pips inputs (variable cost & revenue sides) → re-derive
   // both displays and retrigger the affected totals.
   const slipPipsEl = document.getElementById('vrc-abook-slip-pips');
@@ -8838,6 +8941,17 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', recalcBBookGain);
   });
+  // A-Book Spread Markup Revenue — Organic mix inputs + tier Master-mix
+  // sources + global spread markup pips all drive the recalc.
+  [ 'rev-organic-mix-fx','rev-organic-mix-com','rev-organic-mix-cry',
+    't1-master-mix-fx','t1-master-mix-com','t1-master-mix-cry',
+    't2-master-mix-fx','t2-master-mix-com','t2-master-mix-cry',
+    't3-master-mix-fx','t3-master-mix-com','t3-master-mix-cry',
+    'rev-spread-fx','rev-spread-commodities','rev-spread-crypto'
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', recalcMarkupRevenue);
+  });
 
   // Hook auto-derived LP costs + slippage cost into vrc-total-display.
   // recalcVRCTotalNew (closure-scoped) computes the standard sum; we observe
@@ -8856,13 +8970,16 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     }).observe(totalDisplay, { characterData:true, childList:true, subtree:true });
   }
 
-  // Hook auto-derived Hand-picked gains (A-Book slippage + B-Book gain) into rev-total.
+  // Hook auto-derived Hand-picked gains (A-Book slippage + B-Book gain +
+  // A-Book Spread Markup Revenue) into rev-total.
   const revTotalEl = document.getElementById('rev-total');
   let revAdjusting = false;
   if (revTotalEl) {
     new MutationObserver(() => {
       if (revAdjusting) return;
-      const adj = parseFmt('rev-abook-slip-gain') + parseFmt('rev-bbook-gain-amount');
+      const adj = parseFmt('rev-abook-slip-gain')
+                + parseFmt('rev-bbook-gain-amount')
+                + parseFmt('rev-abook-markup-amount');
       if (adj === 0) return;
       const current = parseFmt('rev-total');
       revAdjusting = true;
