@@ -3746,6 +3746,8 @@ recalcRevAutoFields = function() {
     collectState = function() {
       const s = _orig();
       s.trackerState = window._trackerState;
+      if (Array.isArray(window._trackerTeam)) s.trackerTeam = window._trackerTeam;
+      if (typeof window._trackerActivePerson === 'string') s.trackerActivePerson = window._trackerActivePerson;
       return s;
     };
   }
@@ -3753,11 +3755,21 @@ recalcRevAutoFields = function() {
     const _orig = applyState;
     applyState = function(s) {
       _orig(s);
+      let touched = false;
       if (s && s.trackerState && typeof s.trackerState === 'object') {
         window._trackerState = s.trackerState;
-        if (typeof window.__trackerRepaint === 'function') {
-          window.__trackerRepaint();
-        }
+        touched = true;
+      }
+      if (s && Array.isArray(s.trackerTeam) && s.trackerTeam.length > 0) {
+        window._trackerTeam = s.trackerTeam;
+        touched = true;
+      }
+      if (s && typeof s.trackerActivePerson === 'string') {
+        window._trackerActivePerson = s.trackerActivePerson;
+        touched = true;
+      }
+      if (touched && typeof window.__trackerRepaint === 'function') {
+        window.__trackerRepaint();
       }
     };
   }
@@ -8088,6 +8100,12 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   #tab-tracker .phase li::before { content: ''; position: absolute; left: 0; top: 14px; width: 8px; height: 1px; background: var(--green-bright); }
   #tab-tracker .phase li strong { color: var(--blue-deep); font-weight: 600; }
   #tab-tracker .team-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  #tab-tracker .tr-person-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+  #tab-tracker .tr-person-tab { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; padding: 9px 16px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-muted); cursor: pointer; border-radius: 4px; transition: all 0.15s; font-weight: 500; }
+  #tab-tracker .tr-person-tab:hover { border-color: var(--blue-bright); color: var(--blue-bright); }
+  #tab-tracker .tr-person-tab.active { background: var(--blue-bright); border-color: var(--blue-bright); color: #fff; }
+  #tab-tracker .tr-person-tab-count { display: inline-block; margin-left: 8px; font-size: 9px; letter-spacing: 0; color: var(--ink-muted); font-weight: 600; }
+  #tab-tracker .tr-person-tab.active .tr-person-tab-count { color: rgba(255,255,255,0.85); }
   #tab-tracker .person-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; transition: box-shadow 0.2s; }
   #tab-tracker .person-card:hover { box-shadow: 0 6px 20px rgba(13, 31, 45, 0.05); }
   #tab-tracker .person-header { display: grid; grid-template-columns: 70px 1fr auto 180px; align-items: center; padding: 24px 32px; border-bottom: 1px solid var(--rule); gap: 24px; background: linear-gradient(180deg, var(--blue-pale) 0%, var(--paper) 100%); }
@@ -8103,7 +8121,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   #tab-tracker .person-progress-bar { height: 6px; background: var(--rule-soft); border-radius: 99px; overflow: hidden; }
   #tab-tracker .person-progress-fill { height: 100%; background: var(--green-bright); border-radius: 99px; width: 0%; transition: width 0.4s ease; }
   #tab-tracker .person-progress-label { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-muted); margin-top: 6px; text-align: right; }
-  #tab-tracker .task-row { display: grid; grid-template-columns: 60px 36px 1fr 150px 140px; align-items: flex-start; padding: 18px 32px; border-bottom: 1px solid var(--rule-soft); gap: 20px; transition: background 0.15s; cursor: pointer; }
+  #tab-tracker .task-row { display: grid; grid-template-columns: 60px 36px 1fr 150px 140px 80px; align-items: flex-start; padding: 18px 32px; border-bottom: 1px solid var(--rule-soft); gap: 20px; transition: background 0.15s; cursor: pointer; }
   #tab-tracker .task-row:last-child { border-bottom: none; }
   #tab-tracker .task-row:hover { background: var(--blue-pale); }
   #tab-tracker .task-row.done { background: var(--green-pale); }
@@ -8131,6 +8149,36 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   #tab-tracker .pill.block { background: var(--crimson-pale); color: var(--crimson); }
   #tab-tracker .task-row.done .task-status .pill { background: var(--green-pale); color: var(--green-deep); }
   #tab-tracker .task-status .dep { color: var(--ink-muted); font-size: 10px; line-height: 1.4; }
+  #tab-tracker .person-add-btn { background: var(--blue-bright); color: #fff; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s, transform 0.15s; padding: 0; line-height: 1; }
+  #tab-tracker .person-add-btn:hover { background: var(--blue-deep); transform: scale(1.08); }
+  #tab-tracker .person-info { display: flex; align-items: center; gap: 12px; }
+  #tab-tracker .person-info-text { display: block; }
+  #tab-tracker .task-status-select { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; padding: 3px 8px; border-radius: 3px; border: 1px solid transparent; background: var(--rule-soft); color: var(--ink-soft); cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%); background-position: calc(100% - 9px) 50%, calc(100% - 5px) 50%; background-size: 4px 4px, 4px 4px; background-repeat: no-repeat; padding-right: 18px; outline: none; }
+  #tab-tracker .task-status-select.pill-prog  { background-color: var(--blue-pale);    color: var(--blue); }
+  #tab-tracker .task-status-select.pill-block { background-color: var(--crimson-pale); color: var(--crimson); }
+  #tab-tracker .task-status-select.pill-start { background-color: var(--rule-soft);    color: var(--ink-soft); }
+  #tab-tracker .task-row.done .task-status-select { background-color: var(--green-pale); color: var(--green-deep); }
+  #tab-tracker .task-actions { display: flex; gap: 6px; align-items: center; justify-content: flex-end; }
+  #tab-tracker .task-action-btn { background: transparent; border: 1px solid transparent; padding: 5px; cursor: pointer; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-muted); transition: all 0.15s; }
+  #tab-tracker .task-action-btn:hover { background: var(--blue-pale); color: var(--blue-bright); border-color: var(--rule); }
+  #tab-tracker .task-action-btn.delete:hover { background: var(--crimson-pale); color: var(--crimson); border-color: var(--crimson); }
+  #tab-tracker .task-action-btn svg { display: block; }
+  #tab-tracker .tr-modal-backdrop { position: fixed; inset: 0; background: rgba(13, 31, 45, 0.55); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+  #tab-tracker .tr-modal-backdrop.active { display: flex; }
+  #tab-tracker .tr-modal { background: var(--paper); border-radius: 8px; padding: 28px 32px; width: 560px; max-width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.25); border-top: 4px solid var(--blue-bright); }
+  #tab-tracker .tr-modal h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 24px; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 6px; }
+  #tab-tracker .tr-modal-sub { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-muted); margin-bottom: 22px; }
+  #tab-tracker .tr-modal-field { margin-bottom: 16px; }
+  #tab-tracker .tr-modal-field label { display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-muted); margin-bottom: 6px; font-weight: 500; }
+  #tab-tracker .tr-modal-field input, #tab-tracker .tr-modal-field textarea, #tab-tracker .tr-modal-field select { width: 100%; font: inherit; font-family: 'Inter Tight', -apple-system, sans-serif; font-size: 14px; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); outline: none; transition: border-color 0.15s; }
+  #tab-tracker .tr-modal-field input:focus, #tab-tracker .tr-modal-field textarea:focus, #tab-tracker .tr-modal-field select:focus { border-color: var(--blue-bright); }
+  #tab-tracker .tr-modal-field textarea { min-height: 72px; resize: vertical; }
+  #tab-tracker .tr-modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  #tab-tracker .tr-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--rule); }
+  #tab-tracker .tr-modal-actions button { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; padding: 9px 18px; border-radius: 4px; cursor: pointer; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); transition: all 0.15s; }
+  #tab-tracker .tr-modal-actions button:hover { border-color: var(--ink-muted); color: var(--ink); }
+  #tab-tracker .tr-modal-actions button.primary { background: var(--blue-bright); color: #fff; border-color: var(--blue-bright); }
+  #tab-tracker .tr-modal-actions button.primary:hover { background: var(--blue-deep); border-color: var(--blue-deep); }
   #tab-tracker .person-controls { display: flex; justify-content: flex-end; padding: 14px 32px; background: var(--rule-soft); border-top: 1px solid var(--rule); gap: 16px; }
   #tab-tracker .person-controls button { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; padding: 7px 14px; background: var(--paper); border: 1px solid var(--rule); color: var(--ink-soft); cursor: pointer; border-radius: 3px; transition: all 0.15s; }
   #tab-tracker .person-controls button:hover { border-color: var(--blue-bright); color: var(--blue-bright); }
@@ -8200,14 +8248,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       <div class="progress-stat"><div class="num blue" id="tr-stat-total">0</div><div class="lbl">Total tasks</div></div>
       <div class="progress-stat"><div class="num green" id="tr-stat-done">0</div><div class="lbl">Completed</div></div>
     </div>
-  </div>
-</div>
-
-<div class="alert-bar">
-  <div class="alert-icon">!</div>
-  <div class="alert-content">
-    <h3>The 15 June date is conditional, not committed.</h3>
-    <p>Licensing is the dominant constraint. Hamza is running Mauritius + Dubai SCA + Ajman in parallel; any one landing unlocks bank, LP, and PSP downstream. Realistically only Ajman lands inside 30 days — treat it as the launch-day license, with Mauritius and SCA as 60–180 day workstreams for long-term credibility. If no license is in hand by 27 May, shift to a closed soft launch (50 IBs, crypto-only deposits) on 15 June and slide full public launch to 22–29 June.</p>
   </div>
 </div>
 
@@ -8395,6 +8435,53 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   <div class="meta">Milele Prime · Launch Tracker v.02 · 17 May 2026 · Rebase weekly</div>
   <button class="reset" id="tr-reset-btn">Reset all checkboxes</button>
 </div>
+
+<div class="tr-modal-backdrop" id="tr-modal-backdrop">
+  <div class="tr-modal" role="dialog" aria-modal="true" aria-labelledby="tr-modal-title">
+    <h3 id="tr-modal-title">Edit task</h3>
+    <div class="tr-modal-sub" id="tr-modal-sub">Update fields and save</div>
+    <div class="tr-modal-field">
+      <label for="tr-m-title">Title</label>
+      <input type="text" id="tr-m-title" placeholder="Task title">
+    </div>
+    <div class="tr-modal-field">
+      <label for="tr-m-desc">Description</label>
+      <textarea id="tr-m-desc" placeholder="Task description"></textarea>
+    </div>
+    <div class="tr-modal-row">
+      <div class="tr-modal-field">
+        <label for="tr-m-date">Due date</label>
+        <input type="text" id="tr-m-date" placeholder="e.g. 24 May">
+      </div>
+      <div class="tr-modal-field">
+        <label for="tr-m-range">Date range</label>
+        <input type="text" id="tr-m-range" placeholder="e.g. 20–24 May">
+      </div>
+    </div>
+    <div class="tr-modal-row">
+      <div class="tr-modal-field">
+        <label for="tr-m-status">Status</label>
+        <select id="tr-m-status">
+          <option value="start">Not started</option>
+          <option value="prog">In progress</option>
+          <option value="block">Blocked</option>
+        </select>
+      </div>
+      <div class="tr-modal-field">
+        <label for="tr-m-statusText">Status label</label>
+        <input type="text" id="tr-m-statusText" placeholder="e.g. Blocked · License">
+      </div>
+    </div>
+    <div class="tr-modal-field">
+      <label for="tr-m-dep">Dependency</label>
+      <input type="text" id="tr-m-dep" placeholder="e.g. Brand identity, License, —">
+    </div>
+    <div class="tr-modal-actions">
+      <button type="button" id="tr-m-cancel">Cancel</button>
+      <button type="button" id="tr-m-save" class="primary">Save</button>
+    </div>
+  </div>
+</div>
 `;
 
   const team = [
@@ -8486,53 +8573,112 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   }
   function $(id) { return trPanel.querySelector('#' + id); }
 
+  // ── Seed window._trackerTeam from the static team[] if not yet
+  //    populated by applyState (deep-copy so edits don't mutate the seed).
+  function deepCopy(o) { return JSON.parse(JSON.stringify(o)); }
+  if (!Array.isArray(window._trackerTeam) || window._trackerTeam.length === 0) {
+    window._trackerTeam = deepCopy(team);
+  }
+
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(s) { return escHtml(s); }
+
+  // SVG icons (inline — no external dependency)
+  const ICON_EDIT = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 1.5l3 3-9 9H2.5v-3l9-9z"/><path d="M9.5 3.5l3 3"/></svg>';
+  const ICON_TRASH = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11"/><path d="M5.5 4V2.5h5V4"/><path d="M4 4l.7 9a1 1 0 0 0 1 .9h4.6a1 1 0 0 0 1-.9L12 4"/><path d="M6.5 7v4M9.5 7v4"/></svg>';
+
   function render() {
     const grid = $('tr-team-grid');
+    if (!grid) return;
+    const tm = window._trackerTeam;
     let totalCount = 0;
-    team.forEach(p => totalCount += p.tasks.length);
+    tm.forEach(p => totalCount += (p.tasks || []).length);
     setText('tr-stat-total', totalCount);
 
-    grid.innerHTML = team.map(p => {
-      const tasksHtml = p.tasks.map((t, i) => (
-        '<div class="task-row" data-task="' + t.id + '" data-person="' + p.id + '">'
-        +   '<div class="task-pri">' + roman(i + 1) + '</div>'
-        +   '<div class="task-check"></div>'
-        +   '<div class="task-body">'
-        +     '<div class="task-title">' + t.title + '</div>'
-        +     '<div class="task-desc">' + t.desc + '</div>'
-        +   '</div>'
-        +   '<div class="task-date">'
-        +     '<div class="due">Due ' + t.date + '</div>'
-        +     '<div class="range">' + t.range + '</div>'
-        +   '</div>'
-        +   '<div class="task-status">'
-        +     '<span class="pill ' + t.status + '">' + t.statusText + '</span>'
-        +     '<div class="dep">Dep: ' + t.dep + '</div>'
-        +   '</div>'
-        + '</div>'
-      )).join('');
+    // ── Pick active person (default first; fall back if previously-active
+    //    person no longer exists). ──────────────────────────────────────
+    let activeId = window._trackerActivePerson;
+    if (!activeId || !tm.some(p => p.id === activeId)) {
+      activeId = tm[0] && tm[0].id;
+    }
+    window._trackerActivePerson = activeId;
+
+    // ── Sub-tab strip (one tab per person, with done/total count) ─────
+    const tabsHtml = '<div class="tr-person-tabs">' + tm.map(p => {
+      const total = (p.tasks || []).length;
+      const done  = (p.tasks || []).filter(t => window._trackerState[t.id]).length;
+      const active = p.id === activeId ? ' active' : '';
+      return '<button class="tr-person-tab' + active + '" data-action="switch-person" data-person-id="' + escAttr(p.id) + '">'
+           +   (p.name || '')
+           +   '<span class="tr-person-tab-count">' + done + ' / ' + total + '</span>'
+           + '</button>';
+    }).join('') + '</div>';
+
+    const activePerson = tm.find(p => p.id === activeId);
+    const cardsToRender = activePerson ? [activePerson] : [];
+
+    grid.innerHTML = tabsHtml + cardsToRender.map(p => {
+      const tasksHtml = (p.tasks || []).map((t, i) => {
+        const pillCls = 'pill-' + (t.status || 'start');
+        const statusOptions = [
+          ['start', 'Not started'],
+          ['prog',  'In progress'],
+          ['block', 'Blocked'],
+        ].map(([v, lbl]) => (
+          '<option value="' + v + '"' + (t.status === v ? ' selected' : '') + '>' + lbl + '</option>'
+        )).join('');
+        return ''
+          + '<div class="task-row" data-task="' + escAttr(t.id) + '" data-person="' + escAttr(p.id) + '">'
+          +   '<div class="task-pri">' + roman(i + 1) + '</div>'
+          +   '<div class="task-check"></div>'
+          +   '<div class="task-body">'
+          +     '<div class="task-title">' + (t.title || '') + '</div>'
+          +     '<div class="task-desc">' + (t.desc || '') + '</div>'
+          +   '</div>'
+          +   '<div class="task-date">'
+          +     '<div class="due">Due ' + escHtml(t.date || '') + '</div>'
+          +     '<div class="range">' + escHtml(t.range || '') + '</div>'
+          +   '</div>'
+          +   '<div class="task-status">'
+          +     '<select class="task-status-select ' + pillCls + '" data-action="status-change" data-task-id="' + escAttr(t.id) + '">'
+          +       statusOptions
+          +     '</select>'
+          +     '<div class="dep">Dep: ' + escHtml(t.dep || '—') + '</div>'
+          +   '</div>'
+          +   '<div class="task-actions">'
+          +     '<button class="task-action-btn" data-action="edit-task" data-task-id="' + escAttr(t.id) + '" title="Edit">' + ICON_EDIT + '</button>'
+          +     '<button class="task-action-btn delete" data-action="delete-task" data-task-id="' + escAttr(t.id) + '" title="Delete">' + ICON_TRASH + '</button>'
+          +   '</div>'
+          + '</div>';
+      }).join('');
 
       return ''
-        + '<div class="person-card" data-person="' + p.id + '">'
+        + '<div class="person-card" data-person="' + escAttr(p.id) + '">'
         +   '<div class="person-header">'
-        +     '<div class="person-initial">' + p.initial + '</div>'
+        +     '<div class="person-initial">' + escHtml(p.initial || '') + '</div>'
         +     '<div class="person-info">'
-        +       '<h3>' + p.name + '</h3>'
-        +       '<div class="title">' + p.title + '</div>'
+        +       '<div class="person-info-text">'
+        +         '<h3>' + (p.name || '') + '</h3>'
+        +         '<div class="title">' + escHtml(p.title || '') + '</div>'
+        +       '</div>'
+        +       '<button class="person-add-btn" data-action="add-task" data-person-id="' + escAttr(p.id) + '" title="Add task">+</button>'
         +     '</div>'
         +     '<div class="person-stats">'
-        +       '<div class="person-stat"><div class="num done" data-done-for="' + p.id + '">0</div><div class="lbl">Done</div></div>'
-        +       '<div class="person-stat"><div class="num">' + p.tasks.length + '</div><div class="lbl">Total</div></div>'
+        +       '<div class="person-stat"><div class="num done" data-done-for="' + escAttr(p.id) + '">0</div><div class="lbl">Done</div></div>'
+        +       '<div class="person-stat"><div class="num" data-total-for="' + escAttr(p.id) + '">' + (p.tasks || []).length + '</div><div class="lbl">Total</div></div>'
         +     '</div>'
         +     '<div class="person-progress">'
-        +       '<div class="person-progress-bar"><div class="person-progress-fill" data-fill-for="' + p.id + '"></div></div>'
-        +       '<div class="person-progress-label" data-lbl-for="' + p.id + '">0% complete</div>'
+        +       '<div class="person-progress-bar"><div class="person-progress-fill" data-fill-for="' + escAttr(p.id) + '"></div></div>'
+        +       '<div class="person-progress-label" data-lbl-for="' + escAttr(p.id) + '">0% complete</div>'
         +     '</div>'
         +   '</div>'
         +   '<div class="task-list">' + tasksHtml + '</div>'
         +   '<div class="person-controls">'
-        +     '<button data-action="mark-all" data-target="' + p.id + '">Mark all done</button>'
-        +     '<button data-action="clear-all" data-target="' + p.id + '">Clear all</button>'
+        +     '<button data-action="mark-all" data-target="' + escAttr(p.id) + '">Mark all done</button>'
+        +     '<button data-action="clear-all" data-target="' + escAttr(p.id) + '">Clear all</button>'
         +   '</div>'
         + '</div>';
     }).join('');
@@ -8587,26 +8733,47 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const total = card.querySelectorAll('.task-row').length;
     const done  = card.querySelectorAll('.task-row.done').length;
     const pct   = total ? Math.round((done / total) * 100) : 0;
-    const doneEl = trPanel.querySelector('[data-done-for="' + personId + '"]');
-    const fillEl = trPanel.querySelector('[data-fill-for="' + personId + '"]');
-    const lblEl  = trPanel.querySelector('[data-lbl-for="' + personId + '"]');
-    if (doneEl) doneEl.textContent = done;
-    if (fillEl) fillEl.style.width = pct + '%';
-    if (lblEl)  lblEl.textContent = pct + '% complete';
+    const doneEl  = trPanel.querySelector('[data-done-for="' + personId + '"]');
+    const totalEl = trPanel.querySelector('[data-total-for="' + personId + '"]');
+    const fillEl  = trPanel.querySelector('[data-fill-for="' + personId + '"]');
+    const lblEl   = trPanel.querySelector('[data-lbl-for="' + personId + '"]');
+    if (doneEl)  doneEl.textContent = done;
+    if (totalEl) totalEl.textContent = total;
+    if (fillEl)  fillEl.style.width = pct + '%';
+    if (lblEl)   lblEl.textContent = pct + '% complete';
   }
 
   function updateOverallProgress() {
-    const total = trPanel.querySelectorAll('.task-row').length;
-    const done  = trPanel.querySelectorAll('.task-row.done').length;
-    const pct   = total ? Math.round((done / total) * 100) : 0;
+    // Overall counts come from the full team in memory (not the DOM —
+    // only the active person's rows are mounted at any given time).
+    const tm = window._trackerTeam || [];
+    let total = 0, done = 0;
+    tm.forEach(p => (p.tasks || []).forEach(t => {
+      total += 1;
+      if (window._trackerState[t.id]) done += 1;
+    }));
+    const pct = total ? Math.round((done / total) * 100) : 0;
     const fill = $('tr-overall-fill');
     if (fill) fill.style.width = pct + '%';
     setText('tr-progress-pct', pct + '% complete');
     setText('tr-stat-done', done);
+    setText('tr-stat-total', total);
+
+    // Refresh "done / total" on every sub-tab.
+    trPanel.querySelectorAll('.tr-person-tab').forEach(tab => {
+      const pid = tab.dataset.personId;
+      const person = tm.find(p => p.id === pid);
+      if (!person) return;
+      const countEl = tab.querySelector('.tr-person-tab-count');
+      if (!countEl) return;
+      const ptotal = (person.tasks || []).length;
+      const pdone  = (person.tasks || []).filter(t => window._trackerState[t.id]).length;
+      countEl.textContent = pdone + ' / ' + ptotal;
+    });
   }
 
   function updateAllProgress() {
-    team.forEach(p => updatePersonProgress(p.id));
+    window._trackerTeam.forEach(p => updatePersonProgress(p.id));
     updateOverallProgress();
   }
 
@@ -8616,6 +8783,124 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     trPanel.querySelectorAll('.task-row.done').forEach(r => r.classList.remove('done'));
     persist();
     updateAllProgress();
+  }
+
+  // ── CRUD on tasks ────────────────────────────────────────────────
+  function findPerson(personId) {
+    return window._trackerTeam.find(p => p.id === personId);
+  }
+  function findTaskById(taskId) {
+    for (const p of window._trackerTeam) {
+      const t = (p.tasks || []).find(x => x.id === taskId);
+      if (t) return { person: p, task: t };
+    }
+    return null;
+  }
+  function newTaskId() {
+    return 'task_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  }
+  function changeStatus(taskId, newStatus) {
+    const found = findTaskById(taskId);
+    if (!found) return;
+    const STATUS_TEXT = { start:'Not started', prog:'In progress', block:'Blocked' };
+    found.task.status = newStatus;
+    // Only auto-update statusText if it currently matches one of the defaults
+    // — preserves custom labels like "Blocked · License" set via the modal.
+    const wasDefault = Object.values(STATUS_TEXT).indexOf(found.task.statusText) !== -1;
+    if (wasDefault || !found.task.statusText) found.task.statusText = STATUS_TEXT[newStatus];
+    persist();
+    // Update the select's pill class in place (no full re-render — keeps focus)
+    const sel = trPanel.querySelector('select.task-status-select[data-task-id="' + taskId + '"]');
+    if (sel) {
+      sel.classList.remove('pill-start','pill-prog','pill-block');
+      sel.classList.add('pill-' + newStatus);
+    }
+  }
+  function deleteTask(taskId) {
+    const found = findTaskById(taskId);
+    if (!found) return;
+    if (!confirm('Delete "' + (found.task.title || 'this task') + '"?')) return;
+    found.person.tasks = found.person.tasks.filter(t => t.id !== taskId);
+    delete window._trackerState[taskId];
+    persist();
+    render();
+  }
+
+  // ── Modal ────────────────────────────────────────────────────────
+  // Edit mode: { mode:'edit', taskId } — pre-fills from existing task
+  // Add mode:  { mode:'add',  personId } — empty form, creates new task on save
+  let modalCtx = null;
+  function openModal(ctx) {
+    modalCtx = ctx;
+    const backdrop = $('tr-modal-backdrop');
+    if (!backdrop) return;
+    const titleEl     = $('tr-modal-title');
+    const subEl       = $('tr-modal-sub');
+    const inpTitle    = $('tr-m-title');
+    const inpDesc     = $('tr-m-desc');
+    const inpDate     = $('tr-m-date');
+    const inpRange    = $('tr-m-range');
+    const selStatus   = $('tr-m-status');
+    const inpStText   = $('tr-m-statusText');
+    const inpDep      = $('tr-m-dep');
+    if (ctx.mode === 'edit') {
+      const found = findTaskById(ctx.taskId);
+      if (!found) return;
+      titleEl.textContent = 'Edit task';
+      subEl.textContent = found.person.name.replace(/&amp;/g,'&') + ' · ' + (found.task.title || '').replace(/<[^>]+>/g,'');
+      inpTitle.value    = found.task.title || '';
+      inpDesc.value     = found.task.desc  || '';
+      inpDate.value     = found.task.date  || '';
+      inpRange.value    = found.task.range || '';
+      selStatus.value   = found.task.status || 'start';
+      inpStText.value   = found.task.statusText || '';
+      inpDep.value      = found.task.dep || '';
+    } else {
+      const person = findPerson(ctx.personId);
+      if (!person) return;
+      titleEl.textContent = 'Add task';
+      subEl.textContent = (person.name || '').replace(/&amp;/g,'&') + ' · new task';
+      inpTitle.value = ''; inpDesc.value = ''; inpDate.value = '';
+      inpRange.value = ''; selStatus.value = 'start';
+      inpStText.value = 'Not started'; inpDep.value = '—';
+    }
+    backdrop.classList.add('active');
+    setTimeout(() => inpTitle && inpTitle.focus(), 0);
+  }
+  function closeModal() {
+    modalCtx = null;
+    const backdrop = $('tr-modal-backdrop');
+    if (backdrop) backdrop.classList.remove('active');
+  }
+  function saveModal() {
+    if (!modalCtx) return;
+    const v = id => (($(id) && $(id).value) || '').trim();
+    const data = {
+      title:      v('tr-m-title'),
+      desc:       v('tr-m-desc'),
+      date:       v('tr-m-date'),
+      range:      v('tr-m-range'),
+      status:     v('tr-m-status') || 'start',
+      statusText: v('tr-m-statusText'),
+      dep:        v('tr-m-dep') || '—',
+    };
+    if (!data.title) { alert('Title is required.'); return; }
+    if (!data.statusText) {
+      data.statusText = ({ start:'Not started', prog:'In progress', block:'Blocked' })[data.status];
+    }
+    if (modalCtx.mode === 'edit') {
+      const found = findTaskById(modalCtx.taskId);
+      if (found) Object.assign(found.task, data);
+    } else {
+      const person = findPerson(modalCtx.personId);
+      if (!person) return;
+      if (!Array.isArray(person.tasks)) person.tasks = [];
+      const newTask = Object.assign({ id: newTaskId() }, data);
+      person.tasks.push(newTask);
+    }
+    persist();
+    closeModal();
+    render();
   }
 
   // ── One-time migration from old localStorage key (if state empty) ──
@@ -8631,21 +8916,49 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     }
   } catch (e) {}
 
-  // ── Event delegation: row clicks toggle, per-person buttons mark/clear ──
+  // ── Event delegation ─────────────────────────────────────────────
   trPanel.addEventListener('click', e => {
-    const btn = e.target.closest('button[data-action]');
-    if (btn && trPanel.contains(btn)) {
-      const action = btn.dataset.action;
-      const target = btn.dataset.target;
-      if (action === 'mark-all') markAll(target, true);
-      else if (action === 'clear-all') markAll(target, false);
-      e.stopPropagation();
-      return;
+    const actionEl = e.target.closest('[data-action]');
+    if (actionEl && trPanel.contains(actionEl)) {
+      const action = actionEl.dataset.action;
+      if (action === 'mark-all')      { markAll(actionEl.dataset.target, true);  e.stopPropagation(); return; }
+      if (action === 'clear-all')     { markAll(actionEl.dataset.target, false); e.stopPropagation(); return; }
+      if (action === 'add-task')      { openModal({ mode:'add',  personId: actionEl.dataset.personId }); e.stopPropagation(); return; }
+      if (action === 'edit-task')     { openModal({ mode:'edit', taskId:   actionEl.dataset.taskId   }); e.stopPropagation(); return; }
+      if (action === 'delete-task')   { deleteTask(actionEl.dataset.taskId); e.stopPropagation(); return; }
+      if (action === 'status-change') { e.stopPropagation(); return; }
+      if (action === 'switch-person') {
+        window._trackerActivePerson = actionEl.dataset.personId;
+        persist();
+        render();
+        e.stopPropagation();
+        return;
+      }
     }
     const row = e.target.closest('.task-row');
     if (row && trPanel.contains(row)) {
       toggleTask(row.dataset.task, row.dataset.person);
     }
+  });
+  // Status dropdown — change event (separate from click, since change fires after select)
+  trPanel.addEventListener('change', e => {
+    const sel = e.target.closest('select[data-action="status-change"]');
+    if (sel && trPanel.contains(sel)) {
+      changeStatus(sel.dataset.taskId, sel.value);
+      e.stopPropagation();
+    }
+  });
+  // Modal wiring
+  const backdropEl = $('tr-modal-backdrop');
+  if (backdropEl) {
+    backdropEl.addEventListener('click', e => { if (e.target === backdropEl) closeModal(); });
+  }
+  const cancelBtn = $('tr-m-cancel');
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+  const saveBtn = $('tr-m-save');
+  if (saveBtn) saveBtn.addEventListener('click', saveModal);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && backdropEl && backdropEl.classList.contains('active')) closeModal();
   });
   const resetBtn = $('tr-reset-btn');
   if (resetBtn) resetBtn.addEventListener('click', resetAll);
@@ -8653,11 +8966,9 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   // ── Persistence — collectState/applyState are already patched by the
   // trackerStateEarlyPatch above (before loadState() fires). We only need
   // to expose a repaint hook so that patch can refresh the UI if state
-  // arrives AFTER this IIFE has rendered.
-  window.__trackerRepaint = function() {
-    applyStateFromMemory();
-    updateAllProgress();
-  };
+  // arrives AFTER this IIFE has rendered. Full re-render covers both
+  // task list mutations and done-state changes.
+  window.__trackerRepaint = function() { render(); };
 
   render();
   // If the early patch already restored state from Supabase before this
