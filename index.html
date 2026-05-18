@@ -8158,11 +8158,17 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   #tab-tracker .task-status-select.pill-block { background-color: var(--crimson-pale); color: var(--crimson); }
   #tab-tracker .task-status-select.pill-start { background-color: var(--rule-soft);    color: var(--ink-soft); }
   #tab-tracker .task-row.done .task-status-select { background-color: var(--green-pale); color: var(--green-deep); }
-  #tab-tracker .task-actions { display: flex; gap: 6px; align-items: center; justify-content: flex-end; }
+  #tab-tracker .task-actions { display: flex; gap: 4px; align-items: center; justify-content: flex-end; }
   #tab-tracker .task-action-btn { background: transparent; border: 1px solid transparent; padding: 5px; cursor: pointer; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-muted); transition: all 0.15s; }
   #tab-tracker .task-action-btn:hover { background: var(--blue-pale); color: var(--blue-bright); border-color: var(--rule); }
   #tab-tracker .task-action-btn.delete:hover { background: var(--crimson-pale); color: var(--crimson); border-color: var(--crimson); }
+  #tab-tracker .task-action-btn.drag-handle { cursor: grab; color: var(--ink-muted); }
+  #tab-tracker .task-action-btn.drag-handle:hover { background: var(--rule-soft); color: var(--ink); border-color: var(--rule); }
+  #tab-tracker .task-action-btn.drag-handle:active { cursor: grabbing; }
   #tab-tracker .task-action-btn svg { display: block; }
+  #tab-tracker .task-row.dragging { opacity: 0.4; }
+  #tab-tracker .task-row.drop-above { box-shadow: inset 0 3px 0 var(--blue-bright); }
+  #tab-tracker .task-row.drop-below { box-shadow: inset 0 -3px 0 var(--blue-bright); }
   #tab-tracker .tr-modal-backdrop { position: fixed; inset: 0; background: rgba(13, 31, 45, 0.55); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
   #tab-tracker .tr-modal-backdrop.active { display: flex; }
   #tab-tracker .tr-modal { background: var(--paper); border-radius: 8px; padding: 28px 32px; width: 560px; max-width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.25); border-top: 4px solid var(--blue-bright); }
@@ -8480,6 +8486,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   // SVG icons (inline — no external dependency)
   const ICON_EDIT = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 1.5l3 3-9 9H2.5v-3l9-9z"/><path d="M9.5 3.5l3 3"/></svg>';
   const ICON_TRASH = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11"/><path d="M5.5 4V2.5h5V4"/><path d="M4 4l.7 9a1 1 0 0 0 1 .9h4.6a1 1 0 0 0 1-.9L12 4"/><path d="M6.5 7v4M9.5 7v4"/></svg>';
+  const ICON_DRAG  = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><circle cx="6" cy="3" r="1.1"/><circle cx="10" cy="3" r="1.1"/><circle cx="6" cy="8" r="1.1"/><circle cx="10" cy="8" r="1.1"/><circle cx="6" cy="13" r="1.1"/><circle cx="10" cy="13" r="1.1"/></svg>';
 
   function render() {
     const grid = $('tr-team-grid');
@@ -8522,7 +8529,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
           '<option value="' + v + '"' + (t.status === v ? ' selected' : '') + '>' + lbl + '</option>'
         )).join('');
         return ''
-          + '<div class="task-row" data-task="' + escAttr(t.id) + '" data-person="' + escAttr(p.id) + '">'
+          + '<div class="task-row" data-task="' + escAttr(t.id) + '" data-person="' + escAttr(p.id) + '" draggable="true">'
           +   '<div class="task-pri">' + (i + 1) + '</div>'
           +   '<div class="task-check"></div>'
           +   '<div class="task-body">'
@@ -8539,6 +8546,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
           +     '</select>'
           +   '</div>'
           +   '<div class="task-actions">'
+          +     '<button class="task-action-btn drag-handle" data-action="drag-handle" title="Drag to reorder">' + ICON_DRAG + '</button>'
           +     '<button class="task-action-btn" data-action="edit-task" data-task-id="' + escAttr(t.id) + '" title="Edit">' + ICON_EDIT + '</button>'
           +     '<button class="task-action-btn delete" data-action="delete-task" data-task-id="' + escAttr(t.id) + '" title="Delete">' + ICON_TRASH + '</button>'
           +   '</div>'
@@ -8702,6 +8710,32 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       sel.classList.add('pill-' + newStatus);
     }
   }
+  function reorderTask(draggedId, targetRow, clientY) {
+    const draggedInfo = findTaskById(draggedId);
+    if (!draggedInfo || !targetRow) return;
+    const targetId = targetRow.dataset.task;
+    if (!targetId || targetId === draggedId) return;
+    const targetInfo = findTaskById(targetId);
+    if (!targetInfo) return;
+    // Only reorder within the same person (different people live in separate
+    // sub-tabs and can't be visible together anyway).
+    if (draggedInfo.person.id !== targetInfo.person.id) return;
+    const tasks = draggedInfo.person.tasks;
+    const fromIdx = tasks.findIndex(t => t.id === draggedId);
+    let toIdx    = tasks.findIndex(t => t.id === targetId);
+    if (fromIdx === -1 || toIdx === -1) return;
+    // Cursor on lower half → insert after target.
+    const rect = targetRow.getBoundingClientRect();
+    if (clientY > rect.top + rect.height / 2) toIdx += 1;
+    // Adjust for the splice removing the dragged task before re-insertion.
+    if (fromIdx < toIdx) toIdx -= 1;
+    if (fromIdx === toIdx) return;
+    const [moved] = tasks.splice(fromIdx, 1);
+    tasks.splice(toIdx, 0, moved);
+    persist();
+    render();
+  }
+
   function deleteTask(taskId) {
     const found = findTaskById(taskId);
     if (!found) return;
@@ -8807,6 +8841,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       if (action === 'edit-task')     { openModal({ mode:'edit', taskId:   actionEl.dataset.taskId   }); e.stopPropagation(); return; }
       if (action === 'delete-task')   { deleteTask(actionEl.dataset.taskId); e.stopPropagation(); return; }
       if (action === 'status-change') { e.stopPropagation(); return; }
+      if (action === 'drag-handle')   { e.stopPropagation(); return; }
       if (action === 'switch-person') {
         window._trackerActivePerson = actionEl.dataset.personId;
         persist();
@@ -8827,6 +8862,51 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       changeStatus(sel.dataset.taskId, sel.value);
       e.stopPropagation();
     }
+  });
+
+  // ── Drag-and-drop reordering ─────────────────────────────────────
+  // Each .task-row is draggable. Drop on another row reorders within
+  // that person's tasks array; the new order is persisted via persist().
+  function clearDropMarkers() {
+    trPanel.querySelectorAll('.task-row.drop-above, .task-row.drop-below')
+      .forEach(r => r.classList.remove('drop-above', 'drop-below'));
+  }
+  trPanel.addEventListener('dragstart', e => {
+    const row = e.target.closest('.task-row');
+    if (!row || !trPanel.contains(row)) return;
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', row.dataset.task); } catch (err) {}
+    row.classList.add('dragging');
+  });
+  trPanel.addEventListener('dragover', e => {
+    const row = e.target.closest('.task-row');
+    if (!row || !trPanel.contains(row) || row.classList.contains('dragging')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    clearDropMarkers();
+    const rect = row.getBoundingClientRect();
+    row.classList.add(e.clientY > rect.top + rect.height / 2 ? 'drop-below' : 'drop-above');
+  });
+  trPanel.addEventListener('dragleave', e => {
+    // Only clear if we actually left the panel
+    if (!e.relatedTarget || !trPanel.contains(e.relatedTarget)) clearDropMarkers();
+  });
+  trPanel.addEventListener('drop', e => {
+    const targetRow = e.target.closest('.task-row');
+    if (!targetRow || !trPanel.contains(targetRow)) return;
+    e.preventDefault();
+    let draggedId = '';
+    try { draggedId = e.dataTransfer.getData('text/plain'); } catch (err) {}
+    if (!draggedId) {
+      const draggingEl = trPanel.querySelector('.task-row.dragging');
+      if (draggingEl) draggedId = draggingEl.dataset.task;
+    }
+    clearDropMarkers();
+    if (draggedId) reorderTask(draggedId, targetRow, e.clientY);
+  });
+  trPanel.addEventListener('dragend', () => {
+    trPanel.querySelectorAll('.task-row.dragging').forEach(r => r.classList.remove('dragging'));
+    clearDropMarkers();
   });
   // Modal wiring
   const backdropEl = $('tr-modal-backdrop');
