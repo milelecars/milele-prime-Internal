@@ -3729,6 +3729,40 @@ recalcRevAutoFields = function() {
   }, 160);
 })();
 
+// ─────────────────────────────────────────────────────────────────
+// Tracker state — early collectState/applyState patch. Must run BEFORE
+// loadState() below, otherwise the Supabase response arrives, applyState
+// fires, and the saved trackerState is discarded because the
+// buildTrackerTab IIFE (which adds its own patch) hasn't run yet.
+// The IIFE later assigns window.__trackerRepaint so this patch can
+// trigger a UI redraw if state is restored after the tracker has rendered.
+// ─────────────────────────────────────────────────────────────────
+(function trackerStateEarlyPatch() {
+  if (typeof window._trackerState !== 'object' || window._trackerState === null) {
+    window._trackerState = {};
+  }
+  if (typeof collectState === 'function') {
+    const _orig = collectState;
+    collectState = function() {
+      const s = _orig();
+      s.trackerState = window._trackerState;
+      return s;
+    };
+  }
+  if (typeof applyState === 'function') {
+    const _orig = applyState;
+    applyState = function(s) {
+      _orig(s);
+      if (s && s.trackerState && typeof s.trackerState === 'object') {
+        window._trackerState = s.trackerState;
+        if (typeof window.__trackerRepaint === 'function') {
+          window.__trackerRepaint();
+        }
+      }
+    };
+  }
+})();
+
 // Load from Supabase first, then render and recalc derived values so the UI
 // paints with the right totals straight away.
 loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(); recalcRevAutoFields(); });
@@ -8616,28 +8650,19 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   const resetBtn = $('tr-reset-btn');
   if (resetBtn) resetBtn.addEventListener('click', resetAll);
 
-  // ── Persistence — round-trip window._trackerState through Supabase ─
-  if (typeof collectState === 'function') {
-    const _origCollect = collectState;
-    collectState = function() {
-      const s = _origCollect();
-      s.trackerState = window._trackerState;
-      return s;
-    };
-  }
-  if (typeof applyState === 'function') {
-    const _origApply = applyState;
-    applyState = function(s) {
-      _origApply(s);
-      if (s && s.trackerState && typeof s.trackerState === 'object') {
-        window._trackerState = s.trackerState;
-        applyStateFromMemory();
-        updateAllProgress();
-      }
-    };
-  }
+  // ── Persistence — collectState/applyState are already patched by the
+  // trackerStateEarlyPatch above (before loadState() fires). We only need
+  // to expose a repaint hook so that patch can refresh the UI if state
+  // arrives AFTER this IIFE has rendered.
+  window.__trackerRepaint = function() {
+    applyStateFromMemory();
+    updateAllProgress();
+  };
 
   render();
+  // If the early patch already restored state from Supabase before this
+  // IIFE ran, render() above already picked it up via applyStateFromMemory.
+  // If state arrives later, __trackerRepaint will refresh.
 })();
 </script>
 
