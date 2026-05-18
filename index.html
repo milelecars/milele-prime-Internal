@@ -1044,7 +1044,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   <div class="divider fu fu2"><div class="divider-label">Book P&amp;L</div><div class="divider-line"></div></div>
   <div class="costs-grid fu fu2">
     <div class="ci">
-      <div class="ci-label">Loss A Book</div>
+      <div class="ci-label">A Book Loss</div>
       <div class="ci-note">A-book client losses (broker keeps share — net cost to broker if hedged)</div>
       <div class="ci-input-wrap"><span class="ci-prefix">$</span><input class="ci-input" type="number" id="vrc-loss-a" value="0" min="0" step="100"></div>
     </div>
@@ -1202,10 +1202,10 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
     </div>
   </div>
 
-  <div class="divider fu fu2"><div class="divider-label">A-Book Slippage</div><div class="divider-line"></div></div>
+  <div class="divider fu fu2"><div class="divider-label">A-Book Loss (Slippage)</div><div class="divider-line"></div></div>
   <div class="costs-grid fu fu2">
     <div class="ci">
-      <div class="ci-label">A-Book Slippage Cost</div>
+      <div class="ci-label">A-Book Loss (Slippage)</div>
       <div class="ci-note">Negative LP fills below quote — your cost on hedged A-book volume.</div>
       <div class="ci-input-wrap"><input class="ci-input" type="number" id="vrc-abook-slip-pips" value="0.5" min="0" step="0.1"><span class="ci-prefix">pips</span></div>
       <div class="ci-note" style="margin-top:.65rem">A-Book Lots </div>
@@ -7963,375 +7963,681 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   });
 
   // ─── TRACKER CONTENT ─────────────────────────────────────────────
+  // In-memory done state for every task. Round-tripped through Supabase via
+  // the collectState / applyState patch at the bottom of this IIFE.
+  if (!window._trackerState || typeof window._trackerState !== 'object') {
+    window._trackerState = {};
+  }
+
+  // Inject Google Fonts (Fraunces / JetBrains Mono / Inter Tight) once.
+  if (!document.getElementById('tracker-fonts')) {
+    const fontLink = document.createElement('link');
+    fontLink.id = 'tracker-fonts';
+    fontLink.rel = 'stylesheet';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter+Tight:wght@300;400;500;600;700&display=swap';
+    document.head.appendChild(fontLink);
+  }
+
   trPanel.innerHTML = `
 <style>
   #tab-tracker {
-    --bg: #fafafa; --panel: #ffffff; --panel-2: #f5f5f4;
-    --border: #e5e5e3; --border-strong: #d4d4d2;
-    --text: #1a1a1a; --muted: #6b7280; --muted-2: #9ca3af;
-    --accent: #6F2BCF; --accent-soft: rgba(191,111,255,0.10);
-    --green: #15803d; --green-soft: #dcfce7;
-    --amber: #b45309; --amber-soft: #fef3c7;
-    --red: #b91c1c; --red-soft: #fee2e2;
-    --blue: #1d4ed8; --blue-soft: #dbeafe;
-    --purple: #6d28d9; --purple-soft: #ede9fe;
-    --grey: #6b7280; --grey-soft: #f3f4f6;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    background: var(--bg); color: var(--text); line-height: 1.5;
-    padding: 24px; border-radius: 6px;
+    --bg: #fafbfc;
+    --paper: #ffffff;
+    --ink: #0d1f2d;
+    --ink-soft: #2a3a4d;
+    --ink-muted: #5a6b7e;
+    --rule: #e2e8ee;
+    --rule-soft: #eef2f5;
+    --blue: #1e4a72;
+    --blue-bright: #2e6ba8;
+    --blue-pale: #e8f0f7;
+    --blue-deep: #0f2d4a;
+    --green: #2d7a4d;
+    --green-bright: #3a9a64;
+    --green-pale: #e6f4ec;
+    --green-deep: #1a5232;
+    --amber: #b8732a;
+    --amber-pale: #fdf3e8;
+    --crimson: #a83232;
+    --crimson-pale: #fbeaea;
+    background: var(--bg); color: var(--ink);
+    font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.55;
+    border-radius: 6px; overflow: hidden;
+    background-image:
+      radial-gradient(ellipse at top right, rgba(46, 107, 168, 0.04) 0%, transparent 55%),
+      radial-gradient(ellipse at bottom left, rgba(58, 154, 100, 0.04) 0%, transparent 55%);
   }
-  #tab-tracker * { box-sizing: border-box; }
-  #tab-tracker header { margin-bottom: 28px; border-bottom: 1px solid var(--border); padding-bottom: 18px; background: transparent; padding-top: 0; }
-  #tab-tracker h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
-  #tab-tracker h1 .accent { color: var(--accent); }
-  #tab-tracker .subtitle { color: var(--muted); font-size: 14px; margin-top: 6px; }
-  #tab-tracker h2 { font-size: 18px; font-weight: 600; margin-bottom: 14px; letter-spacing: -0.01em; }
-  #tab-tracker h2 .count { color: var(--muted); font-weight: 400; font-size: 14px; margin-left: 8px; }
-  #tab-tracker .tr-tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
-  #tab-tracker .tr-tab { padding: 10px 18px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; font-size: 14px; font-weight: 500; transition: all 0.15s; user-select:none; }
-  #tab-tracker .tr-tab:hover { color: var(--text); }
-  #tab-tracker .tr-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  #tab-tracker .tr-view { display: none; }
-  #tab-tracker .tr-view.active { display: block; }
-  #tab-tracker .alert { background: var(--red-soft); border: 1px solid rgba(185,28,28,0.2); border-left: 3px solid var(--red); padding: 14px 18px; border-radius: 6px; margin-bottom: 14px; font-size: 13px; color: #5a1717; }
-  #tab-tracker .alert strong { color: var(--red); }
-  #tab-tracker .alert.warn { background: var(--amber-soft); border-color: rgba(180,83,9,0.2); border-left-color: var(--amber); color: #5a3409; }
-  #tab-tracker .alert.warn strong { color: var(--amber); }
-  #tab-tracker .alert.info { background: var(--blue-soft); border-color: rgba(29,78,216,0.2); border-left-color: var(--blue); color: #1e2a5a; }
-  #tab-tracker .alert.info strong { color: var(--blue); }
-  #tab-tracker .alert.brand { background: var(--purple-soft); border-color: rgba(109,40,217,0.2); border-left-color: var(--purple); color: #3c1d6b; }
-  #tab-tracker .alert.brand strong { color: var(--purple); }
-  #tab-tracker .timeline-wrapper { overflow-x: auto; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); }
-  #tab-tracker .timeline-grid { display: grid; grid-template-columns: 240px repeat(61, minmax(20px, 1fr)); gap: 1px; background: var(--border); font-size: 10px; min-width: 1500px; }
-  #tab-tracker .timeline-grid > div { background: var(--panel); padding: 4px 6px; }
-  #tab-tracker .th { background: var(--panel-2) !important; font-weight: 600; color: var(--muted); text-align: center; }
-  #tab-tracker .th-task { text-align: left; padding-left: 12px !important; font-size: 11px; }
-  #tab-tracker .month-marker { background: var(--accent-soft) !important; color: var(--accent); font-weight: 700; text-align: center; font-size: 11px; }
-  #tab-tracker .week-marker { background: var(--panel-2) !important; color: var(--accent); font-weight: 600; text-align: center; }
-  #tab-tracker .stream-divider { grid-column: 1 / -1; background: var(--accent-soft) !important; color: var(--accent); font-weight: 700; font-size: 11px; padding: 6px 12px !important; text-transform: uppercase; letter-spacing: 0.06em; }
-  #tab-tracker .task-name { font-weight: 500; padding-left: 12px !important; font-size: 12px; display: flex; align-items: center; gap: 6px; color: var(--text); }
-  #tab-tracker .owner-tag { font-size: 9px; color: var(--muted); background: var(--grey-soft); padding: 1px 5px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
-  #tab-tracker .bar { position: relative; height: 100%; min-height: 22px; }
-  #tab-tracker .bar.fill-critical { background: var(--red); }
-  #tab-tracker .bar.fill-high { background: var(--accent); }
-  #tab-tracker .bar.fill-med { background: var(--blue); }
-  #tab-tracker .bar.fill-low { background: var(--grey); }
-  #tab-tracker .bar.fill-brand { background: var(--purple); }
-  #tab-tracker .bar.fill-done { background: var(--green); opacity: 0.65; }
-  #tab-tracker .bar.fill-blocked { background: repeating-linear-gradient(45deg, var(--red), var(--red) 4px, transparent 4px, transparent 8px); opacity: 0.6; }
-  #tab-tracker .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  #tab-tracker .column { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; min-height: 200px; }
-  #tab-tracker .column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-  #tab-tracker .col-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-  #tab-tracker .col-count { background: var(--grey-soft); color: var(--muted); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
-  #tab-tracker .blocked .col-title { color: var(--red); }
-  #tab-tracker .progress .col-title { color: var(--amber); }
-  #tab-tracker .review .col-title { color: var(--blue); }
-  #tab-tracker .done .col-title { color: var(--green); }
-  #tab-tracker .card { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--grey); border-radius: 6px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-  #tab-tracker .card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
-  #tab-tracker .card.priority-critical { border-left-color: var(--red); }
-  #tab-tracker .card.priority-high { border-left-color: var(--accent); }
-  #tab-tracker .card.priority-med { border-left-color: var(--blue); }
-  #tab-tracker .card.priority-low { border-left-color: var(--grey); }
-  #tab-tracker .card.priority-brand { border-left-color: var(--purple); }
-  #tab-tracker .card-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
-  #tab-tracker .card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 10px; }
-  #tab-tracker .meta-pill { background: var(--grey-soft); color: var(--muted); padding: 2px 7px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
-  #tab-tracker .meta-pill.owner { background: var(--accent-soft); color: var(--accent); }
-  #tab-tracker .meta-pill.deadline { background: var(--amber-soft); color: var(--amber); }
-  #tab-tracker .meta-pill.deadline.urgent { background: var(--red-soft); color: var(--red); }
-  #tab-tracker .workstream-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  #tab-tracker .ws-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-  #tab-tracker .ws-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
-  #tab-tracker .ws-title { font-size: 15px; font-weight: 600; }
-  #tab-tracker .ws-status { font-size: 10px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-  #tab-tracker .status-onTrack { background: var(--green-soft); color: var(--green); }
-  #tab-tracker .status-atRisk { background: var(--amber-soft); color: var(--amber); }
-  #tab-tracker .status-blocked { background: var(--red-soft); color: var(--red); }
-  #tab-tracker .status-notStarted { background: var(--grey-soft); color: var(--grey); }
-  #tab-tracker .ws-body { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.6; }
-  #tab-tracker .ws-body strong { color: var(--text); }
-  #tab-tracker .ws-tasks { font-size: 12px; }
-  #tab-tracker .ws-task { padding: 7px 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-  #tab-tracker .ws-task-name { color: var(--text); }
-  #tab-tracker .ws-task-owner { color: var(--accent); font-size: 11px; font-weight: 600; }
-  #tab-tracker .milestones-list { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-  #tab-tracker .ms-row { display: grid; grid-template-columns: 90px 1fr 160px 140px; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; }
-  #tab-tracker .ms-row:last-child { border-bottom: none; }
-  #tab-tracker .ms-date { color: var(--accent); font-weight: 700; font-size: 13px; }
-  #tab-tracker .ms-name { font-size: 13px; font-weight: 500; }
-  #tab-tracker .ms-name small { display: block; color: var(--muted); font-size: 11px; font-weight: 400; margin-top: 2px; }
-  #tab-tracker .ms-owner { color: var(--accent); font-size: 12px; font-weight: 600; }
-  #tab-tracker .ms-deps { color: var(--muted); font-size: 11px; }
-  #tab-tracker .ms-row.launch-row { background: var(--accent-soft); }
-  #tab-tracker .ms-row.launch-row .ms-name { font-weight: 700; color: var(--accent); }
-  #tab-tracker .ms-row.brand-row { background: var(--purple-soft); }
-  #tab-tracker .ms-row.brand-row .ms-date, #tab-tracker .ms-row.brand-row .ms-owner { color: var(--purple); }
-  #tab-tracker .legend { display: flex; gap: 18px; margin: 14px 0 16px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
-  #tab-tracker .legend-item { display: flex; align-items: center; gap: 6px; }
-  #tab-tracker .legend-swatch { width: 14px; height: 10px; border-radius: 2px; }
-  #tab-tracker .owner-legend { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; font-size: 12px; }
-  #tab-tracker .owner-legend-item strong { color: var(--accent); display: block; margin-bottom: 2px; }
-  #tab-tracker .owner-legend-item span { color: var(--muted); font-size: 11px; }
+  #tab-tracker .tr-masthead { background: var(--paper); border-bottom: 1px solid var(--rule); padding: 56px 64px 44px; position: relative; }
+  #tab-tracker .tr-masthead::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--blue) 0%, var(--blue-bright) 50%, var(--green-bright) 100%); }
+  #tab-tracker .masthead-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 36px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-muted); }
+  #tab-tracker .masthead-top .accent { color: var(--green-bright); }
+  #tab-tracker .tr-masthead h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-size: clamp(40px, 6vw, 76px); letter-spacing: -0.03em; line-height: 0.95; color: var(--ink); margin: 0; }
+  #tab-tracker .tr-masthead h1 em { font-style: italic; font-weight: 400; color: var(--blue-bright); }
+  #tab-tracker .masthead-sub { margin-top: 22px; font-size: 16px; color: var(--ink-muted); max-width: 760px; font-weight: 300; }
+  #tab-tracker .progress-hero { margin-top: 40px; display: grid; grid-template-columns: 1fr 280px; gap: 36px; align-items: center; }
+  #tab-tracker .progress-bar-track { height: 12px; background: var(--rule-soft); border-radius: 999px; overflow: hidden; }
+  #tab-tracker .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--blue-bright), var(--green-bright)); border-radius: 999px; transition: width 0.4s ease; width: 0%; }
+  #tab-tracker .progress-meta { display: flex; justify-content: space-between; margin-top: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-muted); }
+  #tab-tracker .progress-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+  #tab-tracker .progress-stat { background: var(--paper); padding: 16px 18px; text-align: center; }
+  #tab-tracker .progress-stat .num { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 400; color: var(--ink); letter-spacing: -0.02em; line-height: 1; }
+  #tab-tracker .progress-stat .num.green { color: var(--green-bright); }
+  #tab-tracker .progress-stat .num.blue { color: var(--blue-bright); }
+  #tab-tracker .progress-stat .lbl { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-muted); margin-top: 6px; }
+  #tab-tracker .alert-bar { margin: 32px 64px 0; border-left: 3px solid var(--amber); background: var(--amber-pale); padding: 22px 28px; display: flex; gap: 24px; align-items: flex-start; border-radius: 0 4px 4px 0; }
+  #tab-tracker .alert-icon { font-family: 'Fraunces', Georgia, serif; font-size: 32px; color: var(--amber); line-height: 1; font-style: italic; }
+  #tab-tracker .alert-content h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 17px; color: var(--ink); margin: 0 0 6px; letter-spacing: -0.01em; }
+  #tab-tracker .alert-content p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; max-width: 920px; margin: 0; }
+  #tab-tracker .section-nav { padding: 24px 64px; border-bottom: 1px solid var(--rule); background: var(--paper); display: flex; gap: 32px; flex-wrap: wrap; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; }
+  #tab-tracker .section-nav a { color: var(--ink-muted); text-decoration: none; transition: color 0.2s; }
+  #tab-tracker .section-nav a:hover { color: var(--blue-bright); }
+  #tab-tracker .tr-section { padding: 56px 64px; border-bottom: 1px solid var(--rule); }
+  #tab-tracker .section-head { display: flex; align-items: baseline; gap: 24px; margin-bottom: 36px; }
+  #tab-tracker .section-num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: var(--green-bright); letter-spacing: 0.2em; }
+  #tab-tracker .section-title { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-size: 38px; letter-spacing: -0.025em; color: var(--ink); line-height: 1; margin: 0; }
+  #tab-tracker .section-title em { font-style: italic; color: var(--blue-bright); }
+  #tab-tracker .phase-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  #tab-tracker .phase { background: var(--paper); padding: 24px 22px; border: 1px solid var(--rule); border-radius: 4px; border-top: 3px solid var(--blue-bright); transition: transform 0.2s, box-shadow 0.2s; }
+  #tab-tracker .phase:nth-child(2) { border-top-color: var(--blue); }
+  #tab-tracker .phase:nth-child(3) { border-top-color: var(--green-bright); }
+  #tab-tracker .phase:nth-child(4) { border-top-color: var(--green); }
+  #tab-tracker .phase:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13, 31, 45, 0.06); }
+  #tab-tracker .phase-tag { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--blue-bright); margin-bottom: 10px; }
+  #tab-tracker .phase:nth-child(3) .phase-tag, #tab-tracker .phase:nth-child(4) .phase-tag { color: var(--green-bright); }
+  #tab-tracker .phase-dates { font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 4px; letter-spacing: -0.01em; }
+  #tab-tracker .phase-name { font-size: 11px; color: var(--ink-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; }
+  #tab-tracker .phase ul { list-style: none; padding: 0; margin: 0; }
+  #tab-tracker .phase li { font-size: 12.5px; color: var(--ink-soft); padding: 9px 0; padding-left: 18px; position: relative; line-height: 1.5; border-top: 1px dotted var(--rule); }
+  #tab-tracker .phase li:first-child { border-top: none; padding-top: 0; }
+  #tab-tracker .phase li:first-child::before { top: 0; }
+  #tab-tracker .phase li::before { content: ''; position: absolute; left: 0; top: 14px; width: 8px; height: 1px; background: var(--green-bright); }
+  #tab-tracker .phase li strong { color: var(--blue-deep); font-weight: 600; }
+  #tab-tracker .team-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  #tab-tracker .person-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; transition: box-shadow 0.2s; }
+  #tab-tracker .person-card:hover { box-shadow: 0 6px 20px rgba(13, 31, 45, 0.05); }
+  #tab-tracker .person-header { display: grid; grid-template-columns: 70px 1fr auto 180px; align-items: center; padding: 24px 32px; border-bottom: 1px solid var(--rule); gap: 24px; background: linear-gradient(180deg, var(--blue-pale) 0%, var(--paper) 100%); }
+  #tab-tracker .person-initial { font-family: 'Fraunces', Georgia, serif; font-size: 48px; font-weight: 300; color: var(--blue-bright); line-height: 1; font-style: italic; }
+  #tab-tracker .person-info h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 28px; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; margin: 0; }
+  #tab-tracker .person-info .title { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--blue-bright); margin-top: 6px; }
+  #tab-tracker .person-stats { display: flex; gap: 18px; align-items: center; }
+  #tab-tracker .person-stat { text-align: center; font-family: 'Fraunces', Georgia, serif; }
+  #tab-tracker .person-stat .num { font-size: 30px; font-weight: 400; color: var(--ink); line-height: 1; letter-spacing: -0.02em; }
+  #tab-tracker .person-stat .num.done { color: var(--green-bright); }
+  #tab-tracker .person-stat .lbl { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-muted); margin-top: 4px; }
+  #tab-tracker .person-progress { width: 180px; }
+  #tab-tracker .person-progress-bar { height: 6px; background: var(--rule-soft); border-radius: 99px; overflow: hidden; }
+  #tab-tracker .person-progress-fill { height: 100%; background: var(--green-bright); border-radius: 99px; width: 0%; transition: width 0.4s ease; }
+  #tab-tracker .person-progress-label { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-muted); margin-top: 6px; text-align: right; }
+  #tab-tracker .task-row { display: grid; grid-template-columns: 60px 36px 1fr 150px 140px; align-items: flex-start; padding: 18px 32px; border-bottom: 1px solid var(--rule-soft); gap: 20px; transition: background 0.15s; cursor: pointer; }
+  #tab-tracker .task-row:last-child { border-bottom: none; }
+  #tab-tracker .task-row:hover { background: var(--blue-pale); }
+  #tab-tracker .task-row.done { background: var(--green-pale); }
+  #tab-tracker .task-row.done:hover { background: #d8ecdf; }
+  #tab-tracker .task-pri { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 22px; color: var(--blue-bright); line-height: 1.1; padding-top: 2px; }
+  #tab-tracker .task-row.done .task-pri { color: var(--green-bright); }
+  #tab-tracker .task-check { width: 22px; height: 22px; border: 1.5px solid var(--ink-muted); border-radius: 4px; background: var(--paper); cursor: pointer; transition: all 0.2s; flex-shrink: 0; position: relative; margin-top: 2px; }
+  #tab-tracker .task-check:hover { border-color: var(--green-bright); background: var(--green-pale); }
+  #tab-tracker .task-row.done .task-check { background: var(--green-bright); border-color: var(--green-bright); }
+  #tab-tracker .task-row.done .task-check::after { content: ''; position: absolute; left: 6px; top: 2px; width: 6px; height: 11px; border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+  #tab-tracker .task-body { min-width: 0; }
+  #tab-tracker .task-title { font-weight: 500; color: var(--ink); margin-bottom: 4px; font-size: 14px; line-height: 1.4; transition: all 0.2s; }
+  #tab-tracker .task-desc { font-size: 12.5px; color: var(--ink-muted); line-height: 1.55; transition: all 0.2s; }
+  #tab-tracker .task-row.done .task-title { text-decoration: line-through; text-decoration-color: var(--green); text-decoration-thickness: 1.5px; color: var(--green-deep); }
+  #tab-tracker .task-row.done .task-desc { text-decoration: line-through; text-decoration-color: rgba(45, 122, 77, 0.4); color: var(--ink-muted); }
+  #tab-tracker .task-date { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: var(--ink-soft); line-height: 1.4; }
+  #tab-tracker .task-date .due { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-bright); margin-bottom: 4px; }
+  #tab-tracker .task-row.done .task-date .due { color: var(--green-bright); }
+  #tab-tracker .task-date .range { font-weight: 500; color: var(--ink); font-size: 12px; }
+  #tab-tracker .task-row.done .task-date .range { color: var(--green-deep); }
+  #tab-tracker .task-status { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-muted); }
+  #tab-tracker .task-status .pill { display: inline-block; padding: 3px 8px; border-radius: 3px; margin-bottom: 6px; font-weight: 500; }
+  #tab-tracker .pill.start { background: var(--rule-soft); color: var(--ink-soft); }
+  #tab-tracker .pill.prog { background: var(--blue-pale); color: var(--blue); }
+  #tab-tracker .pill.block { background: var(--crimson-pale); color: var(--crimson); }
+  #tab-tracker .task-row.done .task-status .pill { background: var(--green-pale); color: var(--green-deep); }
+  #tab-tracker .task-status .dep { color: var(--ink-muted); font-size: 10px; line-height: 1.4; }
+  #tab-tracker .person-controls { display: flex; justify-content: flex-end; padding: 14px 32px; background: var(--rule-soft); border-top: 1px solid var(--rule); gap: 16px; }
+  #tab-tracker .person-controls button { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; padding: 7px 14px; background: var(--paper); border: 1px solid var(--rule); color: var(--ink-soft); cursor: pointer; border-radius: 3px; transition: all 0.15s; }
+  #tab-tracker .person-controls button:hover { border-color: var(--blue-bright); color: var(--blue-bright); }
+  #tab-tracker .critical-path { background: var(--paper); padding: 32px 36px; border: 1px solid var(--rule); border-radius: 6px; border-left: 4px solid var(--blue-bright); }
+  #tab-tracker .path-chain { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; }
+  #tab-tracker .path-node { background: var(--blue-pale); border: 1px solid var(--rule); padding: 10px 14px; color: var(--ink); border-radius: 3px; }
+  #tab-tracker .path-node.gate { background: var(--green-bright); border-color: var(--green-bright); color: white; }
+  #tab-tracker .path-node.gate-start { background: var(--crimson); border-color: var(--crimson); color: white; }
+  #tab-tracker .path-arrow { color: var(--blue-bright); font-family: 'Fraunces', Georgia, serif; font-size: 18px; }
+  #tab-tracker .path-note { margin-top: 22px; font-size: 12px; color: var(--ink-muted); font-family: 'JetBrains Mono', ui-monospace, monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+  #tab-tracker .risk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  #tab-tracker .risk-card { background: var(--paper); padding: 24px 22px; border: 1px solid var(--rule); border-radius: 4px; border-left: 3px solid var(--blue-bright); }
+  #tab-tracker .risk-card.high { border-left-color: var(--crimson); }
+  #tab-tracker .risk-card.med { border-left-color: var(--amber); }
+  #tab-tracker .risk-card.low { border-left-color: var(--green-bright); }
+  #tab-tracker .risk-level { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.2em; margin-bottom: 12px; text-transform: uppercase; font-weight: 500; }
+  #tab-tracker .risk-card.high .risk-level { color: var(--crimson); }
+  #tab-tracker .risk-card.med .risk-level { color: var(--amber); }
+  #tab-tracker .risk-card.low .risk-level { color: var(--green-bright); }
+  #tab-tracker .risk-title { font-family: 'Fraunces', Georgia, serif; font-size: 18px; font-weight: 400; color: var(--ink); margin-bottom: 12px; letter-spacing: -0.01em; line-height: 1.25; }
+  #tab-tracker .risk-desc { font-size: 12.5px; color: var(--ink-muted); line-height: 1.6; margin-bottom: 14px; }
+  #tab-tracker .risk-mitigation { font-size: 12px; color: var(--ink-soft); padding-top: 14px; border-top: 1px dotted var(--rule); line-height: 1.55; }
+  #tab-tracker .risk-mitigation strong { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.18em; color: var(--green-bright); text-transform: uppercase; display: block; margin-bottom: 6px; font-weight: 500; }
+  #tab-tracker .tr-footer { padding: 40px 64px 48px; text-align: center; border-top: 1px solid var(--rule); background: var(--paper); }
+  #tab-tracker .tr-footer .mark { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 28px; color: var(--blue-bright); font-weight: 400; }
+  #tab-tracker .tr-footer .meta { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-muted); margin-top: 14px; }
+  #tab-tracker .tr-footer .reset { margin-top: 20px; background: none; border: 1px solid var(--rule); padding: 10px 20px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-muted); cursor: pointer; border-radius: 3px; transition: all 0.2s; }
+  #tab-tracker .tr-footer .reset:hover { border-color: var(--crimson); color: var(--crimson); }
   @media (max-width: 1100px) {
-    #tab-tracker .kanban { grid-template-columns: repeat(2, 1fr); }
-    #tab-tracker .workstream-grid { grid-template-columns: 1fr; }
-    #tab-tracker .owner-legend { grid-template-columns: repeat(2, 1fr); }
+    #tab-tracker .phase-grid { grid-template-columns: repeat(2, 1fr); }
+    #tab-tracker .person-header { grid-template-columns: 50px 1fr; gap: 16px; }
+    #tab-tracker .person-stats, #tab-tracker .person-progress { grid-column: span 2; justify-content: flex-start; width: 100%; }
+    #tab-tracker .person-progress { margin-top: 8px; }
+    #tab-tracker .task-row { grid-template-columns: 30px 28px 1fr 110px; }
+    #tab-tracker .task-pri { display: none; }
+    #tab-tracker .task-status { display: none; }
+    #tab-tracker .risk-grid { grid-template-columns: 1fr; }
+    #tab-tracker .progress-hero { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    #tab-tracker .tr-section, #tab-tracker .tr-masthead, #tab-tracker .tr-footer, #tab-tracker .section-nav { padding-left: 24px; padding-right: 24px; }
+    #tab-tracker .alert-bar { margin-left: 24px; margin-right: 24px; }
+    #tab-tracker .phase-grid { grid-template-columns: 1fr; }
+    #tab-tracker .task-row { grid-template-columns: 28px 1fr; padding: 16px 20px; gap: 14px; }
+    #tab-tracker .task-row > div:not(.task-check):not(.task-body) { display: none; }
+    #tab-tracker .task-body { grid-column: 2; }
+    #tab-tracker .person-header { padding: 20px; }
   }
 </style>
-<header>
-  <h1>Milele <span class="accent">Prime</span> — Launch Tracker</h1>
-  <div class="subtitle">Soft launch target: <strong style="color:var(--accent)">30 June 2026</strong> &nbsp;·&nbsp; Updated 1 May 2026 &nbsp;·&nbsp; 60 days remaining</div>
-</header>
-<div class="owner-legend">
-  <div class="owner-legend-item"><strong>Zain</strong><span>Contracts, legal, marketing, IB strategy</span></div>
-  <div class="owner-legend-item"><strong>Hamza</strong><span>PSPs, payments, KYC ops</span></div>
-  <div class="owner-legend-item"><strong>Helia</strong><span>Tech, infra, integrations</span></div>
-  <div class="owner-legend-item"><strong>Billawal</strong><span>Banking, treasury</span></div>
-  <div class="owner-legend-item"><strong>Qayyum</strong><span>Risk, compliance, accounting</span></div>
-  <div class="owner-legend-item"><strong>Fahad Riaz</strong><span>Brand, content series</span></div>
-</div>
-<div class="tr-tabs">
-  <div class="tr-tab active" data-view="tr-timeline">Timeline</div>
-  <div class="tr-tab" data-view="tr-workstreams">Workstreams</div>
-  <div class="tr-tab" data-view="tr-kanban">Tracker Board</div>
-  <div class="tr-tab" data-view="tr-milestones">Milestones &amp; Critical Path</div>
-</div>
-<div class="tr-view active" id="tr-timeline">
-  <div class="alert warn"><strong>FSA license — strategic, not blocking:</strong> Most prep work proceeds without it. But serious LPs (Match-Prime, Finalto, IS Prime) require regulatory status, card PSPs price unlicensed brokers as high-risk, and "FSA-regulated" is the credibility line in your IB pitch. The license is fee-paid and expected week 1 — keep it as the master unlock for live trading, not for soft launch.</div>
-  <div class="alert"><strong>MT5 White Label timeline:</strong> MetaQuotes onboarding takes 8–12 weeks. The 30 June soft launch runs on a <strong>demo MT5 environment</strong> (sublicensed/temp) for IB familiarization. Live trading realistically lands late July or August once WL completes.</div>
-  <div class="alert brand"><strong>Content series leads the brokerage:</strong> Fahad Riaz's "Building a Brokerage" series soft-launches <strong>15 May</strong> — six weeks ahead of the brokerage — to build narrative tension and audience for the 30 June launch. Each episode mirrors a brokerage milestone in real time.</div>
-  <div class="legend">
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--red)"></div>Critical path</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent)"></div>High priority</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--blue)"></div>Medium priority</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--purple)"></div>Brand / content</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--grey)"></div>Standard</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--green);opacity:0.65"></div>Done</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:repeating-linear-gradient(45deg, var(--red), var(--red) 3px, transparent 3px, transparent 6px);opacity:0.6"></div>Blocked</div>
+<div class="tr-masthead">
+  <div class="masthead-top">
+    <div>Milele Prime <span class="accent">·</span> Launch War Room</div>
+    <div>v.02 <span class="accent">·</span> Issued 17 May 2026</div>
   </div>
-  <div class="timeline-wrapper"><div class="timeline-grid" id="ganttGrid"></div></div>
+  <h1>The Thirty<br><em>Day Sprint.</em></h1>
+  <p class="masthead-sub">An interactive tracker for every workstream, every person, every gate between today and public launch on 15 June 2026. Click any task to mark it done. Progress saves to your team workspace.</p>
+  <div class="progress-hero">
+    <div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="tr-overall-fill"></div></div>
+      <div class="progress-meta">
+        <span>17 May · Start</span>
+        <span id="tr-progress-pct">0% complete</span>
+        <span>15 Jun · Launch</span>
+      </div>
+    </div>
+    <div class="progress-stats">
+      <div class="progress-stat"><div class="num blue" id="tr-stat-total">0</div><div class="lbl">Total tasks</div></div>
+      <div class="progress-stat"><div class="num green" id="tr-stat-done">0</div><div class="lbl">Completed</div></div>
+    </div>
+  </div>
 </div>
-<div class="tr-view" id="tr-workstreams"><div class="workstream-grid" id="workstreamGrid"></div></div>
-<div class="tr-view" id="tr-kanban"><div class="kanban" id="kanbanBoard"></div></div>
-<div class="tr-view" id="tr-milestones">
-  <h2>Critical Milestones <span class="count">in dependency order</span></h2>
-  <div class="milestones-list" id="milestonesList"></div>
+
+<div class="alert-bar">
+  <div class="alert-icon">!</div>
+  <div class="alert-content">
+    <h3>The 15 June date is conditional, not committed.</h3>
+    <p>Licensing is the dominant constraint. Hamza is running Mauritius + Dubai SCA + Ajman in parallel; any one landing unlocks bank, LP, and PSP downstream. Realistically only Ajman lands inside 30 days — treat it as the launch-day license, with Mauritius and SCA as 60–180 day workstreams for long-term credibility. If no license is in hand by 27 May, shift to a closed soft launch (50 IBs, crypto-only deposits) on 15 June and slide full public launch to 22–29 June.</p>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <a href="#tr-timeline">§ Week-by-week</a>
+  <a href="#tr-team">§ By person</a>
+  <a href="#tr-path">§ Critical path</a>
+  <a href="#tr-risk">§ Risk register</a>
+</nav>
+
+<section class="tr-section" id="tr-timeline">
+  <div class="section-head">
+    <div class="section-num">§ 01</div>
+    <h2 class="section-title">Week by <em>week.</em></h2>
+  </div>
+  <div class="phase-grid">
+    <div class="phase">
+      <div class="phase-tag">Week 1</div>
+      <div class="phase-dates">17–23 May</div>
+      <div class="phase-name">Foundations Locked</div>
+      <ul>
+        <li><strong>Mauritius + Dubai SCA + Ajman</strong> applications opened</li>
+        <li>Netshop contract signed; servers provisioning</li>
+        <li>Centroid pricing closed; contract signed</li>
+        <li>CRM decision: <strong>Syntellicore vs Brokeret</strong></li>
+        <li>MT5 white-label application opened</li>
+        <li>Alpha Dealing engagement contracted</li>
+        <li>Brand identity v1 + brand story delivered</li>
+        <li>IB &amp; influencer database scaffolded by country</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-tag">Week 2</div>
+      <div class="phase-dates">24–30 May</div>
+      <div class="phase-name">Infrastructure Online</div>
+      <ul>
+        <li>MT5 servers deployed at LD7 + Amsterdam + SGP</li>
+        <li>Centroid bridge configured &amp; cross-connect live</li>
+        <li>LP shortlist signed (2 LPs, primary + backup)</li>
+        <li>PSPs wave 1: CoinsPaid + 2 fiat rails</li>
+        <li>CRM integrated with MT5; KYC workflow live</li>
+        <li>30 short-form videos in production</li>
+        <li>Tournament landing page wireframes approved</li>
+        <li>1,000 IB outreach started; 5,000 influencers loaded</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-tag">Week 3</div>
+      <div class="phase-dates">31 May – 6 Jun</div>
+      <div class="phase-name">Test, Hedge, Polish</div>
+      <ul>
+        <li>End-to-end UAT: deposit → trade → withdraw cycle</li>
+        <li>Dealing desk live in staging</li>
+        <li>Tournament UI/UX live in staging</li>
+        <li>50 IBs onboarded with commission live in CRM</li>
+        <li>5,000 influencers contacted; 250+ activated</li>
+        <li>Long-form anchor content published</li>
+        <li>Competitor USP positioning published (all owners)</li>
+        <li>Soft launch to 50 internal/IB beta accounts</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-tag">Week 4</div>
+      <div class="phase-dates">7–15 Jun</div>
+      <div class="phase-name">Launch</div>
+      <ul>
+        <li>Final beta debrief &amp; bug burn-down</li>
+        <li>Tournament leaderboard live (public IDs)</li>
+        <li>Car giveaway campaign assets to IBs</li>
+        <li>Full influencer activation cascade</li>
+        <li>Studio live cadence begins</li>
+        <li>Final compliance &amp; risk sign-off</li>
+        <li><strong>15 Jun — Public Launch</strong></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="tr-section" id="tr-team">
+  <div class="section-head">
+    <div class="section-num">§ 02</div>
+    <h2 class="section-title">By <em>person.</em></h2>
+  </div>
+  <div class="team-grid" id="tr-team-grid"></div>
+</section>
+
+<section class="tr-section" id="tr-path">
+  <div class="section-head">
+    <div class="section-num">§ 03</div>
+    <h2 class="section-title">Critical <em>path.</em></h2>
+  </div>
+  <div class="critical-path">
+    <div class="path-chain">
+      <div class="path-node gate-start">Any License Lands</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">Corporate Bank</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">LP Onboarding</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">PSPs (CoinsPaid first)</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">Netshop Servers</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">Centroid Bridge</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">MT5 Deployment</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">CRM Integration</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">Alpha Dealing</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">Soft Launch · 8 Jun</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node gate">Public Launch · 15 Jun</div>
+    </div>
+  </div>
+  <p class="path-note">→ Three license tracks running in parallel — first to land unlocks the chain.</p>
+</section>
+
+<section class="tr-section" id="tr-risk">
+  <div class="section-head">
+    <div class="section-num">§ 04</div>
+    <h2 class="section-title">Risk <em>register.</em></h2>
+  </div>
+  <div class="risk-grid">
+    <div class="risk-card high">
+      <div class="risk-level">▲ High · Critical</div>
+      <div class="risk-title">All three licenses slip past 27 May</div>
+      <div class="risk-desc">Mauritius takes 3–6 months; Dubai SCA 4–8 months; Ajman 2–4 weeks if expedited. Mauritius and SCA are unlikely inside 30 days from a cold start — Ajman is the realistic Week 1–2 unlock.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Treat Ajman as the launch-day license. Mauritius and SCA are 60–180 day workstreams for long-term credibility. Confirm with regulatory counsel that Ajman activity is permissible for the launch scope before committing PSP/LP onboarding to it.
+      </div>
+    </div>
+    <div class="risk-card high">
+      <div class="risk-level">▲ High</div>
+      <div class="risk-title">LP onboarding takes longer than 2 weeks</div>
+      <div class="risk-desc">Prime-of-prime LPs typically need 2–4 weeks for KYC, credit lines, and FIX integration. Two weeks is aggressive even with a clean license.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Open conversations with three LPs in parallel. Pre-build the KYC pack now so it goes out the hour a license lands. Soft-launch can run B-book-only with dealing desk hedging if LP slips.
+      </div>
+    </div>
+    <div class="risk-card med">
+      <div class="risk-level">◆ Medium</div>
+      <div class="risk-title">Transaction masking legal exposure</div>
+      <div class="risk-desc">Masking the transacting entity creates PSP T&amp;C and AML-screening risk in most jurisdictions. Card networks (Visa/Mastercard) are explicit about merchant-of-record accuracy.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Written legal opinion before any architecture work. Coverage: jurisdictional permissibility per PSP corridor, card-network compliance, AML/CTF implications, PSP termination risk. No deployment without Fahad sign-off.
+      </div>
+    </div>
+    <div class="risk-card med">
+      <div class="risk-level">◆ Medium</div>
+      <div class="risk-title">CRM decision locks late</div>
+      <div class="risk-desc">Syntellicore vs Brokeret decision is open. Integration with MT5, PSPs, and tournament page sits behind it.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Force a decision by Wed 21 May. Helia runs the scoring matrix; Fahad signs. No more vendor demos after Week 1.
+      </div>
+    </div>
+    <div class="risk-card med">
+      <div class="risk-level">◆ Medium</div>
+      <div class="risk-title">5,000-influencer outreach undershoots</div>
+      <div class="risk-desc">Two people contacting 5,000 micros in 30 days is roughly 80 quality contacts per person per working day, with response handling on top.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Set minimum-viable activation for launch (250 influencers + 50 IBs). Use real branded outreach reps with Milele Prime affiliate manager handles — verifiable, durable, on-policy for the platforms, and clean for SCA/Mauritius fitness review later. Treat 5,000 contacted as a 60–90 day target.
+      </div>
+    </div>
+    <div class="risk-card low">
+      <div class="risk-level">○ Watch</div>
+      <div class="risk-title">Giveaway cost reserves underestimated</div>
+      <div class="risk-desc">If volume thresholds are hit faster than modelled, prize obligations could outrun NTR reserves on early cohorts.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Billawal &amp; Qayyum lock the model in Week 3 with NTR-per-lot assumptions. 20% reserve buffer per tier. Legal review of T&amp;Cs before publication.
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="tr-footer">
+  <div class="mark">M · P</div>
+  <div class="meta">Milele Prime · Launch Tracker v.02 · 17 May 2026 · Rebase weekly</div>
+  <button class="reset" id="tr-reset-btn">Reset all checkboxes</button>
 </div>
 `;
 
-  const tasks = [
-    { id:'L1', name:'St. Lucia IBC incorporation', stream:'Legal', owner:'Zain', start:0, end:0, status:'done', priority:'critical', notes:'Complete' },
-    { id:'L2', name:'FSA Securities Dealer license', stream:'Legal', owner:'Zain', start:1, end:14, status:'progress', priority:'high', notes:'Strategic enabler — unlocks tier-1 LPs, reduces PSP risk pricing, anchors IB pitch.' },
-    { id:'L3', name:'Ajman trade license (UAE)', stream:'Legal', owner:'Zain', start:1, end:21, status:'notStarted', priority:'high', notes:'Required for PSP merchant relationships and UAE banking.' },
-    { id:'L4', name:'Corporate bank account (St. Lucia entity)', stream:'Legal', owner:'Billawal', start:14, end:35, status:'blocked', priority:'high', notes:'Easier with FSA license. Critical for client fund flows.' },
-    { id:'L5', name:'Operational bank account (Ajman entity)', stream:'Legal', owner:'Billawal', start:21, end:42, status:'blocked', priority:'high', notes:'For PSP settlements and OPEX.' },
-    { id:'L6', name:'IB partnership agreement (legal template)', stream:'Legal', owner:'Zain', start:7, end:21, status:'notStarted', priority:'high', notes:'Standard tier structure, commission terms, clawback rules.' },
-    { id:'I1', name:'Netshop server contract & deployment', stream:'Infrastructure', owner:'Helia', start:1, end:14, status:'progress', priority:'high', notes:'LD7 primary, Amsterdam backup, Singapore access. Contract closing.' },
-    { id:'I2', name:'MT5 White Label application (MetaQuotes)', stream:'Infrastructure', owner:'Helia', start:1, end:60, status:'notStarted', priority:'critical', notes:'Submit immediately. 8–12 weeks. Will likely complete late July/August.' },
-    { id:'I3', name:'MT5 demo environment (sublicense/temp)', stream:'Infrastructure', owner:'Helia', start:7, end:28, status:'notStarted', priority:'critical', notes:'Required for soft launch. Temp via master broker.' },
-    { id:'I4', name:'Centroid bridge contract & pricing', stream:'Infrastructure', owner:'Zain', start:1, end:10, status:'progress', priority:'critical', notes:'Vendor confirmed; price negotiation only.' },
-    { id:'I5', name:'Centroid CS360 configuration & cross-connect', stream:'Infrastructure', owner:'Helia', start:14, end:35, status:'notStarted', priority:'critical', notes:'LD7→LD4 cross-connect via Netshop.' },
-    { id:'I6', name:'MT5 server installation & symbol setup', stream:'Infrastructure', owner:'Helia', start:21, end:42, status:'notStarted', priority:'critical', notes:'Symbols, leverage, groups, swaps configured.' },
-    { id:'I7', name:'End-to-end execution test (demo)', stream:'Infrastructure', owner:'Helia', start:42, end:50, status:'notStarted', priority:'critical', notes:'Bridge → MT5 → LP demo flow validated.' },
-    { id:'I8', name:'Failover test (LD7 → Amsterdam)', stream:'Infrastructure', owner:'Helia', start:49, end:55, status:'notStarted', priority:'med', notes:'Documented runbook for primary outage.' },
-    { id:'B1', name:'Alpha Dealing contract signed', stream:'Execution', owner:'Zain', start:1, end:10, status:'progress', priority:'critical', notes:'Final redlines pending; superior to HedgX terms.' },
-    { id:'B2', name:'Alpha Dealing onboarding & access setup', stream:'Execution', owner:'Helia + Aris', start:21, end:42, status:'notStarted', priority:'high', notes:'Limited dealer access; group permissions; reporting cadence.' },
-    { id:'B3', name:'Risk rules / B-book exposure limits documented', stream:'Execution', owner:'Qayyum', start:21, end:42, status:'notStarted', priority:'high', notes:'A-book at launch; B-book rules for post-scale.' },
-    { id:'B4', name:'Dealing desk SOPs & escalation matrix', stream:'Execution', owner:'Qayyum + Aris', start:35, end:49, status:'notStarted', priority:'med', notes:'Coverage hours, escalation, manual intervention rules.' },
-    { id:'LP1', name:'LP shortlist & outreach', stream:'Liquidity', owner:'Zain + Helia', start:1, end:14, status:'notStarted', priority:'critical', notes:'Target: Match-Prime, FXCM Pro, Finalto, IS Prime. Shortlist 3.' },
-    { id:'LP2', name:'LP applications & due diligence', stream:'Liquidity', owner:'Zain + Helia', start:14, end:42, status:'blocked', priority:'critical', notes:'Blocked on FSA license + bank account.' },
-    { id:'LP3', name:'LP demo connection & feed validation', stream:'Liquidity', owner:'Helia', start:35, end:49, status:'notStarted', priority:'critical', notes:'Test feeds before live cutover.' },
-    { id:'LP4', name:'LP credit line & live feed activation', stream:'Liquidity', owner:'Zain + Billawal', start:49, end:60, status:'notStarted', priority:'high', notes:'Funding deposit; live cutover post-soft-launch.' },
-    { id:'C1', name:'Brokeret vs Syntellicore final evaluation', stream:'CRM', owner:'Helia + Zain', start:1, end:10, status:'progress', priority:'critical', notes:'Decide by 10 May. Pricing, IB portal, MT5 integration, KYC flow.' },
-    { id:'C2', name:'CRM contract signed', stream:'CRM', owner:'Zain', start:10, end:14, status:'notStarted', priority:'critical', notes:'Decision lock-in.' },
-    { id:'C3', name:'CRM provisioning & MT5 integration', stream:'CRM', owner:'Helia', start:14, end:42, status:'notStarted', priority:'critical', notes:'Wallet logic, IB tiers, deposit/withdrawal flows.' },
-    { id:'C4', name:'KYC workflow & document templates', stream:'CRM', owner:'Hamza', start:21, end:42, status:'notStarted', priority:'high', notes:'Per FSA requirements; PEP/sanctions screening.' },
-    { id:'C5', name:'IB portal configured (50-IB target)', stream:'CRM', owner:'Zain + Helia', start:35, end:49, status:'notStarted', priority:'high', notes:'Multi-tier commission, real-time stats, payout logic.' },
-    { id:'C6', name:'CRM acceptance testing (UAT)', stream:'CRM', owner:'Helia + Zain', start:42, end:52, status:'notStarted', priority:'high', notes:'Full client journey: signup → KYC → deposit → trade → withdraw.' },
-    { id:'P1', name:'PSP shortlist confirmed', stream:'PSP', owner:'Hamza', start:1, end:7, status:'notStarted', priority:'critical', notes:'CoinsPaid (priority 1), Match2Pay, Praxis, Paytah.' },
-    { id:'P2', name:'CoinsPaid onboarding (crypto rail)', stream:'PSP', owner:'Hamza', start:14, end:42, status:'blocked', priority:'critical', notes:'First PSP. Crypto deposit preference of South Asia/Africa base.' },
-    { id:'P3', name:'Card PSP onboarding', stream:'PSP', owner:'Hamza', start:14, end:49, status:'blocked', priority:'high', notes:'1 of: Praxis/Paytah/Match2Pay. May extend past launch.' },
-    { id:'P4', name:'Payment orchestrator selection', stream:'PSP', owner:'Hamza', start:10, end:21, status:'notStarted', priority:'med', notes:'Praxis Cashier, Match2Pay, or alternative.' },
-    { id:'P5', name:'PSP→CRM webhook integration & test deposits', stream:'PSP', owner:'Helia + Hamza', start:35, end:49, status:'notStarted', priority:'high', notes:'End-to-end deposit flow with reconciliation.' },
-    { id:'P6', name:'Withdrawal SOP & approval workflow', stream:'PSP', owner:'Hamza + Billawal', start:35, end:49, status:'notStarted', priority:'high', notes:'Dual-approval, AML checks, payout cadence.' },
-    { id:'IB1', name:'IB payout tier structure designed', stream:'IB Strategy', owner:'Zain + Qayyum', start:1, end:14, status:'notStarted', priority:'critical', notes:'Multi-tier rebates ($/lot), CPA, sub-IB splits. Stress-test against unit economics.' },
-    { id:'IB2', name:'IB payout calculator & illustrator', stream:'IB Strategy', owner:'Zain + Helia', start:14, end:28, status:'notStarted', priority:'high', notes:'Excel/web tool showing IB earnings at different volumes — used in pitch.' },
-    { id:'IB3', name:'IB tiering, retention & promotion logic', stream:'IB Strategy', owner:'Zain', start:14, end:28, status:'notStarted', priority:'high', notes:'Bronze/Silver/Gold thresholds; volume-based promotion; clawback rules.' },
-    { id:'IB4', name:'IB enablement materials (decks, brochures)', stream:'IB Strategy', owner:'Zain', start:21, end:42, status:'notStarted', priority:'high', notes:'Pitch deck, fact sheet, swap/spread sheet, regulatory section.' },
-    { id:'S1', name:'Sales lead JD + comp structure', stream:'Sales Team', owner:'Zain', start:1, end:7, status:'notStarted', priority:'high', notes:'Senior IB acquisition lead. Base + commission on net IB volume.' },
-    { id:'S2', name:'Sales lead hired', stream:'Sales Team', owner:'Zain', start:7, end:28, status:'notStarted', priority:'high', notes:'Internal hire. Owns IB pipeline, agency relationships, and BDR coordination.' },
-    { id:'S3', name:'IB recruitment agency shortlist & onboard', stream:'Sales Team', owner:'Zain', start:7, end:28, status:'notStarted', priority:'high', notes:'External agency for South Asia/Africa IB networks. Performance-based fee.' },
-    { id:'S4', name:'Sales playbook (script, objection handling)', stream:'Sales Team', owner:'Zain + Sales lead', start:21, end:42, status:'notStarted', priority:'med', notes:'Discovery call script, IB pain points, regulatory talking points.' },
-    { id:'S5', name:'CRM sales pipeline configured', stream:'Sales Team', owner:'Sales lead + Helia', start:28, end:49, status:'notStarted', priority:'med', notes:'IB lead → demo → activation tracking. Commission visibility.' },
-    { id:'A1', name:'Accountant team JD + scope defined', stream:'Accounting Team', owner:'Qayyum', start:1, end:7, status:'notStarted', priority:'high', notes:'2 hires: senior accountant (in-house, full-time) + bookkeeper. Or outsourced firm.' },
-    { id:'A2', name:'Senior accountant hired', stream:'Accounting Team', owner:'Qayyum', start:7, end:28, status:'notStarted', priority:'high', notes:'Forex/CFD experience preferred. Owns reconciliation, FSA reporting, audit prep.' },
-    { id:'A3', name:'External audit firm engaged', stream:'Accounting Team', owner:'Qayyum', start:14, end:35, status:'notStarted', priority:'high', notes:'FSA requires audited financials. Engage early.' },
-    { id:'A4', name:'Accounting team onboarded to systems', stream:'Accounting Team', owner:'Qayyum', start:28, end:49, status:'notStarted', priority:'med', notes:'Xero/QuickBooks access, MT5 P&L exports, reconciliation runbook.' },
-    { id:'F1', name:'Chart of accounts finalized', stream:'Finance', owner:'Qayyum', start:1, end:14, status:'notStarted', priority:'high', notes:'Mapped to MT5 P&L master file.' },
-    { id:'F2', name:'Accounting software stack deployed', stream:'Finance', owner:'Qayyum', start:14, end:28, status:'notStarted', priority:'high', notes:'Xero/QuickBooks + reconciliation tooling.' },
-    { id:'F3', name:'Daily reconciliation process documented', stream:'Finance', owner:'Qayyum + Snr Acct', start:28, end:49, status:'notStarted', priority:'high', notes:'MT5 → LP → PSP → bank reconciliation.' },
-    { id:'F4', name:'Treasury & client fund segregation policy', stream:'Finance', owner:'Qayyum + Billawal', start:14, end:35, status:'notStarted', priority:'critical', notes:'FSA requirement. Fund movement, dual-approval thresholds.' },
-    { id:'CP1', name:'Compliance manual (AML/KYC/CDD)', stream:'Compliance', owner:'Qayyum + external', start:1, end:35, status:'notStarted', priority:'critical', notes:'FSA requirement; external compliance counsel recommended.' },
-    { id:'CP2', name:'Customer agreements, T&Cs, risk disclosures', stream:'Compliance', owner:'Qayyum + Zain', start:14, end:35, status:'notStarted', priority:'critical', notes:'Client agreement, risk warning, privacy policy, complaints policy.' },
-    { id:'CP3', name:'MLRO appointed', stream:'Compliance', owner:'Qayyum', start:1, end:21, status:'notStarted', priority:'high', notes:'Money Laundering Reporting Officer. Often outsourced initially.' },
-    { id:'CP4', name:'Incident response & business continuity plan', stream:'Compliance', owner:'Helia + Qayyum', start:28, end:49, status:'notStarted', priority:'med', notes:'Server failover, data backup, comms protocol.' },
-    { id:'CP5', name:'Internal compliance training', stream:'Compliance', owner:'Qayyum', start:42, end:56, status:'notStarted', priority:'med', notes:'Team-wide briefing on AML, fund handling, complaints.' },
-    { id:'FR1', name:'Series concept, narrative arc & episode plan', stream:'Content Series', owner:'Fahad Riaz + Zain', start:1, end:10, status:'notStarted', priority:'brand', notes:'"Building a Brokerage" — episodic, behind-the-scenes. Each ep mirrors a real milestone.' },
-    { id:'FR2', name:'Production setup (crew, gear, locations)', stream:'Content Series', owner:'Fahad Riaz + Zain', start:7, end:14, status:'notStarted', priority:'brand', notes:'In-house team or production house. Dubai office as primary location.' },
-    { id:'FR3', name:'Episode 1 production & edit', stream:'Content Series', owner:'Fahad Riaz + Zain', start:7, end:14, status:'notStarted', priority:'brand', notes:'Theme: "Why I am building a broker" — origin and vision.' },
-    { id:'FR4', name:'Series soft launch (Ep 1 drops)', stream:'Content Series', owner:'Fahad Riaz + Zain', start:14, end:14, status:'notStarted', priority:'brand', notes:'15 May — six weeks before brokerage launch. Build narrative tension.' },
-    { id:'FR5', name:'Episode 2: vendor selection & contracts', stream:'Content Series', owner:'Fahad Riaz + Zain', start:14, end:28, status:'notStarted', priority:'brand', notes:'Drops late May. Mirrors actual contract milestones.' },
-    { id:'FR6', name:'Episode 3: MT5, the bridge & infra', stream:'Content Series', owner:'Fahad Riaz + Zain', start:28, end:42, status:'notStarted', priority:'brand', notes:'Drops mid-June. Mirrors infra build.' },
-    { id:'FR7', name:'Episode 4: launch day', stream:'Content Series', owner:'Fahad Riaz + Zain', start:49, end:60, status:'notStarted', priority:'brand', notes:'Drops 30 June — synchronized with brokerage soft launch.' },
-    { id:'FR8', name:'Cross-channel distribution & boost', stream:'Content Series', owner:'Zain', start:14, end:60, status:'notStarted', priority:'brand', notes:'YouTube, Instagram, TikTok, X. Paid amplification on each drop.' },
-    { id:'M1', name:'Marketing strategy & launch creative', stream:'Marketing', owner:'Zain', start:1, end:35, status:'notStarted', priority:'high', notes:'Brand voice, channel mix, content calendar, ad creative.' },
-    { id:'M2', name:'Website unlock (accounts/deposits pages)', stream:'Marketing', owner:'Zain + Helia', start:35, end:49, status:'notStarted', priority:'high', notes:'Remove blur overlays; add live signup flow.' },
-    { id:'M3', name:'Social channels active', stream:'Marketing', owner:'Zain', start:14, end:60, status:'notStarted', priority:'med', notes:'Daily content cadence aligned with content series episodes.' },
-    { id:'SL1', name:'Internal team test trades (demo)', stream:'Launch', owner:'All', start:49, end:53, status:'notStarted', priority:'critical', notes:'Full team places test trades; bug bash.' },
-    { id:'SL2', name:'IB familiarization sessions', stream:'Launch', owner:'Sales lead + Zain', start:52, end:58, status:'notStarted', priority:'high', notes:'5–10 trusted IBs onboard demo accounts before soft launch.' },
-    { id:'SL3', name:'Pre-launch readiness review (go/no-go)', stream:'Launch', owner:'All leads', start:56, end:58, status:'notStarted', priority:'critical', notes:'Cross-functional sign-off before flipping the switch.' },
-    { id:'SL4', name:'Soft launch — IB demo accounts go live', stream:'Launch', owner:'Zain + Helia', start:60, end:60, status:'notStarted', priority:'critical', notes:'30 June. Synchronized with content series Episode 4.' },
-  ];
-  const totalDays = 60;
-  const streamMeta = {
-    Legal:           { title:'1. Legal & Licensing',         status:'atRisk',     desc:'St. Lucia IBC <strong>done</strong>. FSA license is a <strong>strategic enabler</strong> — unlocks tier-1 LPs, reduces PSP risk pricing, anchors IB pitch. Ajman license + UAE bank are PSP unlocks.' },
-    Infrastructure:  { title:'2. Infrastructure',            status:'blocked',    desc:'Netshop closing. Centroid confirmed. <strong>MT5 White Label is the binding constraint</strong> — won’t complete by 30 June. Soft launch runs on demo.' },
-    Execution:       { title:'3. Execution / Dealing',       status:'onTrack',    desc:'Alpha Dealing decided. Onboarding starts week 4. SOPs and risk rules in parallel.' },
-    Liquidity:       { title:'4. Liquidity Providers',       status:'blocked',    desc:'No LP onboarded yet. Tier-1 LPs are FSA-license dependent. Demo feeds for soft launch; live feeds activate post-launch.' },
-    CRM:             { title:'5. CRM',                       status:'atRisk',     desc:'Brokeret vs Syntellicore <strong>still open</strong>. Decide by 10 May or this becomes the long pole.' },
-    PSP:             { title:'6. Payments',                  status:'blocked',    desc:'Hamza-led. CoinsPaid first; one card rail next. Both blocked on FSA + Ajman license. Withdrawal SOPs equally important.' },
-    'IB Strategy':   { title:'7. IB Strategy & Payouts',     status:'notStarted', desc:'<strong>Critical and underestimated.</strong> Tier structure must clear unit economics check. Calculator & enablement materials are the IB acquisition kit.' },
-    'Sales Team':    { title:'8. Sales Team Hiring',         status:'notStarted', desc:'1 internal sales lead + external IB recruitment agency. Lead in by week 4 to manage agency and own pipeline.' },
-    'Accounting Team':{ title:'9. Accounting Team Hiring',   status:'notStarted', desc:'Senior accountant (in-house) + external audit firm. Forex/CFD experience preferred. FSA requires audited financials.' },
-    Finance:         { title:'10. Finance & Accounting Process', status:'notStarted', desc:'Chart of accounts mapped to MT5 P&L. Reconciliation and treasury policy critical for FSA.' },
-    Compliance:      { title:'11. Compliance & Ops',         status:'notStarted', desc:'Compliance manual, MLRO, T&Cs, training. Most underestimated workstream — start week 1.' },
-    'Content Series':{ title:'12. Fahad Riaz Content Series', status:'notStarted', desc:'<strong>"Building a Brokerage"</strong> — soft launches 15 May, six weeks ahead of brokerage. 4 episodes synchronized with real milestones. Builds narrative tension and pre-launch audience.' },
-    Marketing:       { title:'13. General Marketing',        status:'notStarted', desc:'Brand voice, channel mix, social cadence. Coordinated with content series drops.' },
-    Launch:          { title:'14. Soft Launch',              status:'notStarted', desc:'Internal testing → IB familiarization → go/no-go → 30 June soft launch on demo, synchronized with Episode 4.' },
-  };
-  const milestones = [
-    { date:'7 May',  name:'Sales lead JD live & accountant scope set', sub:'Hiring kicks off week 1', owner:'Zain + Qayyum', deps:'—' },
-    { date:'10 May', name:'CRM decision locked', sub:'Brokeret or Syntellicore', owner:'Helia + Zain', deps:'Evaluation done' },
-    { date:'10 May', name:'Centroid + Alpha Dealing contracts signed', sub:'Two key vendor contracts', owner:'Zain', deps:'Pricing finalized' },
-    { date:'14 May', name:'IB payout structure locked', sub:'Tier rebates, CPA, sub-IB splits', owner:'Zain + Qayyum', deps:'Unit economics check' },
-    { date:'14 May', name:'FSA license received', sub:'Unlocks tier-1 LPs and PSP onboarding', owner:'Zain', deps:'—', isLicense:true },
-    { date:'15 May', name:'CONTENT SERIES SOFT LAUNCH', sub:'Fahad Riaz Episode 1 drops — six weeks ahead of brokerage', owner:'Fahad Riaz + Zain', deps:'Production complete', isBrand:true },
-    { date:'21 May', name:'Ajman trade license + MLRO appointed', sub:'PSP and compliance unlocks', owner:'Zain + Qayyum', deps:'—' },
-    { date:'28 May', name:'Sales lead + senior accountant hired', sub:'Internal team in place', owner:'Zain + Qayyum', deps:'JDs out by week 1' },
-    { date:'28 May', name:'MT5 demo environment live', sub:'Sublicense or temp main label', owner:'Helia', deps:'Centroid contract + Netshop' },
-    { date:'4 Jun',  name:'Bank account opened (St. Lucia entity)', sub:'Client funds account', owner:'Billawal', deps:'FSA license' },
-    { date:'11 Jun', name:'Compliance manual + T&Cs finalized', sub:'Customer agreements, risk disclosures', owner:'Qayyum + Zain', deps:'External counsel review' },
-    { date:'11 Jun', name:'CRM provisioned & MT5-integrated', sub:'Wallet, IB tiers, KYC flow', owner:'Helia', deps:'CRM contract' },
-    { date:'15 Jun', name:'CoinsPaid live (test deposits)', sub:'First payment rail operational', owner:'Hamza', deps:'Bank account' },
-    { date:'18 Jun', name:'End-to-end execution test passed', sub:'Bridge → MT5 → demo LP', owner:'Helia', deps:'All infra deployed' },
-    { date:'21 Jun', name:'CRM UAT complete', sub:'Full client journey validated', owner:'Helia + Zain', deps:'CRM + PSP integrated' },
-    { date:'25 Jun', name:'IB familiarization complete', sub:'5–10 trusted IBs trained on demo', owner:'Sales lead + Zain', deps:'IB portal live' },
-    { date:'28 Jun', name:'Go/no-go review', sub:'Cross-functional sign-off', owner:'All leads', deps:'All workstreams green' },
-    { date:'30 Jun', name:'BROKERAGE SOFT LAUNCH', sub:'IB demo accounts live + Content Series Episode 4 drops', owner:'Zain + Helia', deps:'All above', isLaunch:true },
-  ];
-  const escAttr = s => String(s).replace(/"/g, '&quot;');
-  const $ = id => trPanel.querySelector('#' + id);
-
-  function renderTimeline() {
-    const grid = $('ganttGrid');
-    let html = '<div class="th th-task">Task</div>';
-    for (let d = 1; d <= 61; d++) {
-      let label, cls;
-      if (d === 1) { label = 'May 1'; cls = 'month-marker'; }
-      else if (d === 32) { label = 'Jun 1'; cls = 'month-marker'; }
-      else if (d % 7 === 0) { label = d <= 31 ? d : d - 31; cls = 'week-marker'; }
-      else { label = d <= 31 ? d : d - 31; cls = 'th'; }
-      html += '<div class="' + cls + '">' + label + '</div>';
+  const team = [
+    {
+      id: 'zain', name: 'Zain', initial: 'Z',
+      title: 'Venture Builder · Brand · Content · Outbound',
+      tasks: [
+        { id: 'z1',  date: '18 May', range: '17–18 May', title: 'Brand identity v1', desc: 'Logo, type system, colour, motion identity, brand guidelines doc. Sign-off with Fahad by end Week 1.', status: 'prog',  statusText: 'In progress',         dep: '—' },
+        { id: 'z2',  date: '20 May', range: '17–20 May', title: 'Close Alpha Dealing contract', desc: 'Finalize terms with Aris C. — liability cap, revenue share, MT5 access scope, termination. Pre-cleared with Fahad.', status: 'prog',  statusText: 'In progress',         dep: '—' },
+        { id: 'z3',  date: '21 May', range: '19–21 May', title: 'Marketing strategy sign-off', desc: 'Lock car/house/visa giveaway mechanic, lot thresholds, draw cadence, IB push plan. Communicate to all stakeholders.', status: 'prog',  statusText: 'In progress',         dep: '—' },
+        { id: 'z4',  date: '23 May', range: '20–23 May', title: 'Brand story &amp; positioning narrative', desc: 'Founding story, what we stand for, who we serve. Reference doc all comms work off — Hamza, Tuba, Zair, IBs.', status: 'start', statusText: 'Not started',          dep: 'Brand identity' },
+        { id: 'z5',  date: '24 May', range: '20–24 May', title: 'Studio setup', desc: 'Lights, props, backdrops, teleprompter, audio. Must be operational before shorts production begins.', status: 'start', statusText: 'Not started',          dep: '—' },
+        { id: 'z6',  date: '25 May', range: '21–25 May', title: 'LP shortlist &amp; first conversations', desc: 'Initiate outreach the day any license lands. Target two LPs (primary + backup). KYC packs pre-built and ready.', status: 'block', statusText: 'Blocked · License',     dep: 'License' },
+        { id: 'z7',  date: '28 May', range: '24–28 May', title: 'Content strategy &amp; calendar', desc: 'Posting cadence across channels, content pillars, IB-shareable assets, paid amplification windows.', status: 'start', statusText: 'Not started',          dep: 'Brand story' },
+        { id: 'z8',  date: '31 May', range: '26–31 May', title: 'LP onboarding &amp; credit lines', desc: 'FIX API onboarding, margin requirements, asset coverage. Live connectivity to bridge by end Week 2.', status: 'start', statusText: 'Not started',          dep: 'LP shortlist' },
+        { id: 'z9',  date: '5 Jun',  range: '26 May–5 Jun', title: '30+ short-form videos produced', desc: 'Hook-driven format for IBs and influencer push. Brand, product, and giveaway-mechanic explainers.', status: 'start', statusText: 'Not started',          dep: 'Studio + brand' },
+        { id: 'z10', date: '6 Jun',  range: '1–6 Jun', title: 'IB recruitment — first 50 onboarded', desc: 'Launch target: 50 IBs with commission live in CRM. Coordinate with Tuba + Zair on the wider 1,000.', status: 'start', statusText: 'Not started',          dep: 'CRM live' },
+        { id: 'z11', date: '8 Jun',  range: '3–8 Jun', title: 'Long-form anchor content', desc: 'Founder film, brand manifesto piece, one cornerstone explainer. Lives on the homepage.', status: 'start', statusText: 'Not started',          dep: 'Brand story' },
+        { id: 'z12', date: '10 Jun', range: '6–10 Jun', title: 'Competitor USP analysis — brand &amp; campaigns', desc: 'How are XM, Exness, FBS positioning vs us? Where is our wedge — luxury association, giveaway scale, MENA-first?', status: 'start', statusText: 'Not started',          dep: '—' },
+        { id: 'z13', date: '12 Jun', range: '8–12 Jun', title: 'Content distribution playbook', desc: 'How content reaches IBs and influencers. Posting calendar, attribution tracking, asset library.', status: 'start', statusText: 'Not started',          dep: 'Content assets' },
+        { id: 'z14', date: '15 Jun', range: '12–15 Jun', title: 'Launch day comms &amp; PR', desc: 'Press list, launch announcement, IB activation sequence, social cascade plan. Day-zero ops calendar.', status: 'start', statusText: 'Not started',          dep: 'All upstream' }
+      ]
+    },
+    {
+      id: 'helia', name: 'Helia', initial: 'H',
+      title: 'Technical Implementation · Owns the Build',
+      tasks: [
+        { id: 'h1', date: '20 May', range: '17–20 May', title: 'Close Centroid contract', desc: 'Finalize pricing and sign. Bridge config blocks MT5 routing — lock by end Week 1.', status: 'prog',  statusText: 'In progress', dep: '—' },
+        { id: 'h2', date: '21 May', range: '17–21 May', title: 'CRM decision: Syntellicore vs Brokeret', desc: 'Score on pricing, IB portal, KYC, MT5 integration depth, PSP connectivity, wallet logic. Decide with Fahad by Wed.', status: 'prog',  statusText: 'In progress', dep: '—' },
+        { id: 'h3', date: '22 May', range: '17–22 May', title: 'Sign Netshop &amp; provision servers', desc: 'LD7 primary, Amsterdam backup, Singapore access. Cross-connect LD7↔LD4 ordered.', status: 'start', statusText: 'Not started',  dep: '—' },
+        { id: 'h4', date: '28 May', range: '22–28 May', title: 'CRM ↔ MT5 ↔ Bridge integration', desc: 'Account provisioning, KYC workflow, wallet logic, IB partner portal. Test with sample flows.', status: 'start', statusText: 'Not started',  dep: 'CRM + servers' },
+        { id: 'h5', date: '31 May', range: '24–31 May', title: 'Gamified UX &amp; notification engine', desc: '"You\'re 2 lots from a Porsche" cadence. Hook into trade events from MT5. Email + in-app + push.', status: 'start', statusText: 'Not started',  dep: 'CRM integration' },
+        { id: 'h6', date: '4 Jun',  range: '28 May–4 Jun', title: 'Tournament landing page (UI/UX)', desc: 'Public leaderboard with anonymised MT5 IDs, real-time lot counts, prize tiers, draw mechanics.', status: 'start', statusText: 'Not started',  dep: 'MT5 + branding' },
+        { id: 'h7', date: '7 Jun',  range: '1–7 Jun', title: 'Unlock website &amp; corporate content', desc: 'Remove blur on accounts/deposits. Publish regulatory disclosures, terms, risk statements. Wire to CRM signup.', status: 'start', statusText: 'Not started',  dep: 'License + legal copy' },
+        { id: 'h8', date: '11 Jun', range: '7–11 Jun', title: 'Competitor USP analysis — product &amp; UX', desc: 'How do XM, Exness, FBS handle onboarding, account types, dashboard UX? Where can our UX win — gamification, speed?', status: 'start', statusText: 'Not started',  dep: '—' }
+      ]
+    },
+    {
+      id: 'hamza', name: 'Hamza', initial: 'H',
+      title: 'Licensing · Payments · Compliance · Withdrawals',
+      tasks: [
+        { id: 'hz1',  date: '19 May', range: '17–19 May', title: 'Ajman license application opened', desc: 'Fastest realistic path to a live license inside 30 days. Free-zone authority application + KYC + business plan.', status: 'prog',  statusText: 'In progress',     dep: '—' },
+        { id: 'hz2',  date: '20 May', range: '17–20 May', title: 'Mauritius license application opened', desc: 'FSC Investment Dealer / Global Business License — strong for international LP and PSP credibility. Long timeline; start now.', status: 'start', statusText: 'Not started',      dep: '—' },
+        { id: 'hz3',  date: '20 May', range: '17–20 May', title: 'Dubai SCA license application opened', desc: 'Category 5 Securities Broker Dealer. Long timeline (4–8 months) but critical for UAE-resident clients and bank access. Pre-application meeting scheduled.', status: 'start', statusText: 'Not started',      dep: '—' },
+        { id: 'hz4',  date: '22 May', range: '17–22 May', title: 'MT5 white-label license', desc: 'MetaQuotes application, KYC, server allocation. Processing 2–4 weeks — open file Day 1.', status: 'start', statusText: 'Not started',      dep: 'Any license' },
+        { id: 'hz5',  date: '23 May', range: '19–23 May', title: 'Transaction masking — legal opinion commissioned', desc: 'Written opinion from regulatory counsel BEFORE any architecture work. Coverage: jurisdictional permissibility per PSP corridor, Visa/Mastercard merchant-of-record rules, AML/CTF implications, PSP termination risk. No deployment without Fahad sign-off.', status: 'start', statusText: 'Not started',      dep: '—' },
+        { id: 'hz6',  date: '25 May', range: '19–25 May', title: 'CoinsPaid contract signed', desc: 'Crypto is the highest-priority deposit rail for our target client base. First outreach the moment any license lands.', status: 'block', statusText: 'Blocked · License', dep: 'License' },
+        { id: 'hz7',  date: '28 May', range: '23–28 May', title: 'Transaction masking — architecture decision', desc: 'Based on legal opinion: build, modify, or kill. If proceeding, define entity layering, PSP disclosure stance, audit trail. Document the legal position behind the architecture.', status: 'start', statusText: 'Not started',      dep: 'Legal opinion' },
+        { id: 'hz8',  date: '30 May', range: '25–30 May', title: 'Fiat PSP contracts signed · wave 1', desc: 'Paytah, Unlimint, Vault Payments. Coverage for top 15 countries by client demand. Negotiate fees, settlement cycles, chargeback policy.', status: 'start', statusText: 'Not started',      dep: 'CoinsPaid live' },
+        { id: 'hz9',  date: '3 Jun',  range: '28 May–3 Jun', title: 'Payment infrastructure built', desc: 'Webhook integration into CRM, local-currency dashboards, settlement reconciliation flow, withdrawal approval routing. Crypto + fiat unified back-office view.', status: 'start', statusText: 'Not started',      dep: 'PSPs contracted' },
+        { id: 'hz10', date: '6 Jun',  range: '1–6 Jun', title: 'Fiat PSP wave 2 · 40–50 country coverage', desc: 'Praxis Cashier, Match2Pay, region-specific gateways. Coverage target: 40–50 countries with local payment methods.', status: 'start', statusText: 'Not started',      dep: 'Wave 1 live' },
+        { id: 'hz11', date: '9 Jun',  range: '5–9 Jun', title: 'Wallet architecture: hot + cold + custody', desc: 'Hot wallet limits, cold storage policy, withdrawal approval flow, treasury reconciliation. Coordinate with Billawal/Qayyum.', status: 'start', statusText: 'Not started',      dep: 'CoinsPaid' },
+        { id: 'hz12', date: '12 Jun', range: '8–12 Jun', title: 'Competitor USP analysis — withdrawals', desc: 'Exness scaled on IB infra + instant withdrawals. Map their withdrawal SLAs vs ours, fee structure, methods. Can we beat them on speed? Publish "Withdraw in X minutes" claim if true.', status: 'start', statusText: 'Not started',      dep: 'PSPs live' }
+      ]
+    },
+    {
+      id: 'billawal', name: 'Billawal &amp; Qayyum', initial: 'B',
+      title: 'Finance · Risk · Dealing Desk Ops',
+      tasks: [
+        { id: 'b1', date: '24 May', range: '17–24 May', title: 'Accounting &amp; invoicing workflow', desc: 'Chart of accounts, invoicing flow for IB commissions and platform fees, monthly close cycle, statutory reporting calendars (Ajman + St. Lucia + Mauritius once live).', status: 'start', statusText: 'Not started',     dep: '—' },
+        { id: 'b2', date: '27 May', range: '20–27 May', title: 'MT5 accounting framework', desc: 'Daily P&amp;L, client equity reconciliation, group-level reporting, fee and commission booking. Ties into accounting workflow.', status: 'start', statusText: 'Not started',     dep: 'MT5 servers' },
+        { id: 'b3', date: '29 May', range: '24–29 May', title: 'Statutory plan: Ajman + St. Lucia licenses', desc: 'Filing calendar, capital adequacy reporting, audit schedule, regulator-facing financial pack template. Coordinate with Hamza on jurisdiction-specific requirements.', status: 'start', statusText: 'Not started',     dep: 'License clarity' },
+        { id: 'b4', date: '31 May', range: '26–31 May', title: 'A-book routing rules &amp; risk policy', desc: 'Define what flows to LP vs internalised, exposure limits, toxic-flow flags, scalper detection thresholds. Document for dealing desk.', status: 'start', statusText: 'Not started',     dep: 'LP onboarded' },
+        { id: 'b5', date: '2 Jun',  range: '28 May–2 Jun', title: 'Treasury &amp; client fund segregation', desc: 'Operational vs client accounts, daily reconciliation policy, segregation reporting. Coordinate with Hamza on PSP/wallet flows.', status: 'block', statusText: 'Blocked · Bank',    dep: 'Corporate bank' },
+        { id: 'b6', date: '5 Jun',  range: '31 May–5 Jun', title: 'Dealing desk operating procedures', desc: 'Liaise with Alpha Dealing (Aris C.). MT5 group config, manual intervention rules, position hedging triggers, EOD risk report.', status: 'start', statusText: 'Not started',     dep: 'Alpha Dealing' },
+        { id: 'b7', date: '8 Jun',  range: '3–8 Jun', title: 'Risk dashboard &amp; KPI baseline', desc: 'Live exposure view, LP rejection rates, slippage profile, deposit/withdrawal ratios, top-client positions. Fahad\'s daily review.', status: 'start', statusText: 'Not started',     dep: 'Trading live' },
+        { id: 'b8', date: '10 Jun', range: '5–10 Jun', title: 'Giveaway cost model &amp; reserve', desc: 'Model NTR per lot. Calculate funding for each prize tier. Lock allocations in treasury with 20% buffer.', status: 'start', statusText: 'Not started',     dep: 'Marketing strategy' },
+        { id: 'b9', date: '12 Jun', range: '7–12 Jun', title: 'Competitor USP analysis — spreads &amp; symbols', desc: 'Map XM, Exness, FBS, IC Markets on: spread per major pair, symbol coverage (FX, metals, crypto, indices, stocks), commission models, swap rates. Identify where we can lead — tightest spreads on top 5 pairs, broader crypto, lower swaps.', status: 'start', statusText: 'Not started',     dep: 'LP onboarded' }
+      ]
+    },
+    {
+      id: 'tuba', name: 'Syed Zair &amp; Tuba', initial: 'T',
+      title: 'IB &amp; Influencer Network · Owns the Database',
+      tasks: [
+        { id: 't1', date: '21 May', range: '17–21 May', title: 'IB &amp; influencer sheet · country-wise schema', desc: 'Build the master sheet with country, region, niche, follower count, contact, outreach status, response, conversion. Segregate by country from Day 1.', status: 'prog',  statusText: 'In progress', dep: '—' },
+        { id: 't2', date: '24 May', range: '20–24 May', title: 'Outreach account setup · branded reps', desc: 'Set up 3–5 Milele Prime affiliate manager handles across platforms — real reps with branded titles and verifiable LinkedIn/company footprint. Platform-compliant and clean for SCA/Mauritius fitness review later.', status: 'start', statusText: 'Not started',  dep: 'Brand identity' },
+        { id: 't3', date: '27 May', range: '20–27 May', title: 'Identify 1,000 IBs across target countries', desc: 'Existing forex IBs and affiliates across MENA, SE Asia, LatAm, CIS. Country-segregated. Prioritise IBs with existing client books.', status: 'start', statusText: 'Not started',  dep: 'Schema' },
+        { id: 't4', date: '28 May', range: '21–28 May', title: 'Build 5,000 micro-influencer list (1k–20k followers)', desc: 'Niches: lifestyle, real estate, entertainment, finance-adjacent, automotive. Country-segregated. Cross-platform: Instagram, TikTok, YouTube. Verifiable footprint required.', status: 'start', statusText: 'Not started',  dep: 'Schema' },
+        { id: 't5', date: '4 Jun',  range: '24 May–4 Jun', title: 'Outreach to 1,000 IBs · onboard 50', desc: 'Branded outreach from Milele Prime affiliate manager handles. Track response, qualify, route hot leads to Zain for IB commission negotiation. Launch target: 50 IBs onboarded.', status: 'start', statusText: 'Not started',  dep: 'Brand assets + commissions' },
+        { id: 't6', date: '10 Jun', range: '26 May–10 Jun', title: 'Outreach to 5,000 influencers · activate 250+', desc: 'Country-segregated batches. Track contact → response → activation funnel weekly. Activated = paid post or revshare deal signed. Hand activations to Zain for content briefing.', status: 'start', statusText: 'Not started',  dep: 'Outreach accounts + brand assets' },
+        { id: 't7', date: '15 Jun', range: '12–15 Jun', title: 'Launch-day push coordination', desc: 'Synchronised content drop across the full activated network on 15 June. Track conversion to signups. Daily reporting to Zain and Fahad.', status: 'start', statusText: 'Not started',  dep: 'Content + launch' }
+      ]
     }
-    const streamOrder = ['Legal','Infrastructure','Execution','Liquidity','CRM','PSP','IB Strategy','Sales Team','Accounting Team','Finance','Compliance','Content Series','Marketing','Launch'];
-    for (const stream of streamOrder) {
-      html += '<div class="stream-divider">' + stream + '</div>';
-      for (const t of tasks.filter(x => x.stream === stream)) {
-        html += '<div class="task-name" title="' + escAttr(t.notes) + '">' + t.name + '<span class="owner-tag">' + t.owner.split(' ')[0] + '</span></div>';
-        for (let d = 0; d <= totalDays; d++) {
-          const inRange = d >= t.start && d <= t.end;
-          let cls = '';
-          if (inRange) {
-            if (t.status === 'done') cls = 'fill-done';
-            else if (t.status === 'blocked') cls = 'fill-blocked';
-            else if (t.priority === 'critical') cls = 'fill-critical';
-            else if (t.priority === 'high') cls = 'fill-high';
-            else if (t.priority === 'med') cls = 'fill-med';
-            else if (t.priority === 'brand') cls = 'fill-brand';
-            else cls = 'fill-low';
-          }
-          html += '<div class="bar ' + cls + '"></div>';
+  ];
+  // ── Rendering helpers ─────────────────────────────────────────────
+  function roman(n) {
+    const map = ['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii','xiii','xiv','xv','xvi'];
+    return map[n - 1] || String(n);
+  }
+  function $(id) { return trPanel.querySelector('#' + id); }
+
+  function render() {
+    const grid = $('tr-team-grid');
+    let totalCount = 0;
+    team.forEach(p => totalCount += p.tasks.length);
+    setText('tr-stat-total', totalCount);
+
+    grid.innerHTML = team.map(p => {
+      const tasksHtml = p.tasks.map((t, i) => (
+        '<div class="task-row" data-task="' + t.id + '" data-person="' + p.id + '">'
+        +   '<div class="task-pri">' + roman(i + 1) + '</div>'
+        +   '<div class="task-check"></div>'
+        +   '<div class="task-body">'
+        +     '<div class="task-title">' + t.title + '</div>'
+        +     '<div class="task-desc">' + t.desc + '</div>'
+        +   '</div>'
+        +   '<div class="task-date">'
+        +     '<div class="due">Due ' + t.date + '</div>'
+        +     '<div class="range">' + t.range + '</div>'
+        +   '</div>'
+        +   '<div class="task-status">'
+        +     '<span class="pill ' + t.status + '">' + t.statusText + '</span>'
+        +     '<div class="dep">Dep: ' + t.dep + '</div>'
+        +   '</div>'
+        + '</div>'
+      )).join('');
+
+      return ''
+        + '<div class="person-card" data-person="' + p.id + '">'
+        +   '<div class="person-header">'
+        +     '<div class="person-initial">' + p.initial + '</div>'
+        +     '<div class="person-info">'
+        +       '<h3>' + p.name + '</h3>'
+        +       '<div class="title">' + p.title + '</div>'
+        +     '</div>'
+        +     '<div class="person-stats">'
+        +       '<div class="person-stat"><div class="num done" data-done-for="' + p.id + '">0</div><div class="lbl">Done</div></div>'
+        +       '<div class="person-stat"><div class="num">' + p.tasks.length + '</div><div class="lbl">Total</div></div>'
+        +     '</div>'
+        +     '<div class="person-progress">'
+        +       '<div class="person-progress-bar"><div class="person-progress-fill" data-fill-for="' + p.id + '"></div></div>'
+        +       '<div class="person-progress-label" data-lbl-for="' + p.id + '">0% complete</div>'
+        +     '</div>'
+        +   '</div>'
+        +   '<div class="task-list">' + tasksHtml + '</div>'
+        +   '<div class="person-controls">'
+        +     '<button data-action="mark-all" data-target="' + p.id + '">Mark all done</button>'
+        +     '<button data-action="clear-all" data-target="' + p.id + '">Clear all</button>'
+        +   '</div>'
+        + '</div>';
+    }).join('');
+
+    applyStateFromMemory();
+    updateAllProgress();
+  }
+
+  function setText(id, txt) {
+    const el = trPanel.querySelector('#' + id);
+    if (el) el.textContent = txt;
+  }
+
+  function applyStateFromMemory() {
+    trPanel.querySelectorAll('.task-row').forEach(row => {
+      const id = row.dataset.task;
+      if (window._trackerState[id]) row.classList.add('done');
+      else row.classList.remove('done');
+    });
+  }
+
+  function persist() {
+    if (typeof saveState === 'function') saveState();
+  }
+
+  function toggleTask(taskId, personId) {
+    const row = trPanel.querySelector('[data-task="' + taskId + '"]');
+    if (!row) return;
+    row.classList.toggle('done');
+    window._trackerState[taskId] = row.classList.contains('done');
+    persist();
+    updatePersonProgress(personId);
+    updateOverallProgress();
+  }
+
+  function markAll(personId, done) {
+    const card = trPanel.querySelector('.person-card[data-person="' + personId + '"]');
+    if (!card) return;
+    card.querySelectorAll('.task-row').forEach(row => {
+      const id = row.dataset.task;
+      if (done) { row.classList.add('done'); window._trackerState[id] = true; }
+      else      { row.classList.remove('done'); window._trackerState[id] = false; }
+    });
+    persist();
+    updatePersonProgress(personId);
+    updateOverallProgress();
+  }
+
+  function updatePersonProgress(personId) {
+    const card = trPanel.querySelector('.person-card[data-person="' + personId + '"]');
+    if (!card) return;
+    const total = card.querySelectorAll('.task-row').length;
+    const done  = card.querySelectorAll('.task-row.done').length;
+    const pct   = total ? Math.round((done / total) * 100) : 0;
+    const doneEl = trPanel.querySelector('[data-done-for="' + personId + '"]');
+    const fillEl = trPanel.querySelector('[data-fill-for="' + personId + '"]');
+    const lblEl  = trPanel.querySelector('[data-lbl-for="' + personId + '"]');
+    if (doneEl) doneEl.textContent = done;
+    if (fillEl) fillEl.style.width = pct + '%';
+    if (lblEl)  lblEl.textContent = pct + '% complete';
+  }
+
+  function updateOverallProgress() {
+    const total = trPanel.querySelectorAll('.task-row').length;
+    const done  = trPanel.querySelectorAll('.task-row.done').length;
+    const pct   = total ? Math.round((done / total) * 100) : 0;
+    const fill = $('tr-overall-fill');
+    if (fill) fill.style.width = pct + '%';
+    setText('tr-progress-pct', pct + '% complete');
+    setText('tr-stat-done', done);
+  }
+
+  function updateAllProgress() {
+    team.forEach(p => updatePersonProgress(p.id));
+    updateOverallProgress();
+  }
+
+  function resetAll() {
+    if (!confirm('Reset every checkbox? This cannot be undone.')) return;
+    Object.keys(window._trackerState).forEach(k => { window._trackerState[k] = false; });
+    trPanel.querySelectorAll('.task-row.done').forEach(r => r.classList.remove('done'));
+    persist();
+    updateAllProgress();
+  }
+
+  // ── One-time migration from old localStorage key (if state empty) ──
+  try {
+    if (Object.keys(window._trackerState).length === 0) {
+      const oldLs = localStorage.getItem('milele_prime_tracker_v2');
+      if (oldLs) {
+        const parsed = JSON.parse(oldLs);
+        if (parsed && typeof parsed === 'object') {
+          Object.keys(parsed).forEach(k => { window._trackerState[k] = !!parsed[k]; });
         }
       }
     }
-    grid.innerHTML = html;
-  }
+  } catch (e) {}
 
-  function renderWorkstreams() {
-    const grid = $('workstreamGrid');
-    let html = '';
-    for (const [stream, meta] of Object.entries(streamMeta)) {
-      html += '<div class="ws-card"><div class="ws-header"><div class="ws-title">' + meta.title + '</div><div class="ws-status status-' + meta.status + '">' + meta.status.replace(/([A-Z])/g, ' $1').trim() + '</div></div><div class="ws-body">' + meta.desc + '</div><div class="ws-tasks">';
-      for (const t of tasks.filter(x => x.stream === stream)) {
-        const icon = t.status === 'done' ? '✓' : t.status === 'progress' ? '◐' : t.status === 'blocked' ? '✕' : '○';
-        const color = t.status === 'done' ? 'var(--green)' : t.status === 'progress' ? 'var(--amber)' : t.status === 'blocked' ? 'var(--red)' : 'var(--muted-2)';
-        html += '<div class="ws-task"><span class="ws-task-name"><span style="color:' + color + ';font-weight:bold">' + icon + '</span> ' + t.name + '</span><span class="ws-task-owner">' + t.owner + '</span></div>';
-      }
-      html += '</div></div>';
+  // ── Event delegation: row clicks toggle, per-person buttons mark/clear ──
+  trPanel.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action]');
+    if (btn && trPanel.contains(btn)) {
+      const action = btn.dataset.action;
+      const target = btn.dataset.target;
+      if (action === 'mark-all') markAll(target, true);
+      else if (action === 'clear-all') markAll(target, false);
+      e.stopPropagation();
+      return;
     }
-    grid.innerHTML = html;
-  }
-
-  function renderKanban() {
-    const board = $('kanbanBoard');
-    const cols = [
-      { key:'blocked',  title:'Blocked',     filter:t => t.status === 'blocked' },
-      { key:'review',   title:'Not Started', filter:t => t.status === 'notStarted' },
-      { key:'progress', title:'In Progress', filter:t => t.status === 'progress' },
-      { key:'done',     title:'Done',        filter:t => t.status === 'done' },
-    ];
-    const order = { critical:0, high:1, med:2, brand:3, low:4 };
-    let html = '';
-    for (const col of cols) {
-      const colTasks = tasks.filter(col.filter).sort((a,b) => order[a.priority] - order[b.priority]);
-      html += '<div class="column ' + col.key + '"><div class="column-header"><div class="col-title">' + col.title + '</div><div class="col-count">' + colTasks.length + '</div></div>';
-      for (const t of colTasks) {
-        const wk = Math.ceil(t.end / 7);
-        const urgent = (t.end <= 21 && t.priority === 'critical') ? ' urgent' : '';
-        html += '<div class="card priority-' + t.priority + '" title="' + escAttr(t.notes) + '"><div class="card-title">' + t.name + '</div><div class="card-meta"><span class="meta-pill">' + t.stream + '</span><span class="meta-pill owner">' + t.owner + '</span><span class="meta-pill deadline' + urgent + '">Wk ' + wk + '</span></div></div>';
-      }
-      html += '</div>';
+    const row = e.target.closest('.task-row');
+    if (row && trPanel.contains(row)) {
+      toggleTask(row.dataset.task, row.dataset.person);
     }
-    board.innerHTML = html;
-  }
-
-  function renderMilestones() {
-    const list = $('milestonesList');
-    let html = '';
-    for (const m of milestones) {
-      const cls = m.isLaunch ? 'launch-row' : m.isBrand ? 'brand-row' : '';
-      html += '<div class="ms-row ' + cls + '"><div class="ms-date">' + m.date + '</div><div class="ms-name">' + m.name + '<small>' + m.sub + '</small></div><div class="ms-owner">' + m.owner + '</div><div class="ms-deps">' + m.deps + '</div></div>';
-    }
-    list.innerHTML = html;
-  }
-
-  trPanel.querySelectorAll('.tr-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const target = tab.getAttribute('data-view');
-      trPanel.querySelectorAll('.tr-tab').forEach(t => t.classList.remove('active'));
-      trPanel.querySelectorAll('.tr-view').forEach(v => v.classList.remove('active'));
-      tab.classList.add('active');
-      const view = trPanel.querySelector('#' + target);
-      if (view) view.classList.add('active');
-    });
   });
+  const resetBtn = $('tr-reset-btn');
+  if (resetBtn) resetBtn.addEventListener('click', resetAll);
 
-  renderTimeline();
-  renderWorkstreams();
-  renderKanban();
-  renderMilestones();
+  // ── Persistence — round-trip window._trackerState through Supabase ─
+  if (typeof collectState === 'function') {
+    const _origCollect = collectState;
+    collectState = function() {
+      const s = _origCollect();
+      s.trackerState = window._trackerState;
+      return s;
+    };
+  }
+  if (typeof applyState === 'function') {
+    const _origApply = applyState;
+    applyState = function(s) {
+      _origApply(s);
+      if (s && s.trackerState && typeof s.trackerState === 'object') {
+        window._trackerState = s.trackerState;
+        applyStateFromMemory();
+        updateAllProgress();
+      }
+    };
+  }
+
+  render();
 })();
 </script>
 
@@ -9129,6 +9435,659 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 
   // Initial render (in case state already loaded)
   renderLPProfiles();
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// TAB 7 SECTIONS — B-Book Loss / PSP Fee / Bridge Volume Fee /
+//                  LP Swap Cost / Dealing Desk Cost / IB Acq / CAC
+// Adds 7 standardised sections to the Variable Costs tab. Runs after
+// applyStructuralFixes and lpCostsModule. Idempotent.
+// ═══════════════════════════════════════════════════════════════════════
+(function tab7Sections() {
+  if (window.__tab7SectionsBuilt) return;
+  window.__tab7SectionsBuilt = true;
+
+  const tab7 = document.getElementById('tab7');
+  if (!tab7) return;
+
+  if (typeof window._ddMode === 'undefined') window._ddMode = 'fixed';
+
+  // ── Helpers ────────────────────────────────────────────────────────
+  const elem = (tag, cls, txt) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt != null) e.textContent = txt;
+    return e;
+  };
+  const fmtN = n => Math.round(n).toLocaleString();
+  const fmt$ = n => (n < 0 ? '-' : '') + '$' + fmtN(Math.abs(n));
+  const fmtLots = n => (+n || 0).toLocaleString(undefined, { minimumFractionDigits:1, maximumFractionDigits:1 });
+  const setText = (id, txt) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'INPUT') el.value = txt;
+    else el.textContent = txt;
+  };
+  const numVal = id => { const el = document.getElementById(id); return el ? (+el.value || 0) : 0; };
+  const numText = id => {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    return parseFloat((el.textContent || '').replace(/[^0-9.\-]/g, '')) || 0;
+  };
+  const parseFmt = id => {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    const t = (el.textContent || el.value || '').trim().replace(/[$,\s]/g, '');
+    if (/M$/i.test(t)) return parseFloat(t) * 1e6;
+    if (/k$/i.test(t)) return parseFloat(t) * 1e3;
+    return parseFloat(t) || 0;
+  };
+
+  function findDivider(label) {
+    const dvs = tab7.querySelectorAll('.divider');
+    for (let i = 0; i < dvs.length; i++) {
+      const lbl = dvs[i].querySelector('.divider-label');
+      if (lbl && lbl.textContent.trim() === label) return dvs[i];
+    }
+    return null;
+  }
+  function nextGridAfter(node) {
+    let n = node ? node.nextElementSibling : null;
+    while (n && !n.classList.contains('costs-grid') && !n.classList.contains('tt-grid')) {
+      n = n.nextElementSibling;
+    }
+    return n;
+  }
+  function makeDivider(label) {
+    const d = elem('div', 'divider fu fu2');
+    d.appendChild(elem('div', 'divider-label', label));
+    d.appendChild(elem('div', 'divider-line'));
+    return d;
+  }
+  function makeGrid(cols) {
+    const g = elem('div', 'costs-grid fu fu2');
+    if (cols) g.style.gridTemplateColumns = 'repeat(' + cols + ',1fr)';
+    return g;
+  }
+  function addFormula(card, forId, text) {
+    if (!card) return;
+    if (card.querySelector('.ci-formula[data-for="' + forId + '"]')) return;
+    const f = elem('div', 'ci-formula');
+    f.setAttribute('data-for', forId);
+    f.textContent = text;
+    card.appendChild(f);
+  }
+  function stashHidden(id) {
+    const inp = document.getElementById(id);
+    if (!inp || inp.tagName !== 'INPUT') return;
+    inp.style.display = 'none';
+    document.body.appendChild(inp);
+  }
+  function makeOutputRow(label, outId) {
+    const div = document.createElement('div');
+    div.style.cssText = 'margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:baseline';
+    const lab = elem('span', null, label);
+    lab.style.cssText = 'font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em';
+    div.appendChild(lab);
+    const span = elem('span', null, '$0');
+    span.id = outId;
+    span.style.cssText = 'font-size:16px;font-weight:700;color:var(--pu-text)';
+    div.appendChild(span);
+    return div;
+  }
+  function makeInputBlock(opts) {
+    const w = document.createElement('div');
+    if (opts.noteAbove) {
+      const n = elem('div', 'ci-note', opts.noteAbove);
+      n.style.marginTop = '.65rem';
+      w.appendChild(n);
+    }
+    const iw = elem('div', 'ci-input-wrap');
+    if (opts.prefix) iw.appendChild(elem('span', 'ci-prefix', opts.prefix));
+    const inp = document.createElement('input');
+    inp.className = 'ci-input';
+    inp.type = opts.type || 'number';
+    inp.id = opts.id;
+    if (opts.value != null) inp.value = opts.value;
+    if (opts.min != null) inp.min = opts.min;
+    if (opts.step != null) inp.step = opts.step;
+    if (opts.readonly) {
+      inp.readOnly = true;
+      inp.setAttribute('tabindex', '-1');
+      inp.style.color = 'var(--pu-text)';
+      inp.style.cursor = 'default';
+    }
+    iw.appendChild(inp);
+    if (opts.suffix) iw.appendChild(elem('span', 'ci-prefix', opts.suffix));
+    w.appendChild(iw);
+    if (opts.noteBelow) {
+      const n = elem('div', 'ci-note', opts.noteBelow);
+      n.style.cssText = 'font-style:italic;margin-top:.35rem';
+      w.appendChild(n);
+    }
+    return w;
+  }
+  function appendAfter(node, anchor) {
+    anchor.parentNode.insertBefore(node, anchor.nextSibling);
+    return node;
+  }
+
+  // ════════════════════════════════════════════════════════
+  // SECTION 1 — Book P&L (A-Book Slippage + B-Book Loss together).
+  // Removes the simple A-Book Loss card (vrc-loss-a) and moves the
+  // A-Book Slippage card up under the Book P&L divider alongside B-Book Loss.
+  // ════════════════════════════════════════════════════════
+  const bookPLDiv  = findDivider('Book P&L');
+  const bookPLGrid = nextGridAfter(bookPLDiv);
+
+  // Remove the simple "A Book Loss" card (vrc-loss-a). Capture the parent
+  // card BEFORE stashing the input — stashHidden moves the input to body,
+  // after which closest('.ci') would return null.
+  const _aLossInp  = document.getElementById('vrc-loss-a');
+  const _aLossCard = _aLossInp ? _aLossInp.closest('.ci') : null;
+  stashHidden('vrc-loss-a');
+  if (_aLossCard && _aLossCard.parentNode) _aLossCard.parentNode.removeChild(_aLossCard);
+
+  // Update the B-Book Loss card in place (it's already inside Book P&L grid)
+  const bbookLossOutEl = document.getElementById('vrc-bbook-loss-cost');
+  const bbookLossCard  = bbookLossOutEl ? bbookLossOutEl.closest('.ci') : null;
+  if (bbookLossCard) {
+    const lbl = bbookLossCard.querySelector('.ci-label');
+    if (lbl) lbl.textContent = 'B-Book Loss';
+    const note = bbookLossCard.querySelector('.ci-note');
+    if (note) note.textContent = 'Broker pays out client wins on B-book volume. Cost side — mirrors B-Book Gain on Revenue tab.';
+    addFormula(bbookLossCard, 'vrc-bbook-loss-cost',
+      'B-Book Loss = B-Book Lots × Client Win Rate % × Avg Win pips × $10');
+  }
+
+  // Move A-Book Slippage card up into the Book P&L grid, drop its old divider
+  const aSlipOutEl = document.getElementById('vrc-abook-slip-cost');
+  const aSlipCard  = aSlipOutEl ? aSlipOutEl.closest('.ci') : null;
+  const aSlipDiv   = findDivider('A-Book Loss (Slippage)');
+  const aSlipGrid  = aSlipDiv ? nextGridAfter(aSlipDiv) : null;
+  if (aSlipCard && bookPLGrid) {
+    bookPLGrid.appendChild(aSlipCard); // moves the existing card
+    addFormula(aSlipCard, 'vrc-abook-slip-cost',
+      'A-Book Slippage = A-Book Lots × Slippage pips × $10');
+  }
+  if (aSlipDiv)  aSlipDiv.remove();
+  if (aSlipGrid && !aSlipGrid.children.length) aSlipGrid.remove();
+
+  let insertCursor = bookPLGrid || bookPLDiv;
+  // Fallback: if Book P&L was already gone, anchor at the last child of tab7
+  // so appendAfter still inserts inside tab7 rather than as its sibling.
+  if (!insertCursor && tab7.lastElementChild) insertCursor = tab7.lastElementChild;
+
+  // ── Tear down sections being replaced ──────────────────────────────
+  // Stash inputs BEFORE removing their parent grid so their saved values
+  // round-trip through collectState (otherwise getElementById returns null
+  // once the subtree is detached).
+  ['vrc-psp','vrc-po','vrc-lp','vrc-lp-swap','vrc-bridge'].forEach(stashHidden);
+  const txnDiv  = findDivider('Transaction Fees');
+  const txnGrid = nextGridAfter(txnDiv);
+  if (txnDiv)  txnDiv.remove();
+  if (txnGrid) txnGrid.remove();
+
+  stashHidden('vrc-dd-share');
+  const ddOldDiv  = findDivider('Dealing Desk');
+  const ddOldGrid = nextGridAfter(ddOldDiv);
+  if (ddOldDiv)  ddOldDiv.remove();
+  if (ddOldGrid) ddOldGrid.remove();
+
+  // Remove standalone cards no longer wanted in the UI.
+  // Inputs are stashed hidden first so any prior saved value still round-trips
+  // through collectState.
+  ['vrc-kyc-rejection','vrc-affiliate','vrc-prize-pool'].forEach(id => {
+    const inp  = document.getElementById(id);
+    const card = inp ? inp.closest('.ci') : null;
+    stashHidden(id);
+    if (card && card.parentNode) card.parentNode.removeChild(card);
+  });
+
+  // Detach the existing IB Acquisition + CAC cards from "Acquisition Costs"
+  const acqIbInp   = document.getElementById('vrc-ib-acq');
+  const acqIbCard  = acqIbInp  ? acqIbInp.closest('.ci')  : null;
+  if (acqIbCard && acqIbCard.parentNode) acqIbCard.parentNode.removeChild(acqIbCard);
+
+  const acqCacInp  = document.getElementById('vrc-cac');
+  const acqCacCard = acqCacInp ? acqCacInp.closest('.ci') : null;
+  if (acqCacCard && acqCacCard.parentNode) acqCacCard.parentNode.removeChild(acqCacCard);
+  if (acqCacInp) acqCacInp.id = 'vrc-cac-spend';
+
+  // ════════════════════════════════════════════════════════
+  // SECTION 2 — PSP Fee
+  // ════════════════════════════════════════════════════════
+  const sec2Div  = makeDivider('PSP Transaction Fees');
+  const sec2Grid = makeGrid();
+  const pspCard  = elem('div', 'ci');
+  pspCard.appendChild(elem('div', 'ci-label', 'PSP Fee'));
+  pspCard.appendChild(elem('div', 'ci-note',
+    'Applied on deposits and withdrawals. Deposit fee charged once per deposit event. Withdrawal fee applied monthly on estimated withdrawal volume.'));
+  pspCard.appendChild(makeInputBlock({ noteAbove:'Deposit Fee %',                               id:'vrc-psp-deposit-fee-pct',     value:2.0, min:0, step:0.1, suffix:'%' }));
+  pspCard.appendChild(makeInputBlock({ noteAbove:'Withdrawal Rate % of AUM',                    id:'vrc-psp-withdrawal-rate-pct', value:15,  min:0, step:1,   suffix:'%', noteBelow:'% of total AUM withdrawn per month' }));
+  pspCard.appendChild(makeInputBlock({ noteAbove:'Withdrawal Fee %',                            id:'vrc-psp-withdrawal-fee-pct',  value:2.5, min:0, step:0.1, suffix:'%' }));
+  pspCard.appendChild(makeInputBlock({ noteAbove:'Total Deposit Volume — fetched from AUM tab', id:'vrc-psp-deposit-vol-ref',     type:'text', value:'$0', readonly:true }));
+  pspCard.appendChild(makeInputBlock({ noteAbove:'Total AUM — fetched from AUM tab',            id:'vrc-psp-aum-ref',             type:'text', value:'$0', readonly:true }));
+  pspCard.appendChild(makeOutputRow('PSP Fee Total', 'vrc-psp-total-cost'));
+  addFormula(pspCard, 'vrc-psp-total-cost',
+    '(Total Deposit Volume × Deposit Fee %) + (Total AUM × Withdrawal Rate % × Withdrawal Fee %)');
+  sec2Grid.appendChild(pspCard);
+  insertCursor = appendAfter(sec2Div,  insertCursor);
+  insertCursor = appendAfter(sec2Grid, insertCursor);
+
+  // ════════════════════════════════════════════════════════
+  // SECTION 3 — Bridge Volume Fee
+  // ════════════════════════════════════════════════════════
+  const sec3Div  = makeDivider('Bridge Volume Fee');
+  const sec3Grid = makeGrid();
+  const brCard   = elem('div', 'ci');
+  brCard.appendChild(elem('div', 'ci-label', 'Bridge Volume Fee'));
+  brCard.appendChild(elem('div', 'ci-note',
+    'Centroid CS360 charges per lot on all flow passing through the bridge regardless of A-Book or B-Book routing.'));
+  brCard.appendChild(makeInputBlock({ noteAbove:'Bridge Fee per Lot',                              id:'vrc-bridge-fee-per-lot', value:1.50, min:0, step:0.1, prefix:'$' }));
+  brCard.appendChild(makeInputBlock({ noteAbove:'Total Lots / yr — fetched from Trading Flow tab', id:'vrc-bridge-lots-ref',    type:'text', value:'0', readonly:true, suffix:'lots' }));
+  brCard.appendChild(makeOutputRow('Bridge Fee', 'vrc-bridge-total-cost'));
+  addFormula(brCard, 'vrc-bridge-total-cost', 'Bridge Fee = Total Lots × Bridge Fee per Lot');
+  sec3Grid.appendChild(brCard);
+  insertCursor = appendAfter(sec3Div,  insertCursor);
+  insertCursor = appendAfter(sec3Grid, insertCursor);
+
+  // ════════════════════════════════════════════════════════
+  // SECTION 4 — LP Swap Cost
+  // ════════════════════════════════════════════════════════
+  const sec4Div  = makeDivider('LP Swap Cost');
+  const sec4Grid = makeGrid();
+  const lpsCard  = elem('div', 'ci');
+  lpsCard.appendChild(elem('div', 'ci-label', 'LP Swap Cost'));
+  lpsCard.appendChild(elem('div', 'ci-note',
+    'Overnight swap paid to LP on A-Book hedged positions. Cost mirror of A-Book Swap Revenue on the Revenue tab. LP Swap rate is fetched from each LP profile in the LP Costs section above.'));
+  lpsCard.appendChild(makeInputBlock({ noteAbove:'Overnight Position %',                             id:'vrc-lp-swap-overnight-pct',    value:20, min:0, step:1, suffix:'%', noteBelow:'% of A-Book lots held overnight' }));
+  lpsCard.appendChild(makeInputBlock({ noteAbove:'A-Book Lots / yr — fetched from Trading Flow tab', id:'vrc-lp-swap-abook-lots-ref',   type:'text', value:'0',    readonly:true, suffix:'lots' }));
+  lpsCard.appendChild(makeInputBlock({ noteAbove:'Avg LP Swap Rate — fetched from LP Costs section', id:'vrc-lp-swap-rate-ref',         type:'text', value:'0.3',  readonly:true, suffix:'pips' }));
+  lpsCard.appendChild(makeOutputRow('LP Swap Cost', 'vrc-lp-swap-total-cost'));
+  addFormula(lpsCard, 'vrc-lp-swap-total-cost',
+    'LP Swap Cost = A-Book Lots × Overnight % × Avg LP Swap Rate × $10');
+  sec4Grid.appendChild(lpsCard);
+  insertCursor = appendAfter(sec4Div,  insertCursor);
+  insertCursor = appendAfter(sec4Grid, insertCursor);
+
+  // ════════════════════════════════════════════════════════
+  // SECTION 5 — Dealing Desk Cost (toggle Fixed Retainer / Revenue Share)
+  // ════════════════════════════════════════════════════════
+  const sec5Div  = makeDivider('Dealing Desk Cost');
+  const sec5Grid = makeGrid();
+  const ddCard   = elem('div', 'ci');
+  ddCard.appendChild(elem('div', 'ci-label', 'Dealing Desk Cost'));
+  ddCard.appendChild(elem('div', 'ci-note',
+    'Alpha Dealing fee. Toggle between Fixed Retainer (mirrors fxc-dd in Fixed Costs tab — no double count) or Revenue Share % of Net Trading Revenue.'));
+
+  const toggleWrap = document.createElement('div');
+  toggleWrap.style.cssText = 'display:flex;gap:.5rem;margin-top:.75rem;margin-bottom:.75rem';
+  const ddBtnFixed = document.createElement('button');
+  ddBtnFixed.type = 'button';
+  ddBtnFixed.id = 'vrc-dd-mode-fixed';
+  ddBtnFixed.textContent = 'Fixed Retainer';
+  const ddBtnRS = document.createElement('button');
+  ddBtnRS.type = 'button';
+  ddBtnRS.id = 'vrc-dd-mode-revshare';
+  ddBtnRS.textContent = 'Revenue Share %';
+  function styleDDBtn(btn, active) {
+    btn.style.cssText = 'flex:1;padding:.6rem 1rem;font-size:13px;font-weight:600;letter-spacing:.04em;cursor:pointer;'
+      + 'border:1px solid var(--border);background:' + (active ? 'var(--pu)' : 'var(--bg2)')
+      + ';color:' + (active ? '#fff' : 'var(--text)')
+      + ';transition:background .15s';
+  }
+  toggleWrap.appendChild(ddBtnFixed);
+  toggleWrap.appendChild(ddBtnRS);
+  ddCard.appendChild(toggleWrap);
+
+  // Both mode sections always in DOM (one hidden) so input values round-trip
+  const ddFixedSection = document.createElement('div');
+  ddFixedSection.appendChild(makeInputBlock({ noteAbove:'Fixed Retainer — set in Fixed Costs tab', id:'vrc-dd-fixed-ref', type:'text', value:'$0', readonly:true }));
+  const ddFixedHelp = elem('div', 'ci-note', 'Editing this value: go to Fixed Costs tab → Dealing Desk field.');
+  ddFixedHelp.style.cssText = 'font-style:italic;margin-top:.35rem';
+  ddFixedSection.appendChild(ddFixedHelp);
+
+  const ddRSSection = document.createElement('div');
+  ddRSSection.appendChild(makeInputBlock({ noteAbove:'Revenue Share %', id:'vrc-dd-revshare-pct', value:10, min:0, step:0.1, suffix:'%' }));
+  ddRSSection.appendChild(makeInputBlock({ noteAbove:'Net Trading Revenue — fetched from Revenue tab', id:'vrc-dd-ntr-ref', type:'text', value:'$0', readonly:true }));
+
+  ddCard.appendChild(ddFixedSection);
+  ddCard.appendChild(ddRSSection);
+  ddCard.appendChild(makeOutputRow('Dealing Desk Cost', 'vrc-dd-total-cost'));
+  addFormula(ddCard, 'vrc-dd-total-cost',
+    'Fixed: fxc-dd × 12 (monthly retainer annualised). Revenue Share: Net Trading Revenue × Revenue Share %');
+  sec5Grid.appendChild(ddCard);
+  insertCursor = appendAfter(sec5Div,  insertCursor);
+  insertCursor = appendAfter(sec5Grid, insertCursor);
+
+  function renderDDMode() {
+    styleDDBtn(ddBtnFixed, window._ddMode === 'fixed');
+    styleDDBtn(ddBtnRS,    window._ddMode === 'revshare');
+    ddFixedSection.style.display = window._ddMode === 'fixed' ? '' : 'none';
+    ddRSSection   .style.display = window._ddMode === 'revshare' ? '' : 'none';
+    recalcDealingDesk();
+  }
+  ddBtnFixed.addEventListener('click', () => { window._ddMode = 'fixed';    renderDDMode(); if (typeof saveState === 'function') saveState(); });
+  ddBtnRS   .addEventListener('click', () => { window._ddMode = 'revshare'; renderDDMode(); if (typeof saveState === 'function') saveState(); });
+
+  // ════════════════════════════════════════════════════════
+  // SECTION 6 — IB Acquisition (2 cards + derived)
+  // ════════════════════════════════════════════════════════
+  const sec6Div  = makeDivider('IB Acquisition');
+  const sec6Grid = makeGrid(2);
+  const ib1 = elem('div', 'ci');
+  ib1.appendChild(elem('div', 'ci-label', 'IB Acquisition Cost'));
+  ib1.appendChild(elem('div', 'ci-note',
+    'Total spend to recruit, onboard and activate new IBs. Includes travel, events, agency fees, onboarding materials.'));
+  const ib1iw = elem('div', 'ci-input-wrap');
+  ib1iw.appendChild(elem('span', 'ci-prefix', '$'));
+  if (acqIbInp) {
+    ib1iw.appendChild(acqIbInp); // reuse detached input
+  } else {
+    const fb = document.createElement('input');
+    fb.className = 'ci-input'; fb.type = 'number'; fb.id = 'vrc-ib-acq';
+    fb.value = 0; fb.min = 0; fb.step = 100;
+    ib1iw.appendChild(fb);
+  }
+  ib1.appendChild(ib1iw);
+  sec6Grid.appendChild(ib1);
+
+  const ib2 = elem('div', 'ci');
+  ib2.appendChild(elem('div', 'ci-label', 'New IBs Onboarded'));
+  ib2.appendChild(elem('div', 'ci-note',
+    'Number of new IBs activated in the period. Used to derive cost per IB.'));
+  const ib2iw = elem('div', 'ci-input-wrap');
+  const ib2Inp = document.createElement('input');
+  ib2Inp.className = 'ci-input'; ib2Inp.type = 'number'; ib2Inp.id = 'vrc-ib-count';
+  ib2Inp.value = 0; ib2Inp.min = 0; ib2Inp.step = 1;
+  ib2iw.appendChild(ib2Inp);
+  ib2.appendChild(ib2iw);
+  sec6Grid.appendChild(ib2);
+
+  const ibDerived = elem('div', 'ci');
+  ibDerived.style.cssText = 'grid-column:1 / -1';
+  const ibDR = document.createElement('div');
+  ibDR.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline';
+  const ibDLab = elem('span', null, 'Cost per IB Onboarded');
+  ibDLab.style.cssText = 'font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em';
+  ibDR.appendChild(ibDLab);
+  const ibDOut = elem('span', null, '—');
+  ibDOut.id = 'vrc-ib-cost-per-ib';
+  ibDOut.style.cssText = 'font-size:16px;font-weight:700;color:var(--pu-text)';
+  ibDR.appendChild(ibDOut);
+  ibDerived.appendChild(ibDR);
+  addFormula(ibDerived, 'vrc-ib-cost-per-ib', 'IB Acquisition Cost ÷ New IBs Onboarded');
+  sec6Grid.appendChild(ibDerived);
+
+  insertCursor = appendAfter(sec6Div,  insertCursor);
+  insertCursor = appendAfter(sec6Grid, insertCursor);
+
+  // ════════════════════════════════════════════════════════
+  // SECTION 7 — CAC (2 cards + derived row with 2 outputs)
+  // ════════════════════════════════════════════════════════
+  const sec7Div  = makeDivider('Customer Acquisition Cost (CAC)');
+  const sec7Grid = makeGrid(2);
+  const c1 = elem('div', 'ci');
+  c1.appendChild(elem('div', 'ci-label', 'Total Marketing Spend'));
+  c1.appendChild(elem('div', 'ci-note',
+    'Direct marketing budget — paid ads, content production, influencer fees. Excludes IB commissions (those are in IB Payouts above) and IB recruitment (in IB Acquisition above).'));
+  const c1iw = elem('div', 'ci-input-wrap');
+  c1iw.appendChild(elem('span', 'ci-prefix', '$'));
+  if (acqCacInp) {
+    c1iw.appendChild(acqCacInp); // already renamed to vrc-cac-spend
+  } else {
+    const fb = document.createElement('input');
+    fb.className = 'ci-input'; fb.type = 'number'; fb.id = 'vrc-cac-spend';
+    fb.value = 0; fb.min = 0; fb.step = 100;
+    c1iw.appendChild(fb);
+  }
+  c1.appendChild(c1iw);
+  sec7Grid.appendChild(c1);
+
+  const c2 = elem('div', 'ci');
+  c2.appendChild(elem('div', 'ci-label', 'Total Funded Clients'));
+  c2.appendChild(elem('div', 'ci-note',
+    'Live from AUM tab — total funded clients. Used to derive CAC per client.'));
+  c2.appendChild(makeInputBlock({ id:'vrc-cac-clients-ref', type:'text', value:'0', readonly:true }));
+  sec7Grid.appendChild(c2);
+
+  const cDerived = elem('div', 'ci');
+  cDerived.style.cssText = 'grid-column:1 / -1';
+  const cInner = document.createElement('div');
+  cInner.style.cssText = 'display:grid;grid-template-columns:repeat(2,1fr);gap:1rem';
+
+  const cBlock1 = document.createElement('div');
+  const cBlock1Row = document.createElement('div');
+  cBlock1Row.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;padding-bottom:.4rem;border-bottom:1px solid var(--border-dim)';
+  const cBlock1Lbl = elem('span', null, 'CAC per Client');
+  cBlock1Lbl.style.cssText = 'font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em';
+  cBlock1Row.appendChild(cBlock1Lbl);
+  const cBlock1Out = elem('span', null, '—');
+  cBlock1Out.id = 'vrc-cac-per-client';
+  cBlock1Out.style.cssText = 'font-size:16px;font-weight:700;color:var(--pu-text)';
+  cBlock1Row.appendChild(cBlock1Out);
+  cBlock1.appendChild(cBlock1Row);
+  const cBlock1Note = elem('div', 'ci-note',
+    'Marketing spend ÷ funded clients. Excludes IB commissions and IB acquisition.');
+  cBlock1Note.style.cssText = 'font-style:italic;margin-top:.4rem';
+  cBlock1.appendChild(cBlock1Note);
+  addFormula(cBlock1, 'vrc-cac-per-client', 'CAC per Client = Total Marketing Spend ÷ Total Funded Clients');
+  cInner.appendChild(cBlock1);
+
+  const cBlock2 = document.createElement('div');
+  const cBlock2Row = document.createElement('div');
+  cBlock2Row.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;padding-bottom:.4rem;border-bottom:1px solid var(--border-dim)';
+  const cBlock2Lbl = elem('span', null, 'Total CAC Cost — feeds into Variable Cost total');
+  cBlock2Lbl.style.cssText = 'font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em';
+  cBlock2Row.appendChild(cBlock2Lbl);
+  const cBlock2Out = elem('span', null, '$0');
+  cBlock2Out.id = 'vrc-cac-total-cost';
+  cBlock2Out.style.cssText = 'font-size:16px;font-weight:700;color:var(--pu-text)';
+  cBlock2Row.appendChild(cBlock2Out);
+  cBlock2.appendChild(cBlock2Row);
+  addFormula(cBlock2, 'vrc-cac-total-cost', 'Total CAC Cost = Total Marketing Spend (same value — the spend is the cost)');
+  cInner.appendChild(cBlock2);
+
+  cDerived.appendChild(cInner);
+  sec7Grid.appendChild(cDerived);
+
+  insertCursor = appendAfter(sec7Div,  insertCursor);
+  insertCursor = appendAfter(sec7Grid, insertCursor);
+
+  // ════════════════════════════════════════════════════════
+  // RECALC FUNCTIONS
+  // ════════════════════════════════════════════════════════
+  function recalcPSP() {
+    const depVol = numText('dep-volume-total');
+    const aum    = depVol;
+    setText('vrc-psp-deposit-vol-ref', fmt$(depVol));
+    setText('vrc-psp-aum-ref',         fmt$(aum));
+    const dFee = (numVal('vrc-psp-deposit-fee-pct')    || 0) / 100;
+    const wRate= (numVal('vrc-psp-withdrawal-rate-pct')|| 0) / 100;
+    const wFee = (numVal('vrc-psp-withdrawal-fee-pct') || 0) / 100;
+    const total = depVol * dFee + aum * wRate * wFee;
+    setText('vrc-psp-total-cost', fmt$(total));
+    triggerVRCAdjust();
+  }
+  function recalcBridge() {
+    const lots = numText('flt-total-lots');
+    setText('vrc-bridge-lots-ref', lots.toLocaleString(undefined, { maximumFractionDigits:0 }));
+    const total = lots * numVal('vrc-bridge-fee-per-lot');
+    setText('vrc-bridge-total-cost', fmt$(total));
+    triggerVRCAdjust();
+  }
+  function getAvgLPSwap() {
+    const swaps = document.querySelectorAll('#vrc-lp-list input[data-lp-field="swap"]');
+    if (!swaps.length) return 0.3;
+    let total = 0, count = 0;
+    swaps.forEach(s => { total += (+s.value || 0); count++; });
+    return count > 0 ? total / count : 0.3;
+  }
+  function recalcLPSwap() {
+    const aLots = numText('flt-abook-lots');
+    setText('vrc-lp-swap-abook-lots-ref', fmtLots(aLots));
+    const avgSwap = getAvgLPSwap();
+    setText('vrc-lp-swap-rate-ref', avgSwap.toLocaleString(undefined, { minimumFractionDigits:1, maximumFractionDigits:2 }));
+    const ovr = (numVal('vrc-lp-swap-overnight-pct') || 0) / 100;
+    const cost = aLots * ovr * avgSwap * 10;
+    setText('vrc-lp-swap-total-cost', fmt$(cost));
+    triggerVRCAdjust();
+  }
+  function recalcDealingDesk() {
+    let cost = 0;
+    if (window._ddMode === 'fixed') {
+      const fxcDD = numVal('fxc-dd');
+      setText('vrc-dd-fixed-ref', fmt$(fxcDD));
+      cost = fxcDD * 12;
+    } else {
+      const ntr = numText('rev-total');
+      setText('vrc-dd-ntr-ref', fmt$(ntr));
+      cost = ntr * ((numVal('vrc-dd-revshare-pct') || 0) / 100);
+    }
+    setText('vrc-dd-total-cost', fmt$(cost));
+    triggerVRCAdjust();
+  }
+  function recalcIBAcq() {
+    const spend = numVal('vrc-ib-acq');
+    const count = numVal('vrc-ib-count');
+    const out = document.getElementById('vrc-ib-cost-per-ib');
+    if (out) out.textContent = count > 0 ? fmt$(spend / count) : '—';
+    triggerVRCAdjust();
+  }
+  function recalcCAC() {
+    const spend = numVal('vrc-cac-spend');
+    const cli   = numText('dep-clients-total');
+    setText('vrc-cac-clients-ref', cli.toLocaleString());
+    const perOut = document.getElementById('vrc-cac-per-client');
+    if (perOut) perOut.textContent = cli > 0 ? fmt$(spend / cli) : '—';
+    setText('vrc-cac-total-cost', fmt$(spend));
+    triggerVRCAdjust();
+  }
+
+  // ════════════════════════════════════════════════════════
+  // VRC TOTAL ADJUSTMENT
+  //   Hooks the new section outputs into vrc-total-display via the
+  //   same MutationObserver pattern lpCostsModule uses.
+  //   - vrc-bbook-loss-cost is NOT added here: vrc-loss-b (hidden, mirrored
+  //     by lpCostsModule.recalcBBookLoss) is already in NEW_VRC_IDS.
+  //   - vrc-cac (renamed to vrc-cac-spend) is no longer found by id 'vrc-cac'
+  //     in the existing sum, so we add num('vrc-cac-spend') here.
+  //   - Old vrc-psp/vrc-bridge/vrc-lp-swap/vrc-dd-share inputs were stashed
+  //     hidden (state round-trips) but their last-saved values are subtracted
+  //     so they don't double-count against the new section outputs.
+  // ════════════════════════════════════════════════════════
+  const totalDisplay = document.getElementById('vrc-total-display');
+  let vrcAdjusting = false;
+  function vrcAdjustment() {
+    let adj = 0;
+    adj += parseFmt('vrc-psp-total-cost');
+    adj += parseFmt('vrc-bridge-total-cost');
+    adj += parseFmt('vrc-lp-swap-total-cost');
+    adj += parseFmt('vrc-dd-total-cost');
+    adj += numVal('vrc-cac-spend');
+    adj -= numVal('vrc-psp');
+    adj -= numVal('vrc-bridge');
+    adj -= numVal('vrc-lp-swap');
+    adj -= numVal('vrc-dd-share');
+    return adj;
+  }
+  function triggerVRCAdjust() {
+    const trigger = document.getElementById('vrc-loss-a');
+    if (trigger) trigger.dispatchEvent(new Event('input', { bubbles:true }));
+  }
+  if (totalDisplay) {
+    new MutationObserver(() => {
+      if (vrcAdjusting) return;
+      const adj = vrcAdjustment();
+      if (adj === 0) return;
+      const current = parseFmt('vrc-total-display');
+      vrcAdjusting = true;
+      totalDisplay.textContent = fmt$(current + adj);
+      setTimeout(() => { vrcAdjusting = false; }, 0);
+    }).observe(totalDisplay, { characterData:true, childList:true, subtree:true });
+  }
+
+  // ════════════════════════════════════════════════════════
+  // WIRE INPUTS + MUTATIONOBSERVERS
+  // ════════════════════════════════════════════════════════
+  ['vrc-psp-deposit-fee-pct','vrc-psp-withdrawal-rate-pct','vrc-psp-withdrawal-fee-pct'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', recalcPSP);
+  });
+  const _brInp = document.getElementById('vrc-bridge-fee-per-lot');
+  if (_brInp) _brInp.addEventListener('input', recalcBridge);
+  const _lpsInp = document.getElementById('vrc-lp-swap-overnight-pct');
+  if (_lpsInp) _lpsInp.addEventListener('input', recalcLPSwap);
+  const _rsInp = document.getElementById('vrc-dd-revshare-pct');
+  if (_rsInp) _rsInp.addEventListener('input', recalcDealingDesk);
+  const _ibCountInp = document.getElementById('vrc-ib-count');
+  if (_ibCountInp) _ibCountInp.addEventListener('input', recalcIBAcq);
+  const _ibAcqInp = document.getElementById('vrc-ib-acq');
+  if (_ibAcqInp) _ibAcqInp.addEventListener('input', recalcIBAcq);
+  const _cacInp = document.getElementById('vrc-cac-spend');
+  if (_cacInp) _cacInp.addEventListener('input', recalcCAC);
+
+  const _fxcDD = document.getElementById('fxc-dd');
+  if (_fxcDD) _fxcDD.addEventListener('input', recalcDealingDesk);
+
+  function watch(id, fn) {
+    const el = document.getElementById(id);
+    if (el) new MutationObserver(fn).observe(el, { characterData:true, childList:true, subtree:true });
+  }
+  watch('dep-volume-total',  recalcPSP);
+  watch('dep-clients-total', recalcCAC);
+  watch('flt-total-lots',    recalcBridge);
+  watch('flt-abook-lots',    recalcLPSwap);
+  watch('rev-total',         recalcDealingDesk);
+
+  // LP profile swap inputs are dynamic — delegate + observe container.
+  const lpList = document.getElementById('vrc-lp-list');
+  if (lpList) {
+    lpList.addEventListener('input', e => {
+      if (e.target && e.target.matches && e.target.matches('[data-lp-field="swap"]')) {
+        recalcLPSwap();
+      }
+    });
+    new MutationObserver(recalcLPSwap).observe(lpList, { childList:true, subtree:true });
+  }
+
+  // ════════════════════════════════════════════════════════
+  // PERSISTENCE — _ddMode round-trip
+  // ════════════════════════════════════════════════════════
+  if (typeof collectState === 'function') {
+    const _orig = collectState;
+    collectState = function() {
+      const s = _orig();
+      s.ddMode = window._ddMode;
+      return s;
+    };
+  }
+  if (typeof applyState === 'function') {
+    const _orig = applyState;
+    applyState = function(s) {
+      _orig(s);
+      if (s && (s.ddMode === 'fixed' || s.ddMode === 'revshare')) {
+        window._ddMode = s.ddMode;
+      }
+      renderDDMode();
+      Promise.resolve().then(() => {
+        recalcPSP(); recalcBridge(); recalcLPSwap();
+        recalcDealingDesk(); recalcIBAcq(); recalcCAC();
+      });
+    };
+  }
+
+  // ════════════════════════════════════════════════════════
+  // Initial paint
+  // ════════════════════════════════════════════════════════
+  renderDDMode();
+  Promise.resolve().then(() => {
+    recalcPSP(); recalcBridge(); recalcLPSwap();
+    recalcDealingDesk(); recalcIBAcq(); recalcCAC();
+  });
 })();
 </script>
 </body>
