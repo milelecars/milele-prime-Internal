@@ -8254,8 +8254,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 <nav class="section-nav">
   <a href="#tr-timeline">§ Week-by-week</a>
   <a href="#tr-team">§ By person</a>
-  <a href="#tr-path">§ Critical path</a>
-  <a href="#tr-risk">§ Risk register</a>
 </nav>
 
 <section class="tr-section" id="tr-timeline">
@@ -8334,106 +8332,9 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   <div class="team-grid" id="tr-team-grid"></div>
 </section>
 
-<section class="tr-section" id="tr-path">
-  <div class="section-head">
-    <div class="section-num">§ 03</div>
-    <h2 class="section-title">Critical <em>path.</em></h2>
-  </div>
-  <div class="critical-path">
-    <div class="path-chain">
-      <div class="path-node gate-start">Any License Lands</div>
-      <div class="path-arrow">→</div>
-      <div class="path-node">Corporate Bank</div>
-      <div class="path-arrow">→</div>
-      <div class="path-node">LP Onboarding</div>
-      <div class="path-arrow">→</div>
-      <div class="path-node">PSPs (CoinsPaid first)</div>
-      <div class="path-arrow">→</div>
-      <div class="path-node">Netshop Servers</div>
-      <div class="path-arrow">→</div>
-      <div class="path-node">Centroid Bridge</div>
-      <div class="path-arrow">→</div>
-      <div class="path-node">MT5 Deployment</div>
-      <div class="path-arrow">→</div>
-      <div class="path-node">CRM Integration</div>
-      <div class="path-arrow">→</div>
-      <div class="path-node">Alpha Dealing</div>
-      <div class="path-arrow">→</div>
-      <div class="path-node">Soft Launch · 8 Jun</div>
-      <div class="path-arrow">→</div>
-      <div class="path-node gate">Public Launch · 15 Jun</div>
-    </div>
-  </div>
-  <p class="path-note">→ Three license tracks running in parallel — first to land unlocks the chain.</p>
-</section>
-
-<section class="tr-section" id="tr-risk">
-  <div class="section-head">
-    <div class="section-num">§ 04</div>
-    <h2 class="section-title">Risk <em>register.</em></h2>
-  </div>
-  <div class="risk-grid">
-    <div class="risk-card high">
-      <div class="risk-level">▲ High · Critical</div>
-      <div class="risk-title">All three licenses slip past 27 May</div>
-      <div class="risk-desc">Mauritius takes 3–6 months; Dubai SCA 4–8 months; Ajman 2–4 weeks if expedited. Mauritius and SCA are unlikely inside 30 days from a cold start — Ajman is the realistic Week 1–2 unlock.</div>
-      <div class="risk-mitigation">
-        <strong>Mitigation</strong>
-        Treat Ajman as the launch-day license. Mauritius and SCA are 60–180 day workstreams for long-term credibility. Confirm with regulatory counsel that Ajman activity is permissible for the launch scope before committing PSP/LP onboarding to it.
-      </div>
-    </div>
-    <div class="risk-card high">
-      <div class="risk-level">▲ High</div>
-      <div class="risk-title">LP onboarding takes longer than 2 weeks</div>
-      <div class="risk-desc">Prime-of-prime LPs typically need 2–4 weeks for KYC, credit lines, and FIX integration. Two weeks is aggressive even with a clean license.</div>
-      <div class="risk-mitigation">
-        <strong>Mitigation</strong>
-        Open conversations with three LPs in parallel. Pre-build the KYC pack now so it goes out the hour a license lands. Soft-launch can run B-book-only with dealing desk hedging if LP slips.
-      </div>
-    </div>
-    <div class="risk-card med">
-      <div class="risk-level">◆ Medium</div>
-      <div class="risk-title">Transaction masking legal exposure</div>
-      <div class="risk-desc">Masking the transacting entity creates PSP T&amp;C and AML-screening risk in most jurisdictions. Card networks (Visa/Mastercard) are explicit about merchant-of-record accuracy.</div>
-      <div class="risk-mitigation">
-        <strong>Mitigation</strong>
-        Written legal opinion before any architecture work. Coverage: jurisdictional permissibility per PSP corridor, card-network compliance, AML/CTF implications, PSP termination risk. No deployment without Fahad sign-off.
-      </div>
-    </div>
-    <div class="risk-card med">
-      <div class="risk-level">◆ Medium</div>
-      <div class="risk-title">CRM decision locks late</div>
-      <div class="risk-desc">Syntellicore vs Brokeret decision is open. Integration with MT5, PSPs, and tournament page sits behind it.</div>
-      <div class="risk-mitigation">
-        <strong>Mitigation</strong>
-        Force a decision by Wed 21 May. Helia runs the scoring matrix; Fahad signs. No more vendor demos after Week 1.
-      </div>
-    </div>
-    <div class="risk-card med">
-      <div class="risk-level">◆ Medium</div>
-      <div class="risk-title">5,000-influencer outreach undershoots</div>
-      <div class="risk-desc">Two people contacting 5,000 micros in 30 days is roughly 80 quality contacts per person per working day, with response handling on top.</div>
-      <div class="risk-mitigation">
-        <strong>Mitigation</strong>
-        Set minimum-viable activation for launch (250 influencers + 50 IBs). Use real branded outreach reps with Milele Prime affiliate manager handles — verifiable, durable, on-policy for the platforms, and clean for SCA/Mauritius fitness review later. Treat 5,000 contacted as a 60–90 day target.
-      </div>
-    </div>
-    <div class="risk-card low">
-      <div class="risk-level">○ Watch</div>
-      <div class="risk-title">Giveaway cost reserves underestimated</div>
-      <div class="risk-desc">If volume thresholds are hit faster than modelled, prize obligations could outrun NTR reserves on early cohorts.</div>
-      <div class="risk-mitigation">
-        <strong>Mitigation</strong>
-        Billawal &amp; Qayyum lock the model in Week 3 with NTR-per-lot assumptions. 20% reserve buffer per tier. Legal review of T&amp;Cs before publication.
-      </div>
-    </div>
-  </div>
-</section>
-
 <div class="tr-footer">
   <div class="mark">M · P</div>
   <div class="meta">Milele Prime · Launch Tracker v.02 · 17 May 2026 · Rebase weekly</div>
-  <button class="reset" id="tr-reset-btn">Reset all checkboxes</button>
 </div>
 
 <div class="tr-modal-backdrop" id="tr-modal-backdrop">
@@ -8458,23 +8359,13 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
         <input type="text" id="tr-m-range" placeholder="e.g. 20–24 May">
       </div>
     </div>
-    <div class="tr-modal-row">
-      <div class="tr-modal-field">
-        <label for="tr-m-status">Status</label>
-        <select id="tr-m-status">
-          <option value="start">Not started</option>
-          <option value="prog">In progress</option>
-          <option value="block">Blocked</option>
-        </select>
-      </div>
-      <div class="tr-modal-field">
-        <label for="tr-m-statusText">Status label</label>
-        <input type="text" id="tr-m-statusText" placeholder="e.g. Blocked · License">
-      </div>
-    </div>
     <div class="tr-modal-field">
-      <label for="tr-m-dep">Dependency</label>
-      <input type="text" id="tr-m-dep" placeholder="e.g. Brand identity, License, —">
+      <label for="tr-m-status">Status</label>
+      <select id="tr-m-status">
+        <option value="start">Not started</option>
+        <option value="prog">In progress</option>
+        <option value="block">Blocked</option>
+      </select>
     </div>
     <div class="tr-modal-actions">
       <button type="button" id="tr-m-cancel">Cancel</button>
@@ -8632,7 +8523,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
         )).join('');
         return ''
           + '<div class="task-row" data-task="' + escAttr(t.id) + '" data-person="' + escAttr(p.id) + '">'
-          +   '<div class="task-pri">' + roman(i + 1) + '</div>'
+          +   '<div class="task-pri">' + (i + 1) + '</div>'
           +   '<div class="task-check"></div>'
           +   '<div class="task-body">'
           +     '<div class="task-title">' + (t.title || '') + '</div>'
@@ -8646,7 +8537,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
           +     '<select class="task-status-select ' + pillCls + '" data-action="status-change" data-task-id="' + escAttr(t.id) + '">'
           +       statusOptions
           +     '</select>'
-          +     '<div class="dep">Dep: ' + escHtml(t.dep || '—') + '</div>'
           +   '</div>'
           +   '<div class="task-actions">'
           +     '<button class="task-action-btn" data-action="edit-task" data-task-id="' + escAttr(t.id) + '" title="Edit">' + ICON_EDIT + '</button>'
@@ -8678,7 +8568,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
         +   '<div class="task-list">' + tasksHtml + '</div>'
         +   '<div class="person-controls">'
         +     '<button data-action="mark-all" data-target="' + escAttr(p.id) + '">Mark all done</button>'
-        +     '<button data-action="clear-all" data-target="' + escAttr(p.id) + '">Clear all</button>'
         +   '</div>'
         + '</div>';
     }).join('');
@@ -8799,15 +8688,12 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   function newTaskId() {
     return 'task_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
   }
+  const STATUS_TEXT = { start:'Not started', prog:'In progress', block:'Blocked' };
   function changeStatus(taskId, newStatus) {
     const found = findTaskById(taskId);
     if (!found) return;
-    const STATUS_TEXT = { start:'Not started', prog:'In progress', block:'Blocked' };
     found.task.status = newStatus;
-    // Only auto-update statusText if it currently matches one of the defaults
-    // — preserves custom labels like "Blocked · License" set via the modal.
-    const wasDefault = Object.values(STATUS_TEXT).indexOf(found.task.statusText) !== -1;
-    if (wasDefault || !found.task.statusText) found.task.statusText = STATUS_TEXT[newStatus];
+    found.task.statusText = STATUS_TEXT[newStatus];
     persist();
     // Update the select's pill class in place (no full re-render — keeps focus)
     const sel = trPanel.querySelector('select.task-status-select[data-task-id="' + taskId + '"]');
@@ -8819,7 +8705,9 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   function deleteTask(taskId) {
     const found = findTaskById(taskId);
     if (!found) return;
-    if (!confirm('Delete "' + (found.task.title || 'this task') + '"?')) return;
+    const stripTags = s => String(s || '').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/gi, '&');
+    const taskName = stripTags(found.task.title) || 'this task';
+    if (!confirm('Are you sure you want to delete "' + taskName + '"?\n\nThis cannot be undone.')) return;
     found.person.tasks = found.person.tasks.filter(t => t.id !== taskId);
     delete window._trackerState[taskId];
     persist();
@@ -8834,27 +8722,23 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     modalCtx = ctx;
     const backdrop = $('tr-modal-backdrop');
     if (!backdrop) return;
-    const titleEl     = $('tr-modal-title');
-    const subEl       = $('tr-modal-sub');
-    const inpTitle    = $('tr-m-title');
-    const inpDesc     = $('tr-m-desc');
-    const inpDate     = $('tr-m-date');
-    const inpRange    = $('tr-m-range');
-    const selStatus   = $('tr-m-status');
-    const inpStText   = $('tr-m-statusText');
-    const inpDep      = $('tr-m-dep');
+    const titleEl   = $('tr-modal-title');
+    const subEl     = $('tr-modal-sub');
+    const inpTitle  = $('tr-m-title');
+    const inpDesc   = $('tr-m-desc');
+    const inpDate   = $('tr-m-date');
+    const inpRange  = $('tr-m-range');
+    const selStatus = $('tr-m-status');
     if (ctx.mode === 'edit') {
       const found = findTaskById(ctx.taskId);
       if (!found) return;
       titleEl.textContent = 'Edit task';
       subEl.textContent = found.person.name.replace(/&amp;/g,'&') + ' · ' + (found.task.title || '').replace(/<[^>]+>/g,'');
-      inpTitle.value    = found.task.title || '';
-      inpDesc.value     = found.task.desc  || '';
-      inpDate.value     = found.task.date  || '';
-      inpRange.value    = found.task.range || '';
-      selStatus.value   = found.task.status || 'start';
-      inpStText.value   = found.task.statusText || '';
-      inpDep.value      = found.task.dep || '';
+      inpTitle.value  = found.task.title || '';
+      inpDesc.value   = found.task.desc  || '';
+      inpDate.value   = found.task.date  || '';
+      inpRange.value  = found.task.range || '';
+      selStatus.value = found.task.status || 'start';
     } else {
       const person = findPerson(ctx.personId);
       if (!person) return;
@@ -8862,7 +8746,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       subEl.textContent = (person.name || '').replace(/&amp;/g,'&') + ' · new task';
       inpTitle.value = ''; inpDesc.value = ''; inpDate.value = '';
       inpRange.value = ''; selStatus.value = 'start';
-      inpStText.value = 'Not started'; inpDep.value = '—';
     }
     backdrop.classList.add('active');
     setTimeout(() => inpTitle && inpTitle.focus(), 0);
@@ -8875,19 +8758,16 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   function saveModal() {
     if (!modalCtx) return;
     const v = id => (($(id) && $(id).value) || '').trim();
+    const status = v('tr-m-status') || 'start';
     const data = {
       title:      v('tr-m-title'),
       desc:       v('tr-m-desc'),
       date:       v('tr-m-date'),
       range:      v('tr-m-range'),
-      status:     v('tr-m-status') || 'start',
-      statusText: v('tr-m-statusText'),
-      dep:        v('tr-m-dep') || '—',
+      status:     status,
+      statusText: STATUS_TEXT[status],
     };
     if (!data.title) { alert('Title is required.'); return; }
-    if (!data.statusText) {
-      data.statusText = ({ start:'Not started', prog:'In progress', block:'Blocked' })[data.status];
-    }
     if (modalCtx.mode === 'edit') {
       const found = findTaskById(modalCtx.taskId);
       if (found) Object.assign(found.task, data);
