@@ -304,13 +304,45 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 .fu{animation:fadeUp .4s ease forwards;opacity:0}
 .fu1{animation-delay:.05s}.fu2{animation-delay:.1s}.fu3{animation-delay:.17s}.fu4{animation-delay:.24s}.fu5{animation-delay:.31s}
 
+/* Horizontal-scroll wrapper injected around wide tables on small screens */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+
+@media(max-width:1024px){
+  /* Tab bar scrolls horizontally instead of squashing once it overflows */
+  .page-tabs-inner{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .page-tab{white-space:nowrap;flex:0 0 auto}
+}
 @media(max-width:768px){
+  .container{padding:0 1rem}
+  .header-inner{gap:1rem;flex-wrap:wrap}
+  .header-right{font-size:10px;gap:.5rem}
   .sliders-panel,.psp-grid,.vc-vendors{grid-template-columns:1fr}
   .metrics-grid,.year-band{grid-template-columns:1fr 1fr}
-  .costs-grid,.psp-outputs{grid-template-columns:1fr 1fr}
+  .costs-grid,.psp-outputs{grid-template-columns:1fr 1fr !important}
   .vc-q-grid{grid-template-columns:1fr 1fr}
+  .ib-summary,.ib-commission-grid,.ib-output{grid-template-columns:1fr 1fr !important}
   .page-tab{padding:.75rem 1rem;font-size:14px}
   .tt-grid{grid-template-columns:1fr;gap:1rem}
+  /* Tier-tree branches: stack and drop the connector lines that only make
+     sense in a 3-up row */
+  .tt-branches{grid-template-columns:1fr !important;gap:.75rem}
+  .tt-branches::before,.tt-trunk::after,.tt-branch::before{display:none}
+  .tt-branch{margin-top:0}
+  /* Wide grid rows (waterfall) keep their columns but scroll sideways */
+  .waterfall{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .wf-row{min-width:540px}
+  /* Wide tables scroll inside their injected .table-scroll wrapper */
+  .q-table,.vc-results-table{min-width:560px}
+  .chart-tabs{flex-wrap:wrap;width:auto}
+  .chart-canvas-wrap{height:240px}
+  .ib-total-bar{gap:.75rem}
+  .save-fab{bottom:1rem;right:1rem;padding:.7rem 1.1rem;font-size:12px}
+  .save-fab-stamp{right:1rem;bottom:.4rem}
+}
+@media(max-width:480px){
+  .metrics-grid,.year-band,.costs-grid,.psp-outputs,.vc-q-grid,
+  .ib-summary,.ib-commission-grid,.ib-output{grid-template-columns:1fr !important}
+  .mc-value{font-size:26px}
 }
 </style>
 </head>
@@ -2995,19 +3027,21 @@ recalcDepositsTotal = function() {
 const _origCollectState_rev = collectState;
 collectState = function() {
   const s = _origCollectState_rev();
-  s.revToggleState = Object.assign({}, revToggleState);
+  // Tracker-only persistence: do not save Revenue toggle state.
+  // s.revToggleState = Object.assign({}, revToggleState);
   return s;
 };
 
 const _origApplyState_rev = applyState;
 applyState = function(s) {
   _origApplyState_rev(s);
-  if(s && s.revToggleState && typeof s.revToggleState === 'object') {
-    Object.keys(s.revToggleState).forEach(id => {
-      revToggleState[id] = s.revToggleState[id];
-      applyToggleVisual(id);
-    });
-  }
+  // Tracker-only persistence: do not restore Revenue toggle state.
+  // if(s && s.revToggleState && typeof s.revToggleState === 'object') {
+  //   Object.keys(s.revToggleState).forEach(id => {
+  //     revToggleState[id] = s.revToggleState[id];
+  //     applyToggleVisual(id);
+  //   });
+  // }
   recalcRevAutoFields();
 };
 
@@ -3299,15 +3333,17 @@ recalcRevAutoFields = function() {
   const _origCollect_engLots = collectState;
   collectState = function() {
     const s = _origCollect_engLots();
-    s.engLotsAutoMode = window._engLotsAutoMode;
+    // Tracker-only persistence: do not save engine lots auto-mode.
+    // s.engLotsAutoMode = window._engLotsAutoMode;
     return s;
   };
   const _origApply_engLots = applyState;
   applyState = function(s) {
     _origApply_engLots(s);
-    if (s && s.engLotsAutoMode) {
-      window._engLotsAutoMode = s.engLotsAutoMode;
-    }
+    // Tracker-only persistence: do not restore engine lots auto-mode.
+    // if (s && s.engLotsAutoMode) {
+    //   window._engLotsAutoMode = s.engLotsAutoMode;
+    // }
     applyEngLotsToggleVisual();
     recalcEngLotsAuto();
   };
@@ -8163,6 +8199,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   #tab-tracker .task-status-select.pill-prog  { background-color: var(--blue-pale);    color: var(--blue); }
   #tab-tracker .task-status-select.pill-block { background-color: var(--crimson-pale); color: var(--crimson); }
   #tab-tracker .task-status-select.pill-start { background-color: var(--rule-soft);    color: var(--ink-soft); }
+  #tab-tracker .task-status-select.pill-done  { background-color: var(--green-pale);   color: var(--green-deep); }
   #tab-tracker .task-row.done .task-status-select { background-color: var(--green-pale); color: var(--green-deep); }
   #tab-tracker .task-actions { display: flex; gap: 4px; align-items: center; justify-content: flex-end; }
   #tab-tracker .task-action-btn { background: transparent; border: 1px solid transparent; padding: 5px; cursor: pointer; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-muted); transition: all 0.15s; }
@@ -8224,20 +8261,32 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     #tab-tracker .person-header { grid-template-columns: 50px 1fr; gap: 16px; }
     #tab-tracker .person-stats, #tab-tracker .person-progress { grid-column: span 2; justify-content: flex-start; width: 100%; }
     #tab-tracker .person-progress { margin-top: 8px; }
-    #tab-tracker .task-row { grid-template-columns: 30px 28px 1fr 110px; }
-    #tab-tracker .task-pri { display: none; }
-    #tab-tracker .task-status { display: none; }
     #tab-tracker .risk-grid { grid-template-columns: 1fr; }
     #tab-tracker .progress-hero { grid-template-columns: 1fr; }
+    /* Task rows reflow to a wrapping flex layout so the status dropdown stays
+       visible and usable on tablets/phones (it used to be hidden). */
+    #tab-tracker .task-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+    #tab-tracker .task-pri { display: none; }
+    #tab-tracker .task-check { order: 0; }
+    #tab-tracker .task-body { order: 1; flex: 1 1 calc(100% - 44px); min-width: 0; }
+    #tab-tracker .task-date { order: 2; }
+    #tab-tracker .task-status { order: 3; }
+    #tab-tracker .task-actions { order: 4; margin-left: auto; }
   }
   @media (max-width: 720px) {
     #tab-tracker .tr-section, #tab-tracker .tr-masthead, #tab-tracker .tr-footer, #tab-tracker .section-nav { padding-left: 24px; padding-right: 24px; }
     #tab-tracker .alert-bar { margin-left: 24px; margin-right: 24px; }
     #tab-tracker .phase-grid { grid-template-columns: 1fr; }
-    #tab-tracker .task-row { grid-template-columns: 28px 1fr; padding: 16px 20px; gap: 14px; }
-    #tab-tracker .task-row > div:not(.task-check):not(.task-body) { display: none; }
-    #tab-tracker .task-body { grid-column: 2; }
+    #tab-tracker .task-row { padding: 16px 20px; gap: 10px 12px; }
     #tab-tracker .person-header { padding: 20px; }
+    #tab-tracker .section-nav { gap: 16px 20px; }
+  }
+  @media (max-width: 480px) {
+    #tab-tracker .tr-section, #tab-tracker .tr-masthead, #tab-tracker .tr-footer, #tab-tracker .section-nav { padding-left: 16px; padding-right: 16px; }
+    #tab-tracker .alert-bar { margin-left: 16px; margin-right: 16px; flex-direction: column; gap: 10px; }
+    #tab-tracker .progress-stats { grid-template-columns: 1fr 1fr; }
+    #tab-tracker .tr-modal-row { grid-template-columns: 1fr; }
+    #tab-tracker .person-stat .num { font-size: 24px; }
   }
 </style>
 <div class="tr-masthead">
@@ -8377,6 +8426,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
         <option value="start">Not started</option>
         <option value="prog">In progress</option>
         <option value="block">Blocked</option>
+        <option value="done">Completed</option>
       </select>
     </div>
     <div class="tr-modal-actions">
@@ -8531,6 +8581,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
           ['start', 'Not started'],
           ['prog',  'In progress'],
           ['block', 'Blocked'],
+          ['done',  'Completed'],
         ].map(([v, lbl]) => (
           '<option value="' + v + '"' + (t.status === v ? ' selected' : '') + '>' + lbl + '</option>'
         )).join('');
@@ -8598,8 +8649,13 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   function applyStateFromMemory() {
     trPanel.querySelectorAll('.task-row').forEach(row => {
       const id = row.dataset.task;
-      if (window._trackerState[id]) row.classList.add('done');
-      else row.classList.remove('done');
+      if (window._trackerState[id]) {
+        row.classList.add('done');
+        // Keep the status pill consistent with the checkbox on load.
+        syncStatusToDone(id, true);
+      } else {
+        row.classList.remove('done');
+      }
     });
   }
 
@@ -8607,11 +8663,43 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     if (typeof saveState === 'function') saveState();
   }
 
+  // Reflect a status onto both the task model and its visible <select> pill.
+  function applyStatusToSelect(taskId, status) {
+    const found = findTaskById(taskId);
+    if (found) {
+      found.task.status = status;
+      found.task.statusText = STATUS_TEXT[status] || '';
+    }
+    const sel = trPanel.querySelector('select.task-status-select[data-task-id="' + taskId + '"]');
+    if (sel) {
+      sel.value = status;
+      sel.classList.remove('pill-start', 'pill-prog', 'pill-block', 'pill-done');
+      sel.classList.add('pill-' + status);
+    }
+  }
+
+  // Checkbox → dropdown: checking a task sets status to Completed; unchecking
+  // restores whatever status it had before (or "Not started" if none).
+  function syncStatusToDone(taskId, done) {
+    const found = findTaskById(taskId);
+    if (!found) return;
+    if (done) {
+      if (found.task.status !== 'done') found.task._prevStatus = found.task.status || 'start';
+      applyStatusToSelect(taskId, 'done');
+    } else {
+      const prev = (found.task._prevStatus && found.task._prevStatus !== 'done')
+        ? found.task._prevStatus : 'start';
+      applyStatusToSelect(taskId, prev);
+    }
+  }
+
   function toggleTask(taskId, personId) {
     const row = trPanel.querySelector('[data-task="' + taskId + '"]');
     if (!row) return;
     row.classList.toggle('done');
-    window._trackerState[taskId] = row.classList.contains('done');
+    const done = row.classList.contains('done');
+    window._trackerState[taskId] = done;
+    syncStatusToDone(taskId, done);
     persist();
     updatePersonProgress(personId);
     updateOverallProgress();
@@ -8624,6 +8712,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       const id = row.dataset.task;
       if (done) { row.classList.add('done'); window._trackerState[id] = true; }
       else      { row.classList.remove('done'); window._trackerState[id] = false; }
+      syncStatusToDone(id, done);
     });
     persist();
     updatePersonProgress(personId);
@@ -8702,19 +8791,32 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   function newTaskId() {
     return 'task_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
   }
-  const STATUS_TEXT = { start:'Not started', prog:'In progress', block:'Blocked' };
+  const STATUS_TEXT = { start:'Not started', prog:'In progress', block:'Blocked', done:'Completed' };
   function changeStatus(taskId, newStatus) {
     const found = findTaskById(taskId);
     if (!found) return;
     found.task.status = newStatus;
     found.task.statusText = STATUS_TEXT[newStatus];
+    // Dropdown → checkbox: "Completed" checks the box; any other status
+    // unchecks it. Keeps the checkmark and the pill in sync both ways.
+    const row = trPanel.querySelector('[data-task="' + taskId + '"]');
+    if (newStatus === 'done') {
+      window._trackerState[taskId] = true;
+      if (row) row.classList.add('done');
+    } else {
+      found.task._prevStatus = newStatus;
+      window._trackerState[taskId] = false;
+      if (row) row.classList.remove('done');
+    }
     persist();
     // Update the select's pill class in place (no full re-render — keeps focus)
     const sel = trPanel.querySelector('select.task-status-select[data-task-id="' + taskId + '"]');
     if (sel) {
-      sel.classList.remove('pill-start','pill-prog','pill-block');
+      sel.classList.remove('pill-start','pill-prog','pill-block','pill-done');
       sel.classList.add('pill-' + newStatus);
     }
+    if (found.person) updatePersonProgress(found.person.id);
+    updateOverallProgress();
   }
   function reorderTask(draggedId, targetRow, clientY) {
     const draggedInfo = findTaskById(draggedId);
@@ -8808,16 +8910,21 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       statusText: STATUS_TEXT[status],
     };
     if (!data.title) { alert('Title is required.'); return; }
+    let targetId = null;
     if (modalCtx.mode === 'edit') {
       const found = findTaskById(modalCtx.taskId);
       if (found) Object.assign(found.task, data);
+      targetId = modalCtx.taskId;
     } else {
       const person = findPerson(modalCtx.personId);
       if (!person) return;
       if (!Array.isArray(person.tasks)) person.tasks = [];
       const newTask = Object.assign({ id: newTaskId() }, data);
       person.tasks.push(newTask);
+      targetId = newTask.id;
     }
+    // Keep the done checkbox in sync with a status set via the modal.
+    if (targetId) window._trackerState[targetId] = (status === 'done');
     persist();
     closeModal();
     render();
@@ -9715,8 +9822,9 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const _orig = collectState;
     collectState = function() {
       const s = _orig();
-      s.lpProfiles = lpProfiles;
-      s.lpCounter  = lpCounter;
+      // Tracker-only persistence: do not save LP profiles.
+      // s.lpProfiles = lpProfiles;
+      // s.lpCounter  = lpCounter;
       return s;
     };
   }
@@ -9724,11 +9832,12 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const _orig = applyState;
     applyState = function(s) {
       _orig(s);
-      if (s && Array.isArray(s.lpProfiles)) {
-        lpProfiles = s.lpProfiles;
-        lpCounter  = (+s.lpCounter) || lpProfiles.length;
-        renderLPProfiles();
-      }
+      // Tracker-only persistence: do not restore LP profiles.
+      // if (s && Array.isArray(s.lpProfiles)) {
+      //   lpProfiles = s.lpProfiles;
+      //   lpCounter  = (+s.lpCounter) || lpProfiles.length;
+      //   renderLPProfiles();
+      // }
       // After applyState restores all inputs, refresh the markup formula so
       // the read-only T1/T2/T3 proxies reflect the freshly-restored sources.
       recalcMarkupRevenue();
@@ -10363,7 +10472,8 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const _orig = collectState;
     collectState = function() {
       const s = _orig();
-      s.ddMode = window._ddMode;
+      // Tracker-only persistence: do not save dealing-desk mode.
+      // s.ddMode = window._ddMode;
       return s;
     };
   }
@@ -10371,9 +10481,10 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const _orig = applyState;
     applyState = function(s) {
       _orig(s);
-      if (s && (s.ddMode === 'fixed' || s.ddMode === 'revshare')) {
-        window._ddMode = s.ddMode;
-      }
+      // Tracker-only persistence: do not restore dealing-desk mode.
+      // if (s && (s.ddMode === 'fixed' || s.ddMode === 'revshare')) {
+      //   window._ddMode = s.ddMode;
+      // }
       renderDDMode();
       Promise.resolve().then(() => {
         recalcPSP(); recalcBridge(); recalcLPSwap();
@@ -10389,6 +10500,35 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   Promise.resolve().then(() => {
     recalcPSP(); recalcBridge(); recalcLPSwap();
     recalcDealingDesk(); recalcIBAcq(); recalcCAC();
+  });
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// RESPONSIVE TABLES — wrap wide tables in a horizontal-scroll container so
+// they pan sideways on small screens instead of being clipped by the page's
+// overflow-x:hidden. Tables are built once and only their cells update, so a
+// single wrap persists. Idempotent + re-run on tab switches as a safety net.
+// (.ft-table already ships inside its own .ft-wrap, so it's skipped.)
+// ═══════════════════════════════════════════════════════════════════════
+(function responsiveTables() {
+  function wrapWideTables() {
+    document.querySelectorAll('.q-table, .vc-results-table').forEach(tbl => {
+      const parent = tbl.parentElement;
+      if (parent && parent.classList.contains('table-scroll')) return; // already wrapped
+      const wrap = document.createElement('div');
+      wrap.className = 'table-scroll';
+      tbl.parentNode.insertBefore(wrap, tbl);
+      wrap.appendChild(tbl);
+    });
+  }
+  wrapWideTables();
+  // Re-run after async tab builds settle, and whenever a tab is opened.
+  setTimeout(wrapWideTables, 300);
+  setTimeout(wrapWideTables, 1200);
+  document.addEventListener('click', e => {
+    if (e.target.closest('.page-tab')) setTimeout(wrapWideTables, 0);
   });
 })();
 </script>
