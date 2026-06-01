@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Milele Prime — 30-Day Launch Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafbfc;
+    --paper: #ffffff;
+    --ink: #0d1f2d;
+    --ink-soft: #2a3a4d;
+    --ink-muted: #5a6b7e;
+    --rule: #e2e8ee;
+    --rule-soft: #eef2f5;
+    --blue: #1e4a72;
+    --blue-bright: #2e6ba8;
+    --blue-pale: #e8f0f7;
+    --blue-deep: #0f2d4a;
+    --green: #2d7a4d;
+    --green-bright: #3a9a64;
+    --green-pale: #e6f4ec;
+    --green-deep: #1a5232;
+    --amber: #b8732a;
+    --amber-pale: #fdf3e8;
+    --crimson: #a83232;
+    --crimson-pale: #fbeaea;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter Tight', sans-serif;
+    line-height: 1.55;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at top right, rgba(46, 107, 168, 0.04) 0%, transparent 55%),
+      radial-gradient(ellipse at bottom left, rgba(58, 154, 100, 0.04) 0%, transparent 55%);
+  }
+  .masthead { background: var(--paper); border-bottom: 1px solid var(--rule); padding: 56px 64px 44px; position: relative; }
+  .masthead::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--blue) 0%, var(--blue-bright) 50%, var(--green-bright) 100%); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 36px; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-muted); }
+  .masthead-top .accent { color: var(--green-bright); }
+  .masthead h1 { font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(48px, 7vw, 92px); letter-spacing: -0.03em; line-height: 0.95; color: var(--ink); }
+  .masthead h1 em { font-style: italic; font-weight: 400; color: var(--blue-bright); }
+  .masthead-sub { margin-top: 24px; font-size: 17px; color: var(--ink-muted); max-width: 760px; font-weight: 300; }
+  .progress-hero { margin-top: 44px; display: grid; grid-template-columns: 1fr 280px; gap: 36px; align-items: center; }
+  .progress-bar-track { height: 12px; background: var(--rule-soft); border-radius: 999px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--blue-bright), var(--green-bright)); border-radius: 999px; transition: width 0.4s ease; width: 0%; }
+  .progress-meta { display: flex; justify-content: space-between; margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-muted); }
+  .progress-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+  .progress-stat { background: var(--paper); padding: 16px 18px; text-align: center; }
+  .progress-stat .num { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 400; color: var(--ink); letter-spacing: -0.02em; line-height: 1; }
+  .progress-stat .num.green { color: var(--green-bright); }
+  .progress-stat .num.blue { color: var(--blue-bright); }
+  .progress-stat .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-muted); margin-top: 6px; }
+  .alert-bar { margin: 32px 64px 0; border-left: 3px solid var(--amber); background: var(--amber-pale); padding: 22px 28px; display: flex; gap: 24px; align-items: flex-start; border-radius: 0 4px 4px 0; }
+  .alert-icon { font-family: 'Fraunces', serif; font-size: 32px; color: var(--amber); line-height: 1; font-style: italic; }
+  .alert-content h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 17px; color: var(--ink); margin-bottom: 6px; letter-spacing: -0.01em; }
+  .alert-content p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; max-width: 920px; }
+  nav.section-nav { padding: 28px 64px; border-bottom: 1px solid var(--rule); background: var(--paper); display: flex; gap: 32px; flex-wrap: wrap; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; position: sticky; top: 0; z-index: 50; }
+  nav.section-nav a { color: var(--ink-muted); text-decoration: none; transition: color 0.2s; }
+  nav.section-nav a:hover { color: var(--blue-bright); }
+  section { padding: 72px 64px; border-bottom: 1px solid var(--rule); }
+  .section-head { display: flex; align-items: baseline; gap: 24px; margin-bottom: 44px; }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--green-bright); letter-spacing: 0.2em; }
+  .section-title { font-family: 'Fraunces', serif; font-weight: 300; font-size: 44px; letter-spacing: -0.025em; color: var(--ink); line-height: 1; }
+  .section-title em { font-style: italic; color: var(--blue-bright); }
+  .phase-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .phase { background: var(--paper); padding: 26px 24px; border: 1px solid var(--rule); border-radius: 4px; border-top: 3px solid var(--blue-bright); transition: transform 0.2s, box-shadow 0.2s; }
+  .phase:nth-child(2) { border-top-color: var(--blue); }
+  .phase:nth-child(3) { border-top-color: var(--green-bright); }
+  .phase:nth-child(4) { border-top-color: var(--green); }
+  .phase:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13, 31, 45, 0.06); }
+  .phase-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--blue-bright); margin-bottom: 10px; }
+  .phase:nth-child(3) .phase-tag, .phase:nth-child(4) .phase-tag { color: var(--green-bright); }
+  .phase-dates { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 400; color: var(--ink); margin-bottom: 4px; letter-spacing: -0.01em; }
+  .phase-name { font-size: 12px; color: var(--ink-muted); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; }
+  .phase ul { list-style: none; padding: 0; }
+  .phase li { font-size: 13px; color: var(--ink-soft); padding: 9px 0; padding-left: 18px; position: relative; line-height: 1.5; border-top: 1px dotted var(--rule); }
+  .phase li:first-child { border-top: none; padding-top: 0; }
+  .phase li:first-child::before { top: 0; }
+  .phase li::before { content: ''; position: absolute; left: 0; top: 14px; width: 8px; height: 1px; background: var(--green-bright); }
+  .phase li strong { color: var(--blue-deep); font-weight: 600; }
+  .team-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  .person-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; transition: box-shadow 0.2s; }
+  .person-card:hover { box-shadow: 0 6px 20px rgba(13, 31, 45, 0.05); }
+  .person-header { display: grid; grid-template-columns: 70px 1fr auto 180px; align-items: center; padding: 24px 32px; border-bottom: 1px solid var(--rule); gap: 24px; background: linear-gradient(180deg, var(--blue-pale) 0%, var(--paper) 100%); }
+  .person-initial { font-family: 'Fraunces', serif; font-size: 48px; font-weight: 300; color: var(--blue-bright); line-height: 1; font-style: italic; }
+  .person-info h3 { font-family: 'Fraunces', serif; font-weight: 400; font-size: 30px; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; }
+  .person-info .title { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--blue-bright); margin-top: 6px; }
+  .person-stats { display: flex; gap: 18px; align-items: center; }
+  .person-stat { text-align: center; font-family: 'Fraunces', serif; }
+  .person-stat .num { font-size: 32px; font-weight: 400; color: var(--ink); line-height: 1; letter-spacing: -0.02em; }
+  .person-stat .num.done { color: var(--green-bright); }
+  .person-stat .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-muted); margin-top: 4px; }
+  .person-progress { width: 180px; }
+  .person-progress-bar { height: 6px; background: var(--rule-soft); border-radius: 99px; overflow: hidden; }
+  .person-progress-fill { height: 100%; background: var(--green-bright); border-radius: 99px; width: 0%; transition: width 0.4s ease; }
+  .person-progress-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-muted); margin-top: 6px; text-align: right; }
+  .task-row { display: grid; grid-template-columns: 60px 36px 1fr 150px 140px; align-items: flex-start; padding: 18px 32px; border-bottom: 1px solid var(--rule-soft); gap: 20px; transition: background 0.15s; cursor: pointer; }
+  .task-row:last-child { border-bottom: none; }
+  .task-row:hover { background: var(--blue-pale); }
+  .task-row.done { background: var(--green-pale); }
+  .task-row.done:hover { background: #d8ecdf; }
+  .task-pri { font-family: 'Fraunces', serif; font-style: italic; font-size: 22px; color: var(--blue-bright); line-height: 1.1; padding-top: 2px; }
+  .task-row.done .task-pri { color: var(--green-bright); }
+  .task-check { width: 22px; height: 22px; border: 1.5px solid var(--ink-muted); border-radius: 4px; background: var(--paper); cursor: pointer; transition: all 0.2s; flex-shrink: 0; position: relative; margin-top: 2px; }
+  .task-check:hover { border-color: var(--green-bright); background: var(--green-pale); }
+  .task-row.done .task-check { background: var(--green-bright); border-color: var(--green-bright); }
+  .task-row.done .task-check::after { content: ''; position: absolute; left: 6px; top: 2px; width: 6px; height: 11px; border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+  .task-body { min-width: 0; }
+  .task-title { font-weight: 500; color: var(--ink); margin-bottom: 4px; font-size: 14.5px; line-height: 1.4; transition: all 0.2s; }
+  .task-desc { font-size: 12.5px; color: var(--ink-muted); line-height: 1.55; transition: all 0.2s; }
+  .task-row.done .task-title { text-decoration: line-through; text-decoration-color: var(--green); text-decoration-thickness: 1.5px; color: var(--green-deep); }
+  .task-row.done .task-desc { text-decoration: line-through; text-decoration-color: rgba(45, 122, 77, 0.4); color: var(--ink-muted); }
+  .task-date { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-soft); line-height: 1.4; }
+  .task-date .due { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-bright); margin-bottom: 4px; }
+  .task-row.done .task-date .due { color: var(--green-bright); }
+  .task-date .range { font-weight: 500; color: var(--ink); font-size: 12px; }
+  .task-row.done .task-date .range { color: var(--green-deep); }
+  .task-status { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-muted); }
+  .task-status .pill { display: inline-block; padding: 3px 8px; border-radius: 3px; margin-bottom: 6px; font-weight: 500; }
+  .pill.start { background: var(--rule-soft); color: var(--ink-soft); }
+  .pill.prog { background: var(--blue-pale); color: var(--blue); }
+  .pill.block { background: var(--crimson-pale); color: var(--crimson); }
+  .task-row.done .task-status .pill { background: var(--green-pale); color: var(--green-deep); }
+  .task-status .dep { color: var(--ink-muted); font-size: 10px; line-height: 1.4; }
+  .person-controls { display: flex; justify-content: flex-end; padding: 14px 32px; background: var(--rule-soft); border-top: 1px solid var(--rule); gap: 16px; }
+  .person-controls button { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; padding: 7px 14px; background: var(--paper); border: 1px solid var(--rule); color: var(--ink-soft); cursor: pointer; border-radius: 3px; transition: all 0.15s; }
+  .person-controls button:hover { border-color: var(--blue-bright); color: var(--blue-bright); }
+  .critical-path { background: var(--paper); padding: 36px 40px; border: 1px solid var(--rule); border-radius: 6px; border-left: 4px solid var(--blue-bright); }
+  .path-chain { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .path-node { background: var(--blue-pale); border: 1px solid var(--rule); padding: 10px 14px; color: var(--ink); border-radius: 3px; }
+  .path-node.gate { background: var(--green-bright); border-color: var(--green-bright); color: white; }
+  .path-node.gate-start { background: var(--crimson); border-color: var(--crimson); color: white; }
+  .path-arrow { color: var(--blue-bright); font-family: 'Fraunces', serif; font-size: 18px; }
+  .risk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .risk-card { background: var(--paper); padding: 26px 24px; border: 1px solid var(--rule); border-radius: 4px; border-left: 3px solid var(--blue-bright); }
+  .risk-card.high { border-left-color: var(--crimson); }
+  .risk-card.med { border-left-color: var(--amber); }
+  .risk-card.low { border-left-color: var(--green-bright); }
+  .risk-level { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.2em; margin-bottom: 12px; text-transform: uppercase; font-weight: 500; }
+  .risk-card.high .risk-level { color: var(--crimson); }
+  .risk-card.med .risk-level { color: var(--amber); }
+  .risk-card.low .risk-level { color: var(--green-bright); }
+  .risk-title { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 400; color: var(--ink); margin-bottom: 12px; letter-spacing: -0.01em; line-height: 1.25; }
+  .risk-desc { font-size: 13px; color: var(--ink-muted); line-height: 1.6; margin-bottom: 14px; }
+  .risk-mitigation { font-size: 12.5px; color: var(--ink-soft); padding-top: 14px; border-top: 1px dotted var(--rule); line-height: 1.55; }
+  .risk-mitigation strong { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.18em; color: var(--green-bright); text-transform: uppercase; display: block; margin-bottom: 6px; font-weight: 500; }
+  footer { padding: 48px 64px 60px; text-align: center; border-top: 1px solid var(--rule); background: var(--paper); }
+  footer .mark { font-family: 'Fraunces', serif; font-style: italic; font-size: 28px; color: var(--blue-bright); font-weight: 400; }
+  footer .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-muted); margin-top: 14px; }
+  footer .reset { margin-top: 20px; background: none; border: 1px solid var(--rule); padding: 10px 20px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-muted); cursor: pointer; border-radius: 3px; transition: all 0.2s; }
+  footer .reset:hover { border-color: var(--crimson); color: var(--crimson); }
+  @media (max-width: 1100px) {
+    .phase-grid { grid-template-columns: repeat(2, 1fr); }
+    .person-header { grid-template-columns: 50px 1fr; gap: 16px; }
+    .person-stats, .person-progress { grid-column: span 2; justify-content: flex-start; width: 100%; }
+    .person-progress { margin-top: 8px; }
+    .task-row { grid-template-columns: 30px 28px 1fr 110px; }
+    .task-pri { display: none; }
+    .task-status { display: none; }
+    .risk-grid { grid-template-columns: 1fr; }
+    .progress-hero { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    section, .masthead, footer, nav.section-nav { padding-left: 24px; padding-right: 24px; }
+    .alert-bar { margin-left: 24px; margin-right: 24px; }
+    .phase-grid { grid-template-columns: 1fr; }
+    .task-row { grid-template-columns: 28px 1fr; padding: 16px 20px; gap: 14px; }
+    .task-row > div:not(.task-check):not(.task-body) { display: none; }
+    .task-body { grid-column: 2; }
+    .person-header { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-top">
+    <div>Milele Prime <span class="accent">·</span> Launch War Room</div>
+    <div>v.02 <span class="accent">·</span> Issued 17 May 2026</div>
+  </div>
+  <h1>The Thirty<br><em>Day Sprint.</em></h1>
+  <p class="masthead-sub">An interactive tracker for every workstream, every person, every gate between today and public launch on 15 June 2026. Click any task to mark it done. Progress saves locally in your browser.</p>
+  <div class="progress-hero">
+    <div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="overall-fill"></div></div>
+      <div class="progress-meta">
+        <span>17 May · Start</span>
+        <span id="progress-pct">0% complete</span>
+        <span>15 Jun · Launch</span>
+      </div>
+    </div>
+    <div class="progress-stats">
+      <div class="progress-stat"><div class="num blue" id="stat-total">0</div><div class="lbl">Total tasks</div></div>
+      <div class="progress-stat"><div class="num green" id="stat-done">0</div><div class="lbl">Completed</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="alert-bar">
+  <div class="alert-icon">!</div>
+  <div class="alert-content">
+    <h3>The 15 June date is conditional, not committed.</h3>
+    <p>Licensing is the dominant constraint. Hamza is running Mauritius + Dubai SCA + Ajman in parallel; any one landing unlocks bank, LP, and PSP downstream. Realistically only Ajman lands inside 30 days — treat it as the launch-day license, with Mauritius and SCA as 60–180 day workstreams for long-term credibility. If no license is in hand by 27 May, shift to a closed soft launch (50 IBs, crypto-only deposits) on 15 June and slide full public launch to 22–29 June.</p>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <a href="#timeline">§ Week-by-week</a>
+  <a href="#team">§ By person</a>
+  <a href="#path">§ Critical path</a>
+  <a href="#risk">§ Risk register</a>
+</nav>
+
+<section id="timeline">
+  <div class="section-head">
+    <div class="section-num">§ 01</div>
+    <h2 class="section-title">Week by <em>week.</em></h2>
+  </div>
+  <div class="phase-grid">
+    <div class="phase">
+      <div class="phase-tag">Week 1</div>
+      <div class="phase-dates">17–23 May</div>
+      <div class="phase-name">Foundations Locked</div>
+      <ul>
+        <li><strong>Mauritius + Dubai SCA + Ajman</strong> applications opened</li>
+        <li>Netshop contract signed; servers provisioning</li>
+        <li>Centroid pricing closed; contract signed</li>
+        <li>CRM decision: <strong>Syntellicore vs Brokeret</strong></li>
+        <li>MT5 white-label application opened</li>
+        <li>Alpha Dealing engagement contracted</li>
+        <li>Brand identity v1 + brand story delivered</li>
+        <li>IB &amp; influencer database scaffolded by country</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-tag">Week 2</div>
+      <div class="phase-dates">24–30 May</div>
+      <div class="phase-name">Infrastructure Online</div>
+      <ul>
+        <li>MT5 servers deployed at LD7 + Amsterdam + SGP</li>
+        <li>Centroid bridge configured &amp; cross-connect live</li>
+        <li>LP shortlist signed (2 LPs, primary + backup)</li>
+        <li>PSPs wave 1: CoinsPaid + 2 fiat rails</li>
+        <li>CRM integrated with MT5; KYC workflow live</li>
+        <li>30 short-form videos in production</li>
+        <li>Tournament landing page wireframes approved</li>
+        <li>1,000 IB outreach started; 5,000 influencers loaded</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-tag">Week 3</div>
+      <div class="phase-dates">31 May – 6 Jun</div>
+      <div class="phase-name">Test, Hedge, Polish</div>
+      <ul>
+        <li>End-to-end UAT: deposit → trade → withdraw cycle</li>
+        <li>Dealing desk live in staging</li>
+        <li>Tournament UI/UX live in staging</li>
+        <li>50 IBs onboarded with commission live in CRM</li>
+        <li>5,000 influencers contacted; 250+ activated</li>
+        <li>Long-form anchor content published</li>
+        <li>Competitor USP positioning published (all owners)</li>
+        <li>Soft launch to 50 internal/IB beta accounts</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-tag">Week 4</div>
+      <div class="phase-dates">7–15 Jun</div>
+      <div class="phase-name">Launch</div>
+      <ul>
+        <li>Final beta debrief &amp; bug burn-down</li>
+        <li>Tournament leaderboard live (public IDs)</li>
+        <li>Car giveaway campaign assets to IBs</li>
+        <li>Full influencer activation cascade</li>
+        <li>Studio live cadence begins</li>
+        <li>Final compliance &amp; risk sign-off</li>
+        <li><strong>15 Jun — Public Launch</strong></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="team">
+  <div class="section-head">
+    <div class="section-num">§ 02</div>
+    <h2 class="section-title">By <em>person.</em></h2>
+  </div>
+  <div class="team-grid" id="team-grid"></div>
+</section>
+
+<section id="path">
+  <div class="section-head">
+    <div class="section-num">§ 03</div>
+    <h2 class="section-title">Critical <em>path.</em></h2>
+  </div>
+  <div class="critical-path">
+    <div class="path-chain">
+      <div class="path-node gate-start">Any License Lands</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">Corporate Bank</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">LP Onboarding</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">PSPs (CoinsPaid first)</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">Netshop Servers</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">Centroid Bridge</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">MT5 Deployment</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">CRM Integration</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">Alpha Dealing</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node">Soft Launch · 8 Jun</div>
+      <div class="path-arrow">→</div>
+      <div class="path-node gate">Public Launch · 15 Jun</div>
+    </div>
+  </div>
+  <p style="margin-top: 24px; font-size: 13px; color: var(--ink-muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em;">→ Three license tracks running in parallel — first to land unlocks the chain.</p>
+</section>
+
+<section id="risk">
+  <div class="section-head">
+    <div class="section-num">§ 04</div>
+    <h2 class="section-title">Risk <em>register.</em></h2>
+  </div>
+  <div class="risk-grid">
+    <div class="risk-card high">
+      <div class="risk-level">▲ High · Critical</div>
+      <div class="risk-title">All three licenses slip past 27 May</div>
+      <div class="risk-desc">Mauritius takes 3–6 months; Dubai SCA 4–8 months; Ajman 2–4 weeks if expedited. Mauritius and SCA are unlikely inside 30 days from a cold start — Ajman is the realistic Week 1–2 unlock.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Treat Ajman as the launch-day license. Mauritius and SCA are 60–180 day workstreams for long-term credibility. Confirm with regulatory counsel that Ajman activity is permissible for the launch scope before committing PSP/LP onboarding to it.
+      </div>
+    </div>
+    <div class="risk-card high">
+      <div class="risk-level">▲ High</div>
+      <div class="risk-title">LP onboarding takes longer than 2 weeks</div>
+      <div class="risk-desc">Prime-of-prime LPs typically need 2–4 weeks for KYC, credit lines, and FIX integration. Two weeks is aggressive even with a clean license.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Open conversations with three LPs in parallel. Pre-build the KYC pack now so it goes out the hour a license lands. Soft-launch can run B-book-only with dealing desk hedging if LP slips.
+      </div>
+    </div>
+    <div class="risk-card med">
+      <div class="risk-level">◆ Medium</div>
+      <div class="risk-title">Transaction masking legal exposure</div>
+      <div class="risk-desc">Masking the transacting entity creates PSP T&amp;C and AML-screening risk in most jurisdictions. Card networks (Visa/Mastercard) are explicit about merchant-of-record accuracy.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Written legal opinion before any architecture work. Coverage: jurisdictional permissibility per PSP corridor, card-network compliance, AML/CTF implications, PSP termination risk. No deployment without Fahad sign-off.
+      </div>
+    </div>
+    <div class="risk-card med">
+      <div class="risk-level">◆ Medium</div>
+      <div class="risk-title">CRM decision locks late</div>
+      <div class="risk-desc">Syntellicore vs Brokeret decision is open. Integration with MT5, PSPs, and tournament page sits behind it.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Force a decision by Wed 21 May. Helia runs the scoring matrix; Fahad signs. No more vendor demos after Week 1.
+      </div>
+    </div>
+    <div class="risk-card med">
+      <div class="risk-level">◆ Medium</div>
+      <div class="risk-title">5,000-influencer outreach undershoots</div>
+      <div class="risk-desc">Two people contacting 5,000 micros in 30 days is roughly 80 quality contacts per person per working day, with response handling on top.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Set minimum-viable activation for launch (250 influencers + 50 IBs). Use real branded outreach reps with Milele Prime affiliate manager handles — verifiable, durable, on-policy for the platforms, and clean for SCA/Mauritius fitness review later. Treat 5,000 contacted as a 60–90 day target.
+      </div>
+    </div>
+    <div class="risk-card low">
+      <div class="risk-level">○ Watch</div>
+      <div class="risk-title">Giveaway cost reserves underestimated</div>
+      <div class="risk-desc">If volume thresholds are hit faster than modelled, prize obligations could outrun NTR reserves on early cohorts.</div>
+      <div class="risk-mitigation">
+        <strong>Mitigation</strong>
+        Billawal &amp; Qayyum lock the model in Week 3 with NTR-per-lot assumptions. 20% reserve buffer per tier. Legal review of T&amp;Cs before publication.
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="mark">M · P</div>
+  <div class="meta">Milele Prime · Launch Tracker v.02 · 17 May 2026 · Rebase weekly</div>
+  <button class="reset" onclick="resetAll()">Reset all checkboxes</button>
+</footer>
+
+<script>
+const team = [
+  {
+    id: 'zain', name: 'Zain', initial: 'Z',
+    title: 'Venture Builder · Brand · Content · Outbound',
+    tasks: [
+      { id: 'z1', date: '18 May', range: '17–18 May', title: 'Brand identity v1', desc: 'Logo, type system, colour, motion identity, brand guidelines doc. Sign-off with Fahad by end Week 1.', status: 'prog', statusText: 'In progress', dep: '—' },
+      { id: 'z2', date: '20 May', range: '17–20 May', title: 'Close Alpha Dealing contract', desc: 'Finalize terms with Aris C. — liability cap, revenue share, MT5 access scope, termination. Pre-cleared with Fahad.', status: 'prog', statusText: 'In progress', dep: '—' },
+      { id: 'z3', date: '21 May', range: '19–21 May', title: 'Marketing strategy sign-off', desc: 'Lock car/house/visa giveaway mechanic, lot thresholds, draw cadence, IB push plan. Communicate to all stakeholders.', status: 'prog', statusText: 'In progress', dep: '—' },
+      { id: 'z4', date: '23 May', range: '20–23 May', title: 'Brand story &amp; positioning narrative', desc: 'Founding story, what we stand for, who we serve. Reference doc all comms work off — Hamza, Tuba, Zair, IBs.', status: 'start', statusText: 'Not started', dep: 'Brand identity' },
+      { id: 'z5', date: '24 May', range: '20–24 May', title: 'Studio setup', desc: 'Lights, props, backdrops, teleprompter, audio. Must be operational before shorts production begins.', status: 'start', statusText: 'Not started', dep: '—' },
+      { id: 'z6', date: '25 May', range: '21–25 May', title: 'LP shortlist &amp; first conversations', desc: 'Initiate outreach the day any license lands. Target two LPs (primary + backup). KYC packs pre-built and ready.', status: 'block', statusText: 'Blocked · License', dep: 'License' },
+      { id: 'z7', date: '28 May', range: '24–28 May', title: 'Content strategy &amp; calendar', desc: 'Posting cadence across channels, content pillars, IB-shareable assets, paid amplification windows.', status: 'start', statusText: 'Not started', dep: 'Brand story' },
+      { id: 'z8', date: '31 May', range: '26–31 May', title: 'LP onboarding &amp; credit lines', desc: 'FIX API onboarding, margin requirements, asset coverage. Live connectivity to bridge by end Week 2.', status: 'start', statusText: 'Not started', dep: 'LP shortlist' },
+      { id: 'z9', date: '5 Jun', range: '26 May–5 Jun', title: '30+ short-form videos produced', desc: 'Hook-driven format for IBs and influencer push. Brand, product, and giveaway-mechanic explainers.', status: 'start', statusText: 'Not started', dep: 'Studio + brand' },
+      { id: 'z10', date: '6 Jun', range: '1–6 Jun', title: 'IB recruitment — first 50 onboarded', desc: 'Launch target: 50 IBs with commission live in CRM. Coordinate with Tuba + Zair on the wider 1,000.', status: 'start', statusText: 'Not started', dep: 'CRM live' },
+      { id: 'z11', date: '8 Jun', range: '3–8 Jun', title: 'Long-form anchor content', desc: 'Founder film, brand manifesto piece, one cornerstone explainer. Lives on the homepage.', status: 'start', statusText: 'Not started', dep: 'Brand story' },
+      { id: 'z12', date: '10 Jun', range: '6–10 Jun', title: 'Competitor USP analysis — brand &amp; campaigns', desc: 'How are XM, Exness, FBS positioning vs us? Where is our wedge — luxury association, giveaway scale, MENA-first?', status: 'start', statusText: 'Not started', dep: '—' },
+      { id: 'z13', date: '12 Jun', range: '8–12 Jun', title: 'Content distribution playbook', desc: 'How content reaches IBs and influencers. Posting calendar, attribution tracking, asset library.', status: 'start', statusText: 'Not started', dep: 'Content assets' },
+      { id: 'z14', date: '15 Jun', range: '12–15 Jun', title: 'Launch day comms &amp; PR', desc: 'Press list, launch announcement, IB activation sequence, social cascade plan. Day-zero ops calendar.', status: 'start', statusText: 'Not started', dep: 'All upstream' }
+    ]
+  },
+  {
+    id: 'helia', name: 'Helia', initial: 'H',
+    title: 'Technical Implementation · Owns the Build',
+    tasks: [
+      { id: 'h1', date: '20 May', range: '17–20 May', title: 'Close Centroid contract', desc: 'Finalize pricing and sign. Bridge config blocks MT5 routing — lock by end Week 1.', status: 'prog', statusText: 'In progress', dep: '—' },
+      { id: 'h2', date: '21 May', range: '17–21 May', title: 'CRM decision: Syntellicore vs Brokeret', desc: 'Score on pricing, IB portal, KYC, MT5 integration depth, PSP connectivity, wallet logic. Decide with Fahad by Wed.', status: 'prog', statusText: 'In progress', dep: '—' },
+      { id: 'h3', date: '22 May', range: '17–22 May', title: 'Sign Netshop &amp; provision servers', desc: 'LD7 primary, Amsterdam backup, Singapore access. Cross-connect LD7↔LD4 ordered.', status: 'start', statusText: 'Not started', dep: '—' },
+      { id: 'h4', date: '28 May', range: '22–28 May', title: 'CRM ↔ MT5 ↔ Bridge integration', desc: 'Account provisioning, KYC workflow, wallet logic, IB partner portal. Test with sample flows.', status: 'start', statusText: 'Not started', dep: 'CRM + servers' },
+      { id: 'h5', date: '31 May', range: '24–31 May', title: 'Gamified UX &amp; notification engine', desc: '"You\'re 2 lots from a Porsche" cadence. Hook into trade events from MT5. Email + in-app + push.', status: 'start', statusText: 'Not started', dep: 'CRM integration' },
+      { id: 'h6', date: '4 Jun', range: '28 May–4 Jun', title: 'Tournament landing page (UI/UX)', desc: 'Public leaderboard with anonymised MT5 IDs, real-time lot counts, prize tiers, draw mechanics.', status: 'start', statusText: 'Not started', dep: 'MT5 + branding' },
+      { id: 'h7', date: '7 Jun', range: '1–7 Jun', title: 'Unlock website &amp; corporate content', desc: 'Remove blur on accounts/deposits. Publish regulatory disclosures, terms, risk statements. Wire to CRM signup.', status: 'start', statusText: 'Not started', dep: 'License + legal copy' },
+      { id: 'h8', date: '11 Jun', range: '7–11 Jun', title: 'Competitor USP analysis — product &amp; UX', desc: 'How do XM, Exness, FBS handle onboarding, account types, dashboard UX? Where can our UX win — gamification, speed?', status: 'start', statusText: 'Not started', dep: '—' }
+    ]
+  },
+  {
+    id: 'hamza', name: 'Hamza', initial: 'H',
+    title: 'Licensing · Payments · Compliance · Withdrawals',
+    tasks: [
+      { id: 'hz1', date: '19 May', range: '17–19 May', title: 'Ajman license application opened', desc: 'Fastest realistic path to a live license inside 30 days. Free-zone authority application + KYC + business plan.', status: 'prog', statusText: 'In progress', dep: '—' },
+      { id: 'hz2', date: '20 May', range: '17–20 May', title: 'Mauritius license application opened', desc: 'FSC Investment Dealer / Global Business License — strong for international LP and PSP credibility. Long timeline; start now.', status: 'start', statusText: 'Not started', dep: '—' },
+      { id: 'hz3', date: '20 May', range: '17–20 May', title: 'Dubai SCA license application opened', desc: 'Category 5 Securities Broker Dealer. Long timeline (4–8 months) but critical for UAE-resident clients and bank access. Pre-application meeting scheduled.', status: 'start', statusText: 'Not started', dep: '—' },
+      { id: 'hz4', date: '22 May', range: '17–22 May', title: 'MT5 white-label license', desc: 'MetaQuotes application, KYC, server allocation. Processing 2–4 weeks — open file Day 1.', status: 'start', statusText: 'Not started', dep: 'Any license' },
+      { id: 'hz5', date: '23 May', range: '19–23 May', title: 'Transaction masking — legal opinion commissioned', desc: 'Written opinion from regulatory counsel BEFORE any architecture work. Coverage: jurisdictional permissibility per PSP corridor, Visa/Mastercard merchant-of-record rules, AML/CTF implications, PSP termination risk. No deployment without Fahad sign-off.', status: 'start', statusText: 'Not started', dep: '—' },
+      { id: 'hz6', date: '25 May', range: '19–25 May', title: 'CoinsPaid contract signed', desc: 'Crypto is the highest-priority deposit rail for our target client base. First outreach the moment any license lands.', status: 'block', statusText: 'Blocked · License', dep: 'License' },
+      { id: 'hz7', date: '28 May', range: '23–28 May', title: 'Transaction masking — architecture decision', desc: 'Based on legal opinion: build, modify, or kill. If proceeding, define entity layering, PSP disclosure stance, audit trail. Document the legal position behind the architecture.', status: 'start', statusText: 'Not started', dep: 'Legal opinion' },
+      { id: 'hz8', date: '30 May', range: '25–30 May', title: 'Fiat PSP contracts signed · wave 1', desc: 'Paytah, Unlimint, Vault Payments. Coverage for top 15 countries by client demand. Negotiate fees, settlement cycles, chargeback policy.', status: 'start', statusText: 'Not started', dep: 'CoinsPaid live' },
+      { id: 'hz9', date: '3 Jun', range: '28 May–3 Jun', title: 'Payment infrastructure built', desc: 'Webhook integration into CRM, local-currency dashboards, settlement reconciliation flow, withdrawal approval routing. Crypto + fiat unified back-office view.', status: 'start', statusText: 'Not started', dep: 'PSPs contracted' },
+      { id: 'hz10', date: '6 Jun', range: '1–6 Jun', title: 'Fiat PSP wave 2 · 40–50 country coverage', desc: 'Praxis Cashier, Match2Pay, region-specific gateways. Coverage target: 40–50 countries with local payment methods.', status: 'start', statusText: 'Not started', dep: 'Wave 1 live' },
+      { id: 'hz11', date: '9 Jun', range: '5–9 Jun', title: 'Wallet architecture: hot + cold + custody', desc: 'Hot wallet limits, cold storage policy, withdrawal approval flow, treasury reconciliation. Coordinate with Billawal/Qayyum.', status: 'start', statusText: 'Not started', dep: 'CoinsPaid' },
+      { id: 'hz12', date: '12 Jun', range: '8–12 Jun', title: 'Competitor USP analysis — withdrawals', desc: 'Exness scaled on IB infra + instant withdrawals. Map their withdrawal SLAs vs ours, fee structure, methods. Can we beat them on speed? Publish "Withdraw in X minutes" claim if true.', status: 'start', statusText: 'Not started', dep: 'PSPs live' }
+    ]
+  },
+  {
+    id: 'billawal', name: 'Billawal &amp; Qayyum', initial: 'B',
+    title: 'Finance · Risk · Dealing Desk Ops',
+    tasks: [
+      { id: 'b1', date: '24 May', range: '17–24 May', title: 'Accounting &amp; invoicing workflow', desc: 'Chart of accounts, invoicing flow for IB commissions and platform fees, monthly close cycle, statutory reporting calendars (Ajman + St. Lucia + Mauritius once live).', status: 'start', statusText: 'Not started', dep: '—' },
+      { id: 'b2', date: '27 May', range: '20–27 May', title: 'MT5 accounting framework', desc: 'Daily P&amp;L, client equity reconciliation, group-level reporting, fee and commission booking. Ties into accounting workflow.', status: 'start', statusText: 'Not started', dep: 'MT5 servers' },
+      { id: 'b3', date: '29 May', range: '24–29 May', title: 'Statutory plan: Ajman + St. Lucia licenses', desc: 'Filing calendar, capital adequacy reporting, audit schedule, regulator-facing financial pack template. Coordinate with Hamza on jurisdiction-specific requirements.', status: 'start', statusText: 'Not started', dep: 'License clarity' },
+      { id: 'b4', date: '31 May', range: '26–31 May', title: 'A-book routing rules &amp; risk policy', desc: 'Define what flows to LP vs internalised, exposure limits, toxic-flow flags, scalper detection thresholds. Document for dealing desk.', status: 'start', statusText: 'Not started', dep: 'LP onboarded' },
+      { id: 'b5', date: '2 Jun', range: '28 May–2 Jun', title: 'Treasury &amp; client fund segregation', desc: 'Operational vs client accounts, daily reconciliation policy, segregation reporting. Coordinate with Hamza on PSP/wallet flows.', status: 'block', statusText: 'Blocked · Bank', dep: 'Corporate bank' },
+      { id: 'b6', date: '5 Jun', range: '31 May–5 Jun', title: 'Dealing desk operating procedures', desc: 'Liaise with Alpha Dealing (Aris C.). MT5 group config, manual intervention rules, position hedging triggers, EOD risk report.', status: 'start', statusText: 'Not started', dep: 'Alpha Dealing' },
+      { id: 'b7', date: '8 Jun', range: '3–8 Jun', title: 'Risk dashboard &amp; KPI baseline', desc: 'Live exposure view, LP rejection rates, slippage profile, deposit/withdrawal ratios, top-client positions. Fahad\'s daily review.', status: 'start', statusText: 'Not started', dep: 'Trading live' },
+      { id: 'b8', date: '10 Jun', range: '5–10 Jun', title: 'Giveaway cost model &amp; reserve', desc: 'Model NTR per lot. Calculate funding for each prize tier. Lock allocations in treasury with 20% buffer.', status: 'start', statusText: 'Not started', dep: 'Marketing strategy' },
+      { id: 'b9', date: '12 Jun', range: '7–12 Jun', title: 'Competitor USP analysis — spreads &amp; symbols', desc: 'Map XM, Exness, FBS, IC Markets on: spread per major pair, symbol coverage (FX, metals, crypto, indices, stocks), commission models, swap rates. Identify where we can lead — tightest spreads on top 5 pairs, broader crypto, lower swaps.', status: 'start', statusText: 'Not started', dep: 'LP onboarded' }
+    ]
+  },
+  {
+    id: 'tuba', name: 'Syed Zair &amp; Tuba', initial: 'T',
+    title: 'IB &amp; Influencer Network · Owns the Database',
+    tasks: [
+      { id: 't1', date: '21 May', range: '17–21 May', title: 'IB &amp; influencer sheet · country-wise schema', desc: 'Build the master sheet with country, region, niche, follower count, contact, outreach status, response, conversion. Segregate by country from Day 1.', status: 'prog', statusText: 'In progress', dep: '—' },
+      { id: 't2', date: '24 May', range: '20–24 May', title: 'Outreach account setup · branded reps', desc: 'Set up 3–5 Milele Prime affiliate manager handles across platforms — real reps with branded titles and verifiable LinkedIn/company footprint. Platform-compliant and clean for SCA/Mauritius fitness review later.', status: 'start', statusText: 'Not started', dep: 'Brand identity' },
+      { id: 't3', date: '27 May', range: '20–27 May', title: 'Identify 1,000 IBs across target countries', desc: 'Existing forex IBs and affiliates across MENA, SE Asia, LatAm, CIS. Country-segregated. Prioritise IBs with existing client books.', status: 'start', statusText: 'Not started', dep: 'Schema' },
+      { id: 't4', date: '28 May', range: '21–28 May', title: 'Build 5,000 micro-influencer list (1k–20k followers)', desc: 'Niches: lifestyle, real estate, entertainment, finance-adjacent, automotive. Country-segregated. Cross-platform: Instagram, TikTok, YouTube. Verifiable footprint required.', status: 'start', statusText: 'Not started', dep: 'Schema' },
+      { id: 't5', date: '4 Jun', range: '24 May–4 Jun', title: 'Outreach to 1,000 IBs · onboard 50', desc: 'Branded outreach from Milele Prime affiliate manager handles. Track response, qualify, route hot leads to Zain for IB commission negotiation. Launch target: 50 IBs onboarded.', status: 'start', statusText: 'Not started', dep: 'Brand assets + commissions' },
+      { id: 't6', date: '10 Jun', range: '26 May–10 Jun', title: 'Outreach to 5,000 influencers · activate 250+', desc: 'Country-segregated batches. Track contact → response → activation funnel weekly. Activated = paid post or revshare deal signed. Hand activations to Zain for content briefing.', status: 'start', statusText: 'Not started', dep: 'Outreach accounts + brand assets' },
+      { id: 't7', date: '15 Jun', range: '12–15 Jun', title: 'Launch-day push coordination', desc: 'Synchronised content drop across the full activated network on 15 June. Track conversion to signups. Daily reporting to Zain and Fahad.', status: 'start', statusText: 'Not started', dep: 'Content + launch' }
+    ]
+  }
+];
+
+function render() {
+  const grid = document.getElementById('team-grid');
+  let totalCount = 0;
+  team.forEach(p => totalCount += p.tasks.length);
+  document.getElementById('stat-total').textContent = totalCount;
+
+  grid.innerHTML = team.map(p => {
+    return `
+      <div class="person-card" data-person="${p.id}">
+        <div class="person-header">
+          <div class="person-initial">${p.initial}</div>
+          <div class="person-info">
+            <h3>${p.name}</h3>
+            <div class="title">${p.title}</div>
+          </div>
+          <div class="person-stats">
+            <div class="person-stat"><div class="num done" id="done-${p.id}">0</div><div class="lbl">Done</div></div>
+            <div class="person-stat"><div class="num">${p.tasks.length}</div><div class="lbl">Total</div></div>
+          </div>
+          <div class="person-progress">
+            <div class="person-progress-bar"><div class="person-progress-fill" id="fill-${p.id}"></div></div>
+            <div class="person-progress-label" id="lbl-${p.id}">0% complete</div>
+          </div>
+        </div>
+        <div class="task-list">
+          ${p.tasks.map((t, i) => `
+            <div class="task-row" data-task="${t.id}" onclick="toggleTask('${t.id}', '${p.id}')">
+              <div class="task-pri">${roman(i + 1)}</div>
+              <div class="task-check"></div>
+              <div class="task-body">
+                <div class="task-title">${t.title}</div>
+                <div class="task-desc">${t.desc}</div>
+              </div>
+              <div class="task-date">
+                <div class="due">Due ${t.date}</div>
+                <div class="range">${t.range}</div>
+              </div>
+              <div class="task-status">
+                <span class="pill ${t.status}">${t.statusText}</span>
+                <div class="dep">Dep: ${t.dep}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="person-controls">
+          <button onclick="markAll('${p.id}', true)">Mark all done</button>
+          <button onclick="markAll('${p.id}', false)">Clear all</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  loadState();
+  updateAllProgress();
+}
+
+function roman(n) {
+  const map = ['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii','xiii','xiv','xv','xvi'];
+  return map[n - 1] || n;
+}
+
+const STORAGE_KEY = 'milele_prime_tracker_v2';
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    Object.keys(saved).forEach(taskId => {
+      if (saved[taskId]) {
+        const row = document.querySelector('[data-task="' + taskId + '"]');
+        if (row) row.classList.add('done');
+      }
+    });
+  } catch (e) {}
+}
+
+function saveState() {
+  const state = {};
+  document.querySelectorAll('.task-row').forEach(row => {
+    state[row.dataset.task] = row.classList.contains('done');
+  });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+function toggleTask(taskId, personId) {
+  const row = document.querySelector('[data-task="' + taskId + '"]');
+  if (!row) return;
+  row.classList.toggle('done');
+  saveState();
+  updatePersonProgress(personId);
+  updateOverallProgress();
+}
+
+function markAll(personId, done) {
+  const card = document.querySelector('[data-person="' + personId + '"]');
+  card.querySelectorAll('.task-row').forEach(row => {
+    if (done) row.classList.add('done');
+    else row.classList.remove('done');
+  });
+  saveState();
+  updatePersonProgress(personId);
+  updateOverallProgress();
+}
+
+function updatePersonProgress(personId) {
+  const card = document.querySelector('[data-person="' + personId + '"]');
+  const rows = card.querySelectorAll('.task-row');
+  const done = card.querySelectorAll('.task-row.done').length;
+  const total = rows.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('done-' + personId).textContent = done;
+  document.getElementById('fill-' + personId).style.width = pct + '%';
+  document.getElementById('lbl-' + personId).textContent = pct + '% complete';
+}
+
+function updateAllProgress() {
+  team.forEach(p => updatePersonProgress(p.id));
+  updateOverallProgress();
+}
+
+function updateOverallProgress() {
+  const total = document.querySelectorAll('.task-row').length;
+  const done = document.querySelectorAll('.task-row.done').length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('overall-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '% complete';
+  document.getElementById('stat-done').textContent = done;
+}
+
+function resetAll() {
+  if (!confirm('Reset every checkbox? This cannot be undone.')) return;
+  document.querySelectorAll('.task-row.done').forEach(r => r.classList.remove('done'));
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  updateAllProgress();
+}
+
+render();
+</script>
+
+</body>
+</html>
