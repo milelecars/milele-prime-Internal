@@ -8488,81 +8488,12 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 </div>
 
 <nav class="section-nav">
-  <a href="#tr-timeline">§ Week-by-week</a>
   <a href="#tr-team">§ By person</a>
 </nav>
 
-<section class="tr-section" id="tr-timeline">
-  <div class="section-head">
-    <div class="section-num">§ 01</div>
-    <h2 class="section-title">Week by <em>week.</em></h2>
-  </div>
-  <div class="phase-grid">
-    <div class="phase">
-      <div class="phase-tag">Week 1</div>
-      <div class="phase-dates">17–23 May</div>
-      <div class="phase-name">Foundations Locked</div>
-      <ul>
-        <li><strong>Mauritius + Dubai SCA + Ajman</strong> applications opened</li>
-        <li>Netshop contract signed; servers provisioning</li>
-        <li>Centroid pricing closed; contract signed</li>
-        <li>CRM decision: <strong>Syntellicore vs Brokeret</strong></li>
-        <li>MT5 white-label application opened</li>
-        <li>Alpha Dealing engagement contracted</li>
-        <li>Brand identity v1 + brand story delivered</li>
-        <li>IB &amp; influencer database scaffolded by country</li>
-      </ul>
-    </div>
-    <div class="phase">
-      <div class="phase-tag">Week 2</div>
-      <div class="phase-dates">24–30 May</div>
-      <div class="phase-name">Infrastructure Online</div>
-      <ul>
-        <li>MT5 servers deployed at LD7 + Amsterdam + SGP</li>
-        <li>Centroid bridge configured &amp; cross-connect live</li>
-        <li>LP shortlist signed (2 LPs, primary + backup)</li>
-        <li>PSPs wave 1: CoinsPaid + 2 fiat rails</li>
-        <li>CRM integrated with MT5; KYC workflow live</li>
-        <li>30 short-form videos in production</li>
-        <li>Tournament landing page wireframes approved</li>
-        <li>1,000 IB outreach started; 5,000 influencers loaded</li>
-      </ul>
-    </div>
-    <div class="phase">
-      <div class="phase-tag">Week 3</div>
-      <div class="phase-dates">31 May – 6 Jun</div>
-      <div class="phase-name">Test, Hedge, Polish</div>
-      <ul>
-        <li>End-to-end UAT: deposit → trade → withdraw cycle</li>
-        <li>Dealing desk live in staging</li>
-        <li>Tournament UI/UX live in staging</li>
-        <li>50 IBs onboarded with commission live in CRM</li>
-        <li>5,000 influencers contacted; 250+ activated</li>
-        <li>Long-form anchor content published</li>
-        <li>Competitor USP positioning published (all owners)</li>
-        <li>Soft launch to 50 internal/IB beta accounts</li>
-      </ul>
-    </div>
-    <div class="phase">
-      <div class="phase-tag">Week 4</div>
-      <div class="phase-dates">7–15 Jun</div>
-      <div class="phase-name">Launch</div>
-      <ul>
-        <li>Final beta debrief &amp; bug burn-down</li>
-        <li>Tournament leaderboard live (public IDs)</li>
-        <li>Car giveaway campaign assets to IBs</li>
-        <li>Full influencer activation cascade</li>
-        <li>Studio live cadence begins</li>
-        <li>Final compliance &amp; risk sign-off</li>
-        <li><strong>15 Jun — Public Launch</strong></li>
-      </ul>
-    </div>
-  </div>
-</section>
-
 <section class="tr-section" id="tr-team">
   <div class="section-head">
-    <div class="section-num">§ 02</div>
+    <div class="section-num">§ 01</div>
     <h2 class="section-title">By <em>person.</em></h2>
   </div>
   <div class="team-grid" id="tr-team-grid"></div>
@@ -8949,7 +8880,15 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   }
 
   function resetAll() {
-    if (!confirm('Reset every checkbox? This cannot be undone.')) return;
+    // Type-to-confirm: this unchecks EVERY task for EVERYONE in the shared DB,
+    // so guard it behind typing the exact word RESET (a single misclick can't
+    // wipe the team's progress).
+    const answer = prompt('⚠ This will UNCHECK every task for the WHOLE team in the shared workspace, and cannot be undone.\n\nType RESET (all caps) to confirm:');
+    if (answer === null) return;                 // cancelled
+    if (answer.trim() !== 'RESET') {             // anything other than exactly RESET
+      alert('Reset cancelled — you did not type RESET.');
+      return;
+    }
     Object.keys(window._trackerState).forEach(k => { window._trackerState[k] = false; window._trackerDirty.add(k); });
     trPanel.querySelectorAll('.task-row.done').forEach(r => r.classList.remove('done'));
     persist();
