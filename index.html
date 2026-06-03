@@ -2208,6 +2208,7 @@ function updateSaveStamp(ts) {
 }
 
 function showServerError(msg) {
+  console.error('[milele-prime persistence] ' + msg); // surface in DevTools for diagnosis
   const el = document.getElementById('save-fab-stamp');
   if(!el) return;
   el.textContent = '⚠ ' + msg;
@@ -2255,6 +2256,14 @@ function reconcile(local, remote) {
   out.trackerTeam = window._teamDirty
     ? mergeTeam(base.trackerTeam, local.trackerTeam)
     : (Array.isArray(base.trackerTeam) && base.trackerTeam.length ? base.trackerTeam : local.trackerTeam);
+  // Honour deletions LAST: mergeTeam re-adds any task still present in the
+  // server copy, so a task this tab deleted would otherwise come back. Strip
+  // every deleted id from the final team (and its checkbox key, done above).
+  if (window._trackerDeleted.size && Array.isArray(out.trackerTeam)) {
+    out.trackerTeam = out.trackerTeam.map(p => Object.assign({}, p, {
+      tasks: (p.tasks || []).filter(t => !window._trackerDeleted.has(t.id)),
+    }));
+  }
   return out;
 }
 
@@ -2333,7 +2342,14 @@ function applyRemoteState(remote) {
   window._trackerDeleted.forEach(k => { delete ts[k]; });
   window._trackerState = ts;
   if (Array.isArray(remote.trackerTeam) && remote.trackerTeam.length) {
-    window._trackerTeam = window._teamDirty ? mergeTeam(remote.trackerTeam, window._trackerTeam) : remote.trackerTeam;
+    let team = window._teamDirty ? mergeTeam(remote.trackerTeam, window._trackerTeam) : remote.trackerTeam;
+    // keep this tab's not-yet-saved deletions from being undone by the remote copy
+    if (window._trackerDeleted.size) {
+      team = team.map(p => Object.assign({}, p, {
+        tasks: (p.tasks || []).filter(t => !window._trackerDeleted.has(t.id)),
+      }));
+    }
+    window._trackerTeam = team;
   }
   // Don't yank the viewer to someone else's active person; only adopt if unset.
   if (typeof remote.trackerActivePerson === 'string' && !window._trackerActivePerson) {
