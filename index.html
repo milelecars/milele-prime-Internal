@@ -297,6 +297,8 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 .save-fab:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(191,111,255,0.45)}
 .save-fab:active{transform:translateY(0)}
 .save-fab.saved{background:var(--green);box-shadow:0 6px 18px rgba(31,168,118,0.35);pointer-events:none}
+.save-fab.is-clean,.save-fab:disabled{background:#3a3a44;color:var(--text-dim);box-shadow:none;cursor:default;pointer-events:none}
+.save-fab.is-clean:hover,.save-fab:disabled:hover{transform:none;box-shadow:none}
 .save-fab-icon{width:14px;height:14px;flex-shrink:0}
 .save-fab-stamp{position:fixed;bottom:.65rem;right:1.85rem;z-index:200;font-size:11px;color:var(--text-dim);letter-spacing:.04em;pointer-events:none}
 
@@ -1359,9 +1361,9 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 </footer>
 
 <!-- Persists every input on every tab to Supabase (shared across all users). Auto-save also runs (debounced) on each input change. -->
-<button class="save-fab" id="save-fab" type="button" onclick="saveAllNow()" title="Save all values from every tab to local storage">
+<button class="save-fab is-clean" id="save-fab" type="button" disabled onclick="saveAllNow()" title="Saves the tracker to Supabase. Auto-saves on every change; only active when there are unsaved edits.">
   <svg class="save-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-  <span id="save-fab-text">Save All</span>
+  <span id="save-fab-text">All saved</span>
 </button>
 <div class="save-fab-stamp" id="save-fab-stamp"></div>
 
@@ -2138,6 +2140,27 @@ const sb = (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
+// ─────────────────────────────────────────────────────────────────
+// PERSISTENCE SAFETY STATE  (added to stop the shared row resetting)
+//  _stateLoaded    — true ONLY after a successful load. saveState() refuses to
+//                    write until this flips true, so a failed/slow load can
+//                    never overwrite the shared row with empty defaults.
+//  _lastSavedAt    — savedAt of the snapshot this tab last synced (load OR
+//                    save). Used to detect a concurrent write from another tab.
+//  _trackerDirty   — checkbox task-ids THIS tab changed since its last save.
+//  _trackerDeleted — task-ids THIS tab deleted since its last save.
+//  _teamDirty      — true once THIS tab edits the task list / a task's fields.
+//  _savePending / _saveInFlight — guard so a realtime update can't clobber a
+//                    checkbox the user just clicked but hasn't saved yet.
+// ─────────────────────────────────────────────────────────────────
+window._stateLoaded    = false;
+window._lastSavedAt     = 0;
+window._trackerDirty    = new Set();
+window._trackerDeleted  = new Set();
+window._teamDirty       = false;
+window._savePending     = false;
+window._saveInFlight    = false;
+
 function collectState() {
   const s = { inputs: {} };
   // ── Non-tracker tab data DISABLED — only the Tracker tab is persisted ──
@@ -2203,23 +2226,134 @@ function showServerError(msg) {
   el.style.color = 'var(--red)';
 }
 
+// Merge two trackerTeam arrays so a concurrent edit in another tab is never
+// lost: keep every person/task from BOTH sides. For a task present on both,
+// the local copy wins (it carries this tab's just-made status change); any
+// remote-only person/task is appended. Local order is preserved.
+function mergeTeam(remoteTeam, localTeam) {
+  if (!Array.isArray(remoteTeam) || remoteTeam.length === 0) return localTeam;
+  if (!Array.isArray(localTeam)  || localTeam.length  === 0) return remoteTeam;
+  const remoteById = {};
+  remoteTeam.forEach(p => { remoteById[p.id] = p; });
+  const seen = new Set();
+  const merged = localTeam.map(lp => {
+    seen.add(lp.id);
+    const rp = remoteById[lp.id];
+    if (!rp) return lp;
+    const localTaskIds = new Set((lp.tasks || []).map(t => t.id));
+    const tasks = (lp.tasks || []).slice();
+    (rp.tasks || []).forEach(rt => { if (!localTaskIds.has(rt.id)) tasks.push(rt); });
+    return Object.assign({}, rp, lp, { tasks });
+  });
+  remoteTeam.forEach(rp => { if (!seen.has(rp.id)) merged.push(rp); });
+  return merged;
+}
+
+// Fold THIS tab's pending edits onto the freshest server snapshot so we only
+// ever WRITE our own deltas — we never blast a whole stale object over newer
+// data from another tab/user. This is the second line of defence behind the
+// _stateLoaded guard.
+function reconcile(local, remote) {
+  const out  = Object.assign({}, local);
+  const base = (remote && typeof remote === 'object') ? remote : {};
+  // trackerState: start from the server's keys, then apply ONLY the checkboxes
+  // this tab actually toggled (and honour our deletions). A stale tab can no
+  // longer wipe keys it never touched.
+  const ts = Object.assign({}, base.trackerState);
+  window._trackerDirty.forEach(k => { ts[k] = !!(local.trackerState || {})[k]; });
+  window._trackerDeleted.forEach(k => { delete ts[k]; });
+  out.trackerState = ts;
+  // trackerTeam: only override the server copy if we actually edited the list.
+  out.trackerTeam = window._teamDirty
+    ? mergeTeam(base.trackerTeam, local.trackerTeam)
+    : (Array.isArray(base.trackerTeam) && base.trackerTeam.length ? base.trackerTeam : local.trackerTeam);
+  return out;
+}
+
 async function saveState() {
-  const s = collectState();
   if(!sb) {
     showServerError('Supabase not configured — fill in URL and anon key in index.html');
     return;
   }
+  // HARD GUARD: never write until a successful load has populated this tab.
+  // This is what stops a failed/slow load from overwriting the shared row
+  // with empty defaults — the original cause of the reset.
+  if(!window._stateLoaded) return;
+  const local = collectState();
+  const priorSavedAt = window._lastSavedAt;
+  window._saveInFlight = true;
   try {
+    // Read-modify-write: pull the latest row, fold in only our deltas, push.
+    let remote = null;
+    try {
+      const { data } = await sb.from('state').select('data').eq('id', STATE_ROW_ID).maybeSingle();
+      remote = data && data.data;
+    } catch(_) { /* if the pre-read fails, fall through to a plain write */ }
+    const merged = reconcile(local, remote);
     const { error } = await sb.from('state').upsert({
       id: STATE_ROW_ID,
-      data: s,
+      data: merged,
       updated_at: new Date().toISOString(),
     });
     if(error) throw error;
-    updateSaveStamp(s.savedAt);
+    // Adopt the merged result locally so this tab reflects any folded-in remote
+    // edits, and clear our pending-delta tracking.
+    window._trackerState = merged.trackerState || window._trackerState;
+    if (Array.isArray(merged.trackerTeam)) window._trackerTeam = merged.trackerTeam;
+    window._lastSavedAt = merged.savedAt;
+    window._trackerDirty.clear();
+    window._trackerDeleted.clear();
+    window._teamDirty = false;
+    setDirty(false);           // everything persisted — grey the Save button out
+    updateSaveStamp(merged.savedAt);
+    // Only repaint when another tab/user had written since we last synced —
+    // keeps normal solo editing free of focus-stealing re-renders.
+    const concurrent = remote && remote.savedAt && remote.savedAt > priorSavedAt;
+    if (concurrent && typeof window.__trackerRepaint === 'function') window.__trackerRepaint();
   } catch(e) {
     showServerError('Save failed: ' + (e.message || e));
+  } finally {
+    window._saveInFlight = false;
   }
+}
+
+// ── Live sync: when another tab/user writes the row, fold their state into
+//    this tab so it can't go stale and later clobber them. No-op (silently)
+//    if Realtime isn't enabled on the table — saves still work without it.
+let _realtimeSubbed = false;
+function subscribeRealtime() {
+  if (_realtimeSubbed || !sb || typeof sb.channel !== 'function') return;
+  _realtimeSubbed = true;
+  try {
+    sb.channel('state-sync-' + STATE_ROW_ID)
+      .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'state', filter: 'id=eq.' + STATE_ROW_ID },
+          payload => {
+            const remote = payload && payload.new && payload.new.data;
+            if (!remote) return;
+            if (remote.savedAt && remote.savedAt === window._lastSavedAt) return; // our own echo
+            if (window._savePending || window._saveInFlight) return;              // mid local edit/save
+            applyRemoteState(remote);
+          })
+      .subscribe();
+  } catch(e) { /* realtime not enabled — fine, ignore */ }
+}
+
+function applyRemoteState(remote) {
+  const ts = Object.assign({}, remote.trackerState);
+  // keep checkboxes this tab changed but hasn't saved yet
+  window._trackerDirty.forEach(k => { ts[k] = !!(window._trackerState || {})[k]; });
+  window._trackerDeleted.forEach(k => { delete ts[k]; });
+  window._trackerState = ts;
+  if (Array.isArray(remote.trackerTeam) && remote.trackerTeam.length) {
+    window._trackerTeam = window._teamDirty ? mergeTeam(remote.trackerTeam, window._trackerTeam) : remote.trackerTeam;
+  }
+  // Don't yank the viewer to someone else's active person; only adopt if unset.
+  if (typeof remote.trackerActivePerson === 'string' && !window._trackerActivePerson) {
+    window._trackerActivePerson = remote.trackerActivePerson;
+  }
+  window._lastSavedAt = remote.savedAt || window._lastSavedAt;
+  if (typeof window.__trackerRepaint === 'function') window.__trackerRepaint();
 }
 
 // Auto-save on every input fires hundreds of times per drag; debounce so we
@@ -2227,7 +2361,9 @@ async function saveState() {
 let _saveTimer = null;
 function saveStateDebounced() {
   if(_saveTimer) clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(saveState, 400);
+  window._savePending = true; // suppress realtime clobber while an edit is pending
+  setDirty(true);             // light up the Save button — there are unsaved edits
+  _saveTimer = setTimeout(() => { window._savePending = false; saveState(); }, 400);
 }
 
 async function loadState() {
@@ -2242,9 +2378,20 @@ async function loadState() {
       .eq('id', STATE_ROW_ID)
       .maybeSingle();
     if(error) throw error;
-    if(data && data.data) applyState(data.data);
+    if(data && data.data) {
+      applyState(data.data);
+      window._lastSavedAt = data.data.savedAt || 0;
+    }
+    // Mark loaded ONLY after a clean fetch. A missing row is still a successful
+    // load (legit empty DB on first run), so writes are unblocked from here.
+    window._stateLoaded = true;
+    setDirty(false); // freshly synced — nothing unsaved
+    subscribeRealtime();
   } catch(e) {
-    showServerError('Load failed: ' + (e.message || e));
+    // Saves stay BLOCKED (_stateLoaded is still false) until a load succeeds,
+    // so a flaky connection can't lead to the row being wiped. Keep retrying.
+    showServerError('Load failed — not saving until reconnect: ' + (e.message || e));
+    setTimeout(loadState, 4000);
   }
 }
 
@@ -2260,9 +2407,62 @@ async function saveAllNow() {
   txt.textContent = '✓ Saved';
   setTimeout(() => {
     btn.classList.remove('saved');
-    txt.textContent = 'Save All';
+    updateSaveButton();  // fall back to clean/dirty state, not a hard "Save All"
   }, 1400);
 }
+
+// ─────────────────────────────────────────────────────────────────
+// SAVE-BUTTON DIRTY STATE
+// The button is only live when there are unsaved edits. Auto-save clears it
+// within ~400ms, so in steady state it reads "All saved" and is disabled.
+// ─────────────────────────────────────────────────────────────────
+let _dirty = false;
+function setDirty(v) {
+  if (_dirty === v) return;
+  _dirty = v;
+  updateSaveButton();
+}
+window.__setDirty = setDirty; // so the tracker IIFE (separate script) can call it
+function updateSaveButton() {
+  const btn = document.getElementById('save-fab');
+  const txt = document.getElementById('save-fab-text');
+  if (!btn || !txt) return;
+  if (btn.classList.contains('saved')) return; // mid "✓ Saved" flash — leave it
+  btn.disabled = !_dirty;
+  btn.classList.toggle('is-clean', !_dirty);
+  txt.textContent = _dirty ? 'Save changes' : 'All saved';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// REFRESH-ON-OPEN
+// A tab left open for hours/days goes stale. When it regains focus (or the
+// browser tab becomes visible again) pull the freshest server state so the
+// user always sees current data. Skipped while a local edit is pending so we
+// never discard something the user just changed; applyRemoteState also keeps
+// any unsaved checkbox edits.
+// ─────────────────────────────────────────────────────────────────
+let _refreshing = false;
+async function refreshFromServer() {
+  if (!sb) return;
+  if (!window._stateLoaded) { loadState(); return; } // initial load hasn't succeeded yet
+  if (window._savePending || window._saveInFlight || _refreshing) return;
+  _refreshing = true;
+  try {
+    const { data, error } = await sb.from('state').select('data').eq('id', STATE_ROW_ID).maybeSingle();
+    if (error) throw error;
+    const remote = data && data.data;
+    if (remote && remote.savedAt && remote.savedAt !== window._lastSavedAt) {
+      applyRemoteState(remote); // merge + repaint, preserving any unsaved local edits
+    }
+  } catch (e) {
+    /* transient — will retry on the next focus/visibility change */
+  } finally {
+    _refreshing = false;
+  }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshFromServer(); });
+window.addEventListener('focus', refreshFromServer);
+updateSaveButton(); // initial paint: clean/disabled until the first edit
 
 // ─────────────────────────────────────────────────────────────────
 // INIT
@@ -8660,6 +8860,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   }
 
   function persist() {
+    if (typeof window.__setDirty === 'function') window.__setDirty(true);
     if (typeof saveState === 'function') saveState();
   }
 
@@ -8699,6 +8900,8 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     row.classList.toggle('done');
     const done = row.classList.contains('done');
     window._trackerState[taskId] = done;
+    window._trackerDirty.add(taskId);
+    window._teamDirty = true; // syncStatusToDone mutates the task's status pill
     syncStatusToDone(taskId, done);
     persist();
     updatePersonProgress(personId);
@@ -8712,8 +8915,10 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       const id = row.dataset.task;
       if (done) { row.classList.add('done'); window._trackerState[id] = true; }
       else      { row.classList.remove('done'); window._trackerState[id] = false; }
+      window._trackerDirty.add(id);
       syncStatusToDone(id, done);
     });
+    window._teamDirty = true;
     persist();
     updatePersonProgress(personId);
     updateOverallProgress();
@@ -8771,7 +8976,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
 
   function resetAll() {
     if (!confirm('Reset every checkbox? This cannot be undone.')) return;
-    Object.keys(window._trackerState).forEach(k => { window._trackerState[k] = false; });
+    Object.keys(window._trackerState).forEach(k => { window._trackerState[k] = false; window._trackerDirty.add(k); });
     trPanel.querySelectorAll('.task-row.done').forEach(r => r.classList.remove('done'));
     persist();
     updateAllProgress();
@@ -8808,6 +9013,8 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       window._trackerState[taskId] = false;
       if (row) row.classList.remove('done');
     }
+    window._trackerDirty.add(taskId);
+    window._teamDirty = true;
     persist();
     // Update the select's pill class in place (no full re-render — keeps focus)
     const sel = trPanel.querySelector('select.task-status-select[data-task-id="' + taskId + '"]');
@@ -8840,6 +9047,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     if (fromIdx === toIdx) return;
     const [moved] = tasks.splice(fromIdx, 1);
     tasks.splice(toIdx, 0, moved);
+    window._teamDirty = true;
     persist();
     render();
   }
@@ -8852,6 +9060,9 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     if (!confirm('Are you sure you want to delete "' + taskName + '"?\n\nThis cannot be undone.')) return;
     found.person.tasks = found.person.tasks.filter(t => t.id !== taskId);
     delete window._trackerState[taskId];
+    window._trackerDeleted.add(taskId);
+    window._trackerDirty.delete(taskId);
+    window._teamDirty = true;
     persist();
     render();
   }
@@ -8924,7 +9135,11 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
       targetId = newTask.id;
     }
     // Keep the done checkbox in sync with a status set via the modal.
-    if (targetId) window._trackerState[targetId] = (status === 'done');
+    if (targetId) {
+      window._trackerState[targetId] = (status === 'done');
+      window._trackerDirty.add(targetId);
+    }
+    window._teamDirty = true;
     persist();
     closeModal();
     render();
