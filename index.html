@@ -293,14 +293,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
 .calc-btn-cancel:hover{background:var(--bg3);color:var(--text)}
 
 /* SAVE-ALL FLOATING BUTTON */
-.save-fab{position:fixed;bottom:1.75rem;right:1.75rem;z-index:200;background:var(--pu);color:#fff;border:none;padding:.85rem 1.5rem;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:var(--font);border-radius:4px;box-shadow:0 6px 18px rgba(191,111,255,0.35);transition:transform .15s,background .2s,box-shadow .2s;display:flex;align-items:center;gap:8px}
-.save-fab:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(191,111,255,0.45)}
-.save-fab:active{transform:translateY(0)}
-.save-fab.saved{background:var(--green);box-shadow:0 6px 18px rgba(31,168,118,0.35);pointer-events:none}
-.save-fab.is-clean,.save-fab:disabled{background:#3a3a44;color:var(--text-dim);box-shadow:none;cursor:default;pointer-events:none}
-.save-fab.is-clean:hover,.save-fab:disabled:hover{transform:none;box-shadow:none}
-.save-fab-icon{width:14px;height:14px;flex-shrink:0}
-.save-fab-stamp{position:fixed;bottom:.65rem;right:1.85rem;z-index:200;font-size:11px;color:var(--text-dim);letter-spacing:.04em;pointer-events:none}
+.save-fab-stamp{position:fixed;bottom:1rem;right:1.25rem;z-index:200;font-size:11px;color:var(--text-dim);letter-spacing:.04em;pointer-events:none}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fu{animation:fadeUp .4s ease forwards;opacity:0}
@@ -338,7 +331,6 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   .chart-tabs{flex-wrap:wrap;width:auto}
   .chart-canvas-wrap{height:240px}
   .ib-total-bar{gap:.75rem}
-  .save-fab{bottom:1rem;right:1rem;padding:.7rem 1.1rem;font-size:12px}
   .save-fab-stamp{right:1rem;bottom:.4rem}
 }
 @media(max-width:480px){
@@ -1360,11 +1352,7 @@ footer .inner{display:flex;justify-content:space-between;align-items:center;font
   </div>
 </footer>
 
-<!-- Persists every input on every tab to Supabase (shared across all users). Auto-save also runs (debounced) on each input change. -->
-<button class="save-fab is-clean" id="save-fab" type="button" disabled onclick="saveAllNow()" title="Saves the tracker to Supabase. Auto-saves on every change; only active when there are unsaved edits.">
-  <svg class="save-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-  <span id="save-fab-text">All saved</span>
-</button>
+<!-- Auto-save: every change persists to Supabase (debounced, shared across all users). The stamp below confirms the last successful save / surfaces errors. -->
 <div class="save-fab-stamp" id="save-fab-stamp"></div>
 
 <script>
@@ -2304,7 +2292,6 @@ async function saveState() {
     window._trackerDirty.clear();
     window._trackerDeleted.clear();
     window._teamDirty = false;
-    setDirty(false);           // everything persisted — grey the Save button out
     updateSaveStamp(merged.savedAt);
     // Only repaint when another tab/user had written since we last synced —
     // keeps normal solo editing free of focus-stealing re-renders.
@@ -2362,7 +2349,6 @@ let _saveTimer = null;
 function saveStateDebounced() {
   if(_saveTimer) clearTimeout(_saveTimer);
   window._savePending = true; // suppress realtime clobber while an edit is pending
-  setDirty(true);             // light up the Save button — there are unsaved edits
   _saveTimer = setTimeout(() => { window._savePending = false; saveState(); }, 400);
 }
 
@@ -2391,7 +2377,6 @@ async function loadState() {
     // The fetch succeeded, so we can talk to the DB — saving is safe to enable.
     // A missing row is still a successful load (legit empty DB on first run).
     window._stateLoaded = true;
-    setDirty(false); // freshly synced — nothing unsaved
     // Run the full UI apply (tabs + recalcs) in isolation: a buggy display calc
     // must never block persistence or stop the retry-free steady state again.
     if(snap) {
@@ -2405,44 +2390,6 @@ async function loadState() {
     showServerError('Load failed — not saving until reconnect: ' + (e.message || e));
     setTimeout(loadState, 4000);
   }
-}
-
-async function saveAllNow() {
-  const btn = document.getElementById('save-fab');
-  const txt = document.getElementById('save-fab-text');
-  await saveState();
-  if(!btn || !txt) return;
-  // Only show success state if the save didn't surface an error
-  const stamp = document.getElementById('save-fab-stamp');
-  if(stamp && stamp.textContent.startsWith('⚠')) return;
-  btn.classList.add('saved');
-  txt.textContent = '✓ Saved';
-  setTimeout(() => {
-    btn.classList.remove('saved');
-    updateSaveButton();  // fall back to clean/dirty state, not a hard "Save All"
-  }, 1400);
-}
-
-// ─────────────────────────────────────────────────────────────────
-// SAVE-BUTTON DIRTY STATE
-// The button is only live when there are unsaved edits. Auto-save clears it
-// within ~400ms, so in steady state it reads "All saved" and is disabled.
-// ─────────────────────────────────────────────────────────────────
-let _dirty = false;
-function setDirty(v) {
-  if (_dirty === v) return;
-  _dirty = v;
-  updateSaveButton();
-}
-window.__setDirty = setDirty; // so the tracker IIFE (separate script) can call it
-function updateSaveButton() {
-  const btn = document.getElementById('save-fab');
-  const txt = document.getElementById('save-fab-text');
-  if (!btn || !txt) return;
-  if (btn.classList.contains('saved')) return; // mid "✓ Saved" flash — leave it
-  btn.disabled = !_dirty;
-  btn.classList.toggle('is-clean', !_dirty);
-  txt.textContent = _dirty ? 'Save changes' : 'All saved';
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -2474,7 +2421,6 @@ async function refreshFromServer() {
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshFromServer(); });
 window.addEventListener('focus', refreshFromServer);
-updateSaveButton(); // initial paint: clean/disabled until the first edit
 
 // ─────────────────────────────────────────────────────────────────
 // INIT
@@ -8873,7 +8819,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
   }
 
   function persist() {
-    if (typeof window.__setDirty === 'function') window.__setDirty(true);
     if (typeof saveState === 'function') saveState();
   }
 
