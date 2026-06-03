@@ -2377,15 +2377,27 @@ async function loadState() {
       .select('data')
       .eq('id', STATE_ROW_ID)
       .maybeSingle();
-    if(error) throw error;
-    if(data && data.data) {
-      applyState(data.data);
-      window._lastSavedAt = data.data.savedAt || 0;
+    if(error) throw error;          // genuine network/DB failure → keep saves blocked
+    const snap = data && data.data;
+    if(snap) {
+      // Adopt the tracker data DIRECTLY first, so it's safe in memory the moment
+      // the network read succeeds — independent of the (heavily-wrapped) applyState
+      // chain, which can throw inside an unrelated recalc step.
+      if(snap.trackerState && typeof snap.trackerState === 'object') window._trackerState = snap.trackerState;
+      if(Array.isArray(snap.trackerTeam) && snap.trackerTeam.length)  window._trackerTeam = snap.trackerTeam;
+      if(typeof snap.trackerActivePerson === 'string')               window._trackerActivePerson = snap.trackerActivePerson;
+      window._lastSavedAt = snap.savedAt || 0;
     }
-    // Mark loaded ONLY after a clean fetch. A missing row is still a successful
-    // load (legit empty DB on first run), so writes are unblocked from here.
+    // The fetch succeeded, so we can talk to the DB — saving is safe to enable.
+    // A missing row is still a successful load (legit empty DB on first run).
     window._stateLoaded = true;
     setDirty(false); // freshly synced — nothing unsaved
+    // Run the full UI apply (tabs + recalcs) in isolation: a buggy display calc
+    // must never block persistence or stop the retry-free steady state again.
+    if(snap) {
+      try { applyState(snap); }
+      catch(e) { showServerError('Loaded — a display calc failed (your data is safe): ' + (e.message || e)); }
+    }
     subscribeRealtime();
   } catch(e) {
     // Saves stay BLOCKED (_stateLoaded is still false) until a load succeeds,
@@ -5761,6 +5773,7 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     const grVar = num('fm-growth-variable') / 100;
     const grFix = num('fm-growth-fixed')    / 100;
     const grDep = num('fm-growth-deposits') / 100;
+    const grIB  = grVar; // IB payouts scale with the variable-cost growth rate (no separate input)
 
     // ── Year 1 annual base ───────────────────────────────────────────
     const rev_y1 = rev_m * 12;
