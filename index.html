@@ -9058,19 +9058,6 @@ loadState().then(() => { renderAll(); recalcDepositsTotal(); recalcRevenueTotal(
     render();
   }
 
-  // ── One-time migration from old localStorage key (if state empty) ──
-  try {
-    if (Object.keys(window._trackerState).length === 0) {
-      const oldLs = localStorage.getItem('milele_prime_tracker_v2');
-      if (oldLs) {
-        const parsed = JSON.parse(oldLs);
-        if (parsed && typeof parsed === 'object') {
-          Object.keys(parsed).forEach(k => { window._trackerState[k] = !!parsed[k]; });
-        }
-      }
-    }
-  } catch (e) {}
-
   // ── Event delegation ─────────────────────────────────────────────
   trPanel.addEventListener('click', e => {
     const actionEl = e.target.closest('[data-action]');
