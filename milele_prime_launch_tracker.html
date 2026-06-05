@@ -397,6 +397,10 @@
   <button class="reset" onclick="resetAll()">Reset all checkboxes</button>
 </footer>
 
+<!-- Sync status (shared Supabase workspace — same row index.html uses) -->
+<div id="sync-stamp" style="position:fixed;bottom:1rem;right:1.25rem;z-index:200;font-size:11px;color:#888;letter-spacing:.04em;pointer-events:none"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const team = [
   {
@@ -481,13 +485,161 @@ const team = [
   }
 ];
 
+// ─────────────────────────────────────────────────────────────────
+// SHARED SUPABASE WORKSPACE — same project, table and row that index.html
+// uses, so checkboxes and the task list stay in sync between both pages.
+// The hardcoded team[] above is only a fallback until the DB copy arrives.
+// ─────────────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'https://txajyvcielbckppmxsls.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4YWp5dmNpZWxiY2twcG14c2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzcxNTEsImV4cCI6MjA5NDY1MzE1MX0.mnBfnhILrrBkYT3s-AiH68QT4__VqOfRW-zQlRxZ7wk';
+const STATE_ROW_ID      = 'main';
+const sb = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+let activeTeam   = team;       // swapped for the DB team once loaded
+let _state       = {};         // checkbox map: task id -> bool
+let _loaded      = false;      // HARD GUARD: no writes until a successful read
+let _dirty       = new Set();  // task ids THIS page changed since its last save
+let _lastSavedAt = 0;          // savedAt of the snapshot this page last synced
+let _saving      = false;
+let _saveTimer   = null;
+
+function timeStr() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+}
+function stamp(msg, isError) {
+  const el = document.getElementById('sync-stamp');
+  if (el) { el.textContent = (isError ? '⚠ ' : '') + msg; el.style.color = isError ? '#e5484d' : '#888'; }
+  if (isError) console.error('[launch-tracker sync] ' + msg);
+}
+
+async function fetchRow() {
+  const { data, error } = await sb.from('state').select('data').eq('id', STATE_ROW_ID).maybeSingle();
+  if (error) throw error;
+  return (data && data.data) || null;
+}
+
+async function loadShared() {
+  if (!sb) { stamp('Supabase library failed to load — read-only mode', true); return; }
+  try {
+    const snap = await fetchRow();
+    if (snap) {
+      if (snap.trackerState && typeof snap.trackerState === 'object') _state = Object.assign({}, snap.trackerState);
+      if (Array.isArray(snap.trackerTeam) && snap.trackerTeam.length)  activeTeam = snap.trackerTeam;
+      _lastSavedAt = snap.savedAt || 0;
+    }
+    _loaded = true;            // fetch succeeded → writes are now allowed
+    render();
+    stamp('Synced ' + timeStr());
+    subscribeRealtime();
+  } catch (e) {
+    stamp('Load failed — not saving until reconnect: ' + (e.message || e), true);
+    setTimeout(loadShared, 4000);
+  }
+}
+
+function queueSave() {
+  if (_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => { _saveTimer = null; saveShared(); }, 400);
+}
+
+// Read-modify-write: pull the latest row, fold in ONLY the checkboxes this
+// page changed, keep everything else (financial inputs, task list edits,
+// active tab…) exactly as the server has it. A stale copy of this page can
+// never wipe data it didn't touch.
+async function saveShared() {
+  if (!sb || !_loaded) return;
+  _saving = true;
+  try {
+    let base = null;
+    try { base = await fetchRow(); } catch (_) { /* fall through to plain write */ }
+    base = base || {};
+    const merged = Object.assign({}, base);
+    merged.trackerState = Object.assign({}, base.trackerState);
+    _dirty.forEach(k => { merged.trackerState[k] = !!_state[k]; });
+    // Keep the status pills on the shared task list consistent with the
+    // checkboxes we just changed (mirrors index.html's checkbox↔pill sync).
+    if (Array.isArray(base.trackerTeam)) {
+      merged.trackerTeam = base.trackerTeam.map(p => Object.assign({}, p, {
+        tasks: (p.tasks || []).map(t => {
+          if (!_dirty.has(t.id)) return t;
+          const done = !!_state[t.id];
+          return Object.assign({}, t, {
+            status:     done ? 'done' : (t._prevStatus && t._prevStatus !== 'done' ? t._prevStatus : 'start'),
+            statusText: done ? 'Completed' : (t._prevStatus === 'prog' ? 'In progress' : t._prevStatus === 'block' ? 'Blocked' : 'Not started'),
+          });
+        }),
+      }));
+    }
+    merged.savedAt = Date.now();
+    const { error } = await sb.from('state').upsert({ id: STATE_ROW_ID, data: merged, updated_at: new Date().toISOString() });
+    if (error) throw error;
+    _state = Object.assign({}, merged.trackerState);
+    if (Array.isArray(merged.trackerTeam) && merged.trackerTeam.length) activeTeam = merged.trackerTeam;
+    _lastSavedAt = merged.savedAt;
+    _dirty.clear();
+    applyStateFromMemory();
+    updateAllProgress();
+    stamp('Last saved ' + timeStr());
+  } catch (e) {
+    stamp('Save failed: ' + (e.message || e), true);
+  } finally {
+    _saving = false;
+  }
+}
+
+// Fold a fresher remote snapshot into this page, keeping unsaved local toggles.
+function adoptRemote(snap) {
+  const pending = {};
+  _dirty.forEach(k => { pending[k] = !!_state[k]; });
+  _state = Object.assign({}, snap.trackerState, pending);
+  if (Array.isArray(snap.trackerTeam) && snap.trackerTeam.length) activeTeam = snap.trackerTeam;
+  _lastSavedAt = snap.savedAt || _lastSavedAt;
+  render();
+  stamp('Synced ' + timeStr());
+}
+
+let _refreshing = false;
+async function refreshShared() {
+  if (!sb) return;
+  if (!_loaded) { loadShared(); return; }
+  if (_saveTimer || _saving || _refreshing) return;
+  _refreshing = true;
+  try {
+    const snap = await fetchRow();
+    if (snap && snap.savedAt && snap.savedAt !== _lastSavedAt) adoptRemote(snap);
+  } catch (_) { /* transient — retried on next focus */ }
+  finally { _refreshing = false; }
+}
+
+let _subbed = false;
+function subscribeRealtime() {
+  if (_subbed || !sb || typeof sb.channel !== 'function') return;
+  _subbed = true;
+  try {
+    sb.channel('launch-tracker-sync-' + STATE_ROW_ID)
+      .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'state', filter: 'id=eq.' + STATE_ROW_ID },
+          payload => {
+            const remote = payload && payload.new && payload.new.data;
+            if (!remote) return;
+            if (remote.savedAt && remote.savedAt === _lastSavedAt) return; // our own echo
+            if (_saveTimer || _saving) return;                            // mid local save
+            adoptRemote(remote);
+          })
+      .subscribe();
+  } catch (_) { /* realtime not enabled — focus refresh still covers sync */ }
+}
+
 function render() {
   const grid = document.getElementById('team-grid');
   let totalCount = 0;
-  team.forEach(p => totalCount += p.tasks.length);
+  activeTeam.forEach(p => totalCount += (p.tasks || []).length);
   document.getElementById('stat-total').textContent = totalCount;
 
-  grid.innerHTML = team.map(p => {
+  grid.innerHTML = activeTeam.map(p => {
     return `
       <div class="person-card" data-person="${p.id}">
         <div class="person-header">
@@ -498,7 +650,7 @@ function render() {
           </div>
           <div class="person-stats">
             <div class="person-stat"><div class="num done" id="done-${p.id}">0</div><div class="lbl">Done</div></div>
-            <div class="person-stat"><div class="num">${p.tasks.length}</div><div class="lbl">Total</div></div>
+            <div class="person-stat"><div class="num">${(p.tasks || []).length}</div><div class="lbl">Total</div></div>
           </div>
           <div class="person-progress">
             <div class="person-progress-bar"><div class="person-progress-fill" id="fill-${p.id}"></div></div>
@@ -506,21 +658,21 @@ function render() {
           </div>
         </div>
         <div class="task-list">
-          ${p.tasks.map((t, i) => `
+          ${(p.tasks || []).map((t, i) => `
             <div class="task-row" data-task="${t.id}" onclick="toggleTask('${t.id}', '${p.id}')">
               <div class="task-pri">${roman(i + 1)}</div>
               <div class="task-check"></div>
               <div class="task-body">
-                <div class="task-title">${t.title}</div>
-                <div class="task-desc">${t.desc}</div>
+                <div class="task-title">${t.title || ''}</div>
+                <div class="task-desc">${t.desc || ''}</div>
               </div>
               <div class="task-date">
-                <div class="due">Due ${t.date}</div>
-                <div class="range">${t.range}</div>
+                <div class="due">Due ${t.date || '—'}</div>
+                <div class="range">${t.range || ''}</div>
               </div>
               <div class="task-status">
-                <span class="pill ${t.status}">${t.statusText}</span>
-                <div class="dep">Dep: ${t.dep}</div>
+                <span class="pill ${t.status || 'start'}">${t.statusText || 'Not started'}</span>
+                <div class="dep">Dep: ${t.dep || '—'}</div>
               </div>
             </div>
           `).join('')}
@@ -533,7 +685,7 @@ function render() {
     `;
   }).join('');
 
-  loadState();
+  applyStateFromMemory();
   updateAllProgress();
 }
 
@@ -542,33 +694,19 @@ function roman(n) {
   return map[n - 1] || n;
 }
 
-const STORAGE_KEY = 'milele_prime_tracker_v2';
-
-function loadState() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    Object.keys(saved).forEach(taskId => {
-      if (saved[taskId]) {
-        const row = document.querySelector('[data-task="' + taskId + '"]');
-        if (row) row.classList.add('done');
-      }
-    });
-  } catch (e) {}
-}
-
-function saveState() {
-  const state = {};
+function applyStateFromMemory() {
   document.querySelectorAll('.task-row').forEach(row => {
-    state[row.dataset.task] = row.classList.contains('done');
+    row.classList.toggle('done', !!_state[row.dataset.task]);
   });
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
 }
 
 function toggleTask(taskId, personId) {
   const row = document.querySelector('[data-task="' + taskId + '"]');
   if (!row) return;
   row.classList.toggle('done');
-  saveState();
+  _state[taskId] = row.classList.contains('done');
+  _dirty.add(taskId);
+  queueSave();
   updatePersonProgress(personId);
   updateOverallProgress();
 }
@@ -578,8 +716,10 @@ function markAll(personId, done) {
   card.querySelectorAll('.task-row').forEach(row => {
     if (done) row.classList.add('done');
     else row.classList.remove('done');
+    _state[row.dataset.task] = done;
+    _dirty.add(row.dataset.task);
   });
-  saveState();
+  queueSave();
   updatePersonProgress(personId);
   updateOverallProgress();
 }
@@ -596,7 +736,7 @@ function updatePersonProgress(personId) {
 }
 
 function updateAllProgress() {
-  team.forEach(p => updatePersonProgress(p.id));
+  activeTeam.forEach(p => updatePersonProgress(p.id));
   updateOverallProgress();
 }
 
@@ -610,13 +750,27 @@ function updateOverallProgress() {
 }
 
 function resetAll() {
-  if (!confirm('Reset every checkbox? This cannot be undone.')) return;
-  document.querySelectorAll('.task-row.done').forEach(r => r.classList.remove('done'));
-  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  // Type-to-confirm: this unchecks EVERY task for EVERYONE in the shared
+  // workspace (same guard as index.html's reset button).
+  const answer = prompt('⚠ This will UNCHECK every task for the WHOLE team in the shared workspace, and cannot be undone.\n\nType RESET (all caps) to confirm:');
+  if (answer === null) return;
+  if (answer.trim() !== 'RESET') { alert('Reset cancelled — you did not type RESET.'); return; }
+  document.querySelectorAll('.task-row').forEach(r => {
+    r.classList.remove('done');
+    _state[r.dataset.task] = false;
+    _dirty.add(r.dataset.task);
+  });
+  queueSave();
   updateAllProgress();
 }
 
+// ── INIT: paint immediately with the fallback team, then load the shared
+//    workspace (which re-renders with the live team + checkbox state). ──
 render();
+stamp('Connecting…');
+loadShared();
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshShared(); });
+window.addEventListener('focus', refreshShared);
 </script>
 
 </body>
