@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Always fetch the latest build. A stale cached copy of this page runs old
+     persistence code that can overwrite the shared Supabase row with defaults,
+     wiping everyone's tracker checkboxes. no-store stops the browser caching it. -->
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Milele Prime — 30-Day Launch Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -504,6 +510,7 @@ let _dirty       = new Set();  // task ids THIS page changed since its last save
 let _lastSavedAt = 0;          // savedAt of the snapshot this page last synced
 let _saving      = false;
 let _saveTimer   = null;
+let _saveRetryTimer = null;    // single-flight retry when the DB is unreachable
 
 function timeStr() {
   const d = new Date();
@@ -526,7 +533,13 @@ async function loadShared() {
   try {
     const snap = await fetchRow();
     if (snap) {
-      if (snap.trackerState && typeof snap.trackerState === 'object') _state = Object.assign({}, snap.trackerState);
+      // DB is the source of truth, but keep any checkbox this tab toggled before
+      // the load finished (tracked in _dirty) so a slow load can't discard a click.
+      if (snap.trackerState && typeof snap.trackerState === 'object') {
+        const ts = Object.assign({}, snap.trackerState);
+        _dirty.forEach(k => { ts[k] = !!_state[k]; });
+        _state = ts;
+      }
       if (Array.isArray(snap.trackerTeam) && snap.trackerTeam.length)  activeTeam = snap.trackerTeam;
       _lastSavedAt = snap.savedAt || 0;
     }
@@ -534,6 +547,9 @@ async function loadShared() {
     render();
     stamp('Synced ' + timeStr());
     subscribeRealtime();
+    // Flush any checkbox toggled before the load completed (queueSave returns
+    // early while !_loaded, so without this the pre-load click would never save).
+    if (_dirty.size) saveShared();
   } catch (e) {
     stamp('Load failed — not saving until reconnect: ' + (e.message || e), true);
     setTimeout(loadShared, 4000);
@@ -553,8 +569,22 @@ async function saveShared() {
   if (!sb || !_loaded) return;
   _saving = true;
   try {
+    // Read-modify-write: pull the LATEST row from the DB first. CRITICAL: if this
+    // pre-read fails we MUST NOT write — writing without the current DB base would
+    // push our partial copy over everyone else's data and wipe it. Abort, keep our
+    // dirty deltas, and retry shortly against a real base.
     let base = null;
-    try { base = await fetchRow(); } catch (_) { /* fall through to plain write */ }
+    try {
+      base = await fetchRow();
+    } catch (_) {
+      stamp('Save deferred — could not reach the DB. Retrying…', true);
+      // Single-flight retry: _dirty stays set, so this re-attempts the save
+      // against a real base. Guard prevents rapid edits stacking many timers.
+      if (!_saveRetryTimer) {
+        _saveRetryTimer = setTimeout(() => { _saveRetryTimer = null; saveShared(); }, 3000);
+      }
+      return;                          // finally{} resets _saving
+    }
     base = base || {};
     const merged = Object.assign({}, base);
     merged.trackerState = Object.assign({}, base.trackerState);
@@ -574,6 +604,12 @@ async function saveShared() {
       }));
     }
     merged.savedAt = Date.now();
+    // Stamp the build that produced this write. The Supabase trigger rejects any
+    // write missing this stamp, so a stale/cached OLD copy of the page (which runs
+    // the pre-2026-06-03 persistence code) can no longer overwrite the shared row
+    // with defaults and wipe everyone's tracker checkboxes. Keep in sync with
+    // index.html's writerVersion and the trigger's threshold.
+    merged.writerVersion = 2;
     const { error } = await sb.from('state').upsert({ id: STATE_ROW_ID, data: merged, updated_at: new Date().toISOString() });
     if (error) throw error;
     _state = Object.assign({}, merged.trackerState);

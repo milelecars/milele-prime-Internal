@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Always fetch the latest build. A stale cached copy of this page runs old
+     persistence code that can overwrite the shared Supabase row with defaults,
+     wiping everyone's tracker checkboxes. no-store stops the browser caching it. -->
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Milele Prime — Year 1 Financial Model</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2161,6 +2167,12 @@ function collectState() {
   const at = document.querySelector('.page-tab.active');
   if(at) s.activeTab = at.dataset.tab;   // kept: remembers which tab was open (UI only)
   s.savedAt = Date.now();
+  // Stamp the build that produced this write. The Supabase trigger rejects any
+  // write missing this stamp, so a stale/cached OLD copy of the page (which runs
+  // the pre-2026-06-03 persistence code) can no longer overwrite the shared row
+  // with defaults and wipe everyone's tracker checkboxes. Bump if the safe
+  // persistence contract changes again — and update the trigger's threshold.
+  s.writerVersion = 2;
   return s;
 }
 
@@ -2274,18 +2286,33 @@ async function saveState() {
   }
   // HARD GUARD: never write until a successful load has populated this tab.
   // This is what stops a failed/slow load from overwriting the shared row
-  // with empty defaults — the original cause of the reset.
-  if(!window._stateLoaded) return;
+  // with empty defaults — the original cause of the reset. Instead of dropping
+  // the edit, remember it and flush it the moment the load succeeds, so an edit
+  // made before/during load still reaches the DB.
+  if(!window._stateLoaded) { window._savePendingBeforeLoad = true; return; }
   const local = collectState();
   const priorSavedAt = window._lastSavedAt;
   window._saveInFlight = true;
   try {
-    // Read-modify-write: pull the latest row, fold in only our deltas, push.
+    // Read-modify-write: pull the LATEST row from the DB, fold in only our
+    // deltas, push it back. CRITICAL: if this pre-read fails we MUST NOT write —
+    // writing without the current DB base would push our partial copy over
+    // everyone else's data and wipe it (one of the original reset causes). Abort,
+    // keep our dirty deltas, and retry shortly against a real base.
     let remote = null;
     try {
-      const { data } = await sb.from('state').select('data').eq('id', STATE_ROW_ID).maybeSingle();
+      const { data, error } = await sb.from('state').select('data').eq('id', STATE_ROW_ID).maybeSingle();
+      if (error) throw error;
       remote = data && data.data;
-    } catch(_) { /* if the pre-read fails, fall through to a plain write */ }
+    } catch(_) {
+      showServerError('Save deferred — could not reach the DB. Retrying…');
+      // Single-flight retry: dirty deltas stay set, so this re-attempts the save
+      // against a real base. Guard prevents rapid edits stacking many timers.
+      if (!window._saveRetryTimer) {
+        window._saveRetryTimer = setTimeout(() => { window._saveRetryTimer = null; saveState(); }, 3000);
+      }
+      return;                         // finally{} resets _saveInFlight
+    }
     const merged = reconcile(local, remote);
     const { error } = await sb.from('state').upsert({
       id: STATE_ROW_ID,
@@ -2381,13 +2408,29 @@ async function loadState() {
       .maybeSingle();
     if(error) throw error;          // genuine network/DB failure → keep saves blocked
     const snap = data && data.data;
+    const snapHadTeam = !!(snap && Array.isArray(snap.trackerTeam) && snap.trackerTeam.length);
+    window._dbHadTeam = snapHadTeam;
     if(snap) {
-      // Adopt the tracker data DIRECTLY first, so it's safe in memory the moment
-      // the network read succeeds — independent of the (heavily-wrapped) applyState
-      // chain, which can throw inside an unrelated recalc step.
-      if(snap.trackerState && typeof snap.trackerState === 'object') window._trackerState = snap.trackerState;
-      if(Array.isArray(snap.trackerTeam) && snap.trackerTeam.length)  window._trackerTeam = snap.trackerTeam;
-      if(typeof snap.trackerActivePerson === 'string')               window._trackerActivePerson = snap.trackerActivePerson;
+      // Adopt the tracker data DIRECTLY from the DB first, so it's safe in memory
+      // the moment the read succeeds — independent of the (heavily-wrapped)
+      // applyState chain, which can throw inside an unrelated recalc step. The DB
+      // is the source of truth, but KEEP any checkbox/team edits this tab made
+      // before the load finished (tracked in _trackerDirty / _teamDirty) so a slow
+      // load can't silently discard a click the user already made.
+      if(snap.trackerState && typeof snap.trackerState === 'object') {
+        const ts = Object.assign({}, snap.trackerState);
+        window._trackerDirty.forEach(k => { ts[k] = !!(window._trackerState || {})[k]; });
+        window._trackerDeleted.forEach(k => { delete ts[k]; });
+        window._trackerState = ts;
+      }
+      if(snapHadTeam) {
+        window._trackerTeam = window._teamDirty
+          ? mergeTeam(snap.trackerTeam, window._trackerTeam)
+          : snap.trackerTeam;
+      }
+      if(typeof snap.trackerActivePerson === 'string' && !window._trackerActivePerson) {
+        window._trackerActivePerson = snap.trackerActivePerson;
+      }
       window._lastSavedAt = snap.savedAt || 0;
     }
     // The fetch succeeded, so we can talk to the DB — saving is safe to enable.
@@ -2400,6 +2443,17 @@ async function loadState() {
       catch(e) { showServerError('Loaded — a display calc failed (your data is safe): ' + (e.message || e)); }
     }
     subscribeRealtime();
+    // First-run bootstrap: if the DB row had no task list, write the seed up now
+    // so the DB becomes the single source of truth from this point on (instead of
+    // the in-memory seed lingering unsaved until the first manual edit). Otherwise,
+    // flush any edit the user made before the load completed.
+    if(!snapHadTeam && Array.isArray(window._trackerTeam) && window._trackerTeam.length) {
+      window._teamDirty = true;
+      saveState();
+    } else if(window._savePendingBeforeLoad) {
+      window._savePendingBeforeLoad = false;
+      saveState();
+    }
   } catch(e) {
     // Saves stay BLOCKED (_stateLoaded is still false) until a load succeeds,
     // so a flaky connection can't lead to the row being wiped. Keep retrying.
